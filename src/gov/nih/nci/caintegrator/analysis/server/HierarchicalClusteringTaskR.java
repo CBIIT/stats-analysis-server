@@ -1,6 +1,5 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +12,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringResult;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.enumeration.*;
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 //import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 public class HierarchicalClusteringTaskR extends AnalysisTaskR {
@@ -79,6 +79,20 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 
 		doRvoidEval("hcInputMatrix <- GeneFilterWithVariance(hcInputMatrix,"
 				+ hcRequest.getVarianceFilterValue() + ")");
+		
+		//check to see if the number of reporters to be used for the clustering is 
+		//too large. If it is then return an error
+		
+		int numReportersToUse = doREval("dim(hcInputMatrix)[1]").asInt();
+		
+		if (numReportersToUse > 1000) {
+			AnalysisServerException ex = new AnalysisServerException(
+			"Too many reporters to cluster , try increasing the variance filter value, attempted to use numReporters=" + numReportersToUse);
+			ex.setFailedRequest(hcRequest);
+			setException(ex);
+			logger.info("Attempted to use numReporters=" + numReportersToUse + " in hcClustering. Returning exception.");
+			return;
+		}
 
 		String rCmd = null;
 		if (hcRequest.getSampleGroup() != null) {
@@ -108,6 +122,13 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			plotCmd = "plot(mycluster, labels=dimnames(hcInputMatrix)[[2]], xlab=\"\", ylab=\"\",ps=8,sub=\"\", hang=-1)";
 		} else if (hcRequest.getClusterBy() == ClusterByType.Genes) {
 			// cluster by genes
+			
+			//check the hcInputMatrix size. If there are more than 1000 reporters then 
+			//throw an exception. 
+			
+			
+			
+			
 			rCmd = "mycluster <- mygenecluster(hcInputMatrix,"
 					+ getDistanceMatrixRparamStr()
 					+ ","
