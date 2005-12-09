@@ -1,6 +1,5 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
-
 import gov.nih.nci.caintegrator.analysis.messaging.*;
 
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -40,7 +39,7 @@ import java.util.*;
  */
 public class AnalysisServer implements MessageListener, ExceptionListener, AnalysisResultSender {
 
-	public static String version = "5.0";
+	public static String version = "5.2";
 
 	private boolean debugRcommands = false;
 
@@ -356,6 +355,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			logger.error(ex);
 			//ex.printStackTrace(System.out);
 		}
+		catch (Exception ex) {
+		   logger.error("Caught exception when trying to send exception analysisServerException:");
+		   logger.error(ex);
+		}
 	}
 
 	
@@ -363,16 +366,20 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	public void sendResult(AnalysisResult result) {
 
 		try {
-//			System.out
-//					.println("AnalysisServer sending result for sessionId="
-//							+ result.getSessionId() + " taskId="
-//							+ result.getTaskId());
+			logger.debug("AnalysisServer sendResult sessionId="
+							+ result.getSessionId() + " taskId="
+							+ result.getTaskId());
+			
+			
 			ObjectMessage msg = queueSession.createObjectMessage(result);
 			resultSender.send(msg, DeliveryMode.NON_PERSISTENT,
 					Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
 		} catch (JMSException ex) {
-			ex.printStackTrace(System.out);
+			logger.error("Caught JMS exception when trying to send result.");
 			logger.error(ex);
+		} catch (Exception ex) {
+		   logger.error("Caught exception when trying to send result.");
+		   logger.error(ex);
 		}
 	}
 
