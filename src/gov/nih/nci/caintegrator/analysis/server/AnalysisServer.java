@@ -39,7 +39,7 @@ import java.util.*;
  */
 public class AnalysisServer implements MessageListener, ExceptionListener, AnalysisResultSender {
 
-	public static String version = "5.2";
+	public static String version = "5.5";
 
 	private boolean debugRcommands = false;
 
@@ -75,13 +75,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 
 	private static Logger logger = Logger.getLogger(AnalysisServer.class);
 	
-	/**
-	 * Subscriber
-	 */
-	// TopicSubscriber topicSubscriber;
+	
 	private QueueReceiver requestReceiver;
 
-	private QueueSender resultSender;
+	//private QueueSender resultSender;
 
 	
 	/**
@@ -233,7 +230,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		
 			  requestReceiver.setMessageListener(this);
 				 
-			  resultSender = queueSession.createSender(resultQueue);
+			  //resultSender = queueSession.createSender(resultQueue);
+			  
+			  //now creating senders when a message needs to be sent 
+			  //because of problem with closed sessions
 			  
 			  queueConnection.start();
 			  
@@ -304,6 +304,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 //			System.err.println("AnalysisProcessor exception: " + ex);
 //			ex.printStackTrace();
 
+		} catch (Exception ex2) {
+		  logger.error("Got exception in onMessage:");
+		  logger.error(ex2);
 		}
 
 	}
@@ -346,10 +349,18 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 							+ " taskId="
 							+ analysisServerException.getFailedRequest()
 									.getTaskId() + " msg=" + analysisServerException.getMessage());
-			ObjectMessage msg = queueSession
-					.createObjectMessage(analysisServerException);
-			resultSender.send(msg, DeliveryMode.NON_PERSISTENT,
+			
+			QueueSession exceptionSession = queueConnection.createQueueSession(false,
+					QueueSession.AUTO_ACKNOWLEDGE);
+			ObjectMessage msg = exceptionSession
+			        .createObjectMessage(analysisServerException);
+			
+			QueueSender exceptionSender = exceptionSession.createSender(resultQueue);
+			exceptionSender.send(msg, DeliveryMode.NON_PERSISTENT,
 					Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+			
+			exceptionSender.close();
+			exceptionSession.close();
 		} catch (JMSException ex) {
 			logger.error("Error while sending AnalysisException");
 			logger.error(ex);
@@ -370,10 +381,19 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 							+ result.getSessionId() + " taskId="
 							+ result.getTaskId());
 			
-			
-			ObjectMessage msg = queueSession.createObjectMessage(result);
+			QueueSession resultSession = queueConnection.createQueueSession(false,
+					QueueSession.AUTO_ACKNOWLEDGE);
+		
+			ObjectMessage msg = resultSession
+			        .createObjectMessage(result);
+		
+			QueueSender resultSender = resultSession.createSender(resultQueue);
+		
 			resultSender.send(msg, DeliveryMode.NON_PERSISTENT,
 					Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+			
+			resultSender.close();
+			resultSession.close();
 		} catch (JMSException ex) {
 			logger.error("Caught JMS exception when trying to send result.");
 			logger.error(ex);
