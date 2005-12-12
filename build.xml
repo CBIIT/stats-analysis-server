@@ -3,8 +3,9 @@
 	<!--
 	TARGET: COMPILE
 		Compiles the source directory
+		NOTE: Requires the caintegrator-analysis-commons.jar to compile!
 	-->
-	<target name="build_jar">
+	<target name="build_jar" depends="config-analysis-server-properties,config-r-serv-conf">
 		<delete dir="${build.classes.dir}"/>
 		<mkdir dir="${build.classes.dir}" />
 		<javac srcdir="${build.source.dir}" destdir="${build.classes.dir}" source="1.5" excludes="**/test/**" debug="true" debuglevel="lines,vars,source">
@@ -14,29 +15,31 @@
 	 	      </fileset>
 	 	 </classpath>
 		</javac>
-	</target>
-	<jar jarfile="caintegrator-analysis-server.jar">
-          <fileset dir="${build.classes.dir}"></fileset>
-           <fileset dir="${build.lib.dir}">
-               <include name="*.jar"/>
-           </fileset>
-     </jar>
-	<target name="copy_resources">
-		<copy todir="${build.classes.dir}">
-			<fileset dir="${source.dir}">
-				<include name="*.xml" />
-                <include name="*.properties" />
-                <include name="*.dtd" />
-				<include name="*.xsd" />
-			</fileset>
-		</copy>
-    </target>
-	<target name="build_tar" depends="build_jar">
-		
+		<jar jarfile="${build.lib.dir}/caintegrator-analysis-server.jar">
+          <fileset dir="${build.classes.dir}"/>
+	     </jar>
 	</target>
 	<!--
-			TARGET: config-analysis-server-properties
-			Configures the analysisServer.properties file for later packaging
+		TARGET: build_tar
+		Builds the entire tar bar for deployment...
+	-->
+	<target name="build_tar" depends="build_jar">
+		<tar destfile="${basedir}/caintegrator-analysis-server.tar">
+		  <tarfileset dir="${basedir}" >
+		  	<include name="${build.bin.dir}/*"/>
+		  	<include name="${build.lib.dir}/*.jar"/>
+		  	<include name="RdataFiles/**"/>
+		 	<include name="R_source/**"/>
+		   	<include name="log/*.log"/>
+		  	<exclude name="build.xml"/>
+		  	<exclude name="basic_build.properties"/>
+		  </tarfileset>
+		</tar>
+	</target>
+
+	<!--
+		TARGET: config-analysis-server-properties
+		Configures the analysisServer.properties file for later packaging
 	-->
 	<target name="config-analysis-server-properties">
         <delete file="${build.bin.dir}/analysisServer.properties"/>
@@ -45,7 +48,7 @@
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_DEFINITION_FILE@" replace="${R.data.file.path}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMS_RECONNECT_WAIT_TIME_MS@" replace="${jms.reconnectWaitTimeMS}" flags="g"/>
    </target>
-	<!--
+   <!--
 			TARGET: config-r-serv-conf
 			Configures the Rserv.conf file for later packaging
 	-->
