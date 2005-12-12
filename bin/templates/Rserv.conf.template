@@ -1,0 +1,6 @@
+remote @R_SERV_REMOTE@
+auth @R_SERV_AUTH@
+plaintext @R_SERV_PLAINTEXT@ 
+fileio @R_SERV_FILEIO@
+port @R_SERV_PORT@
+maxinbuf @R_SERV_MAX_IN_BUFF@
