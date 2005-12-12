@@ -1,5 +1,0 @@
-load("/h1/harrismic/Rembrandt/RdataFiles/Normalized50_fixed.Rda")
-
-source("/h1/harrismic/Rembrandt/RdataFiles/getSubmatrix.R")
-
-source("/h1/harrismic/Rembrandt/RdataFiles/pcaDef.R")

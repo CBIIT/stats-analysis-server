@@ -5,7 +5,7 @@
 		Compiles the source directory
 		NOTE: Requires the caintegrator-analysis-commons.jar to compile!
 	-->
-	<target name="build_jar" depends="config-analysis-server-properties,config-r-serv-conf">
+	<target name="build_jar" depends="config-analysis-server-properties,config-r-serv-conf, config-r-initialization-file, config-analysis-server-run-script">
 		<delete dir="${build.classes.dir}"/>
 		<mkdir dir="${build.classes.dir}" />
 		<javac srcdir="${build.source.dir}" destdir="${build.classes.dir}" source="1.5" excludes="**/test/**" debug="true" debuglevel="lines,vars,source">
@@ -36,7 +36,6 @@
 		  </tarfileset>
 		</tar>
 	</target>
-
 	<!--
 		TARGET: config-analysis-server-properties
 		Configures the analysisServer.properties file for later packaging
@@ -45,7 +44,7 @@
         <delete file="${build.bin.dir}/analysisServer.properties"/>
         <copy file="${build.bin.dir}/templates/analysisServer.properties.template" tofile="${build.bin.dir}/analysisServer.properties"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMSMQ_LOCATION@" replace="${jms.location}" flags="g"/>
-        <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_DEFINITION_FILE@" replace="${R.data.file.path}" flags="g"/>
+        <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_INITIALIZATION_FILE@" replace="${R.initialization.file.path}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMS_RECONNECT_WAIT_TIME_MS@" replace="${jms.reconnectWaitTimeMS}" flags="g"/>
    </target>
    <!--
@@ -54,12 +53,33 @@
 	-->
 	<target name="config-r-serv-conf">
         <delete file="${build.bin.dir}/Rserv.conf"/>
-        <copy file="${build.bin.dir}/templates/analysisServer.properties.template" tofile="${build.bin.dir}/Rserv.conf"/>
+        <copy file="${build.bin.dir}/templates/Rserv.conf.template" tofile="${build.bin.dir}/Rserv.conf"/>
         <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_REMOTE@" replace="${R.serv.remote}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_AUTH@" replace="${R.serv.auth}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_PLAINTEXT@" replace="${R.serv.plaintext}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_FILEIO@" replace="${R.serv.fileio}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_PORT@" replace="${R.serv.port}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_MAX_IN_BUFF@" replace="${R.serv.maxinbuff}" flags="g"/>
+   </target>
+	<!--
+		TARGET: config-r-initialization-file
+		Configures the dataAndFunctions.R file for running R
+	-->
+	<target name="config-r-initialization-file">
+        <delete file="${build.R.data.dir}/dataAndFunctions.R"/>
+        <copy file="${build.R.data.dir}/templates/dataAndFunctions.R.template" tofile="${build.R.data.dir}/dataAndFunctions.R"/>
+        <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${R.serv.install.dir}" flags="g"/>	        
+        <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@DATA_FILE@" replace="${R.data.file}" flags="g"/>	        
+   </target>
+	<!--
+		TARGET: config-analysis-server-run-script
+		Configures the analysis server run script, 
+		currently runAnalysisServer.sh
+	-->
+	<target name="config-analysis-server-run-script">
+        <delete file="${build.bin.dir}/runAnalysisServer.sh"/>
+        <copy file="${build.bin.dir}/templates/runAnalysisServer.sh.template" tofile="${build.bin.dir}/runAnalysisServer.sh"/>
+        <replaceregexp file = "${build.bin.dir}/runAnalysisServer.sh" match="@JDK_INSTALL_DIR@" replace="${build.jdk.dir}" flags="g"/>	        
+        <replaceregexp file = "${build.bin.dir}/runAnalysisServer.sh" match="@JDK_NAME@" replace="${build.jdk.name}" flags="g"/>	        
    </target>
 </project>

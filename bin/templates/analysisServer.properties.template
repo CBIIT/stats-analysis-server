@@ -7,7 +7,7 @@ jmsmq_location=@JMSMQ_LOCATION@
 ###########################################################################
 #	The location of the Rembrandt R data file and R function definitions
 ###########################################################################
-RdefinitionFile=@R_DEFINITION_FILE@
+RdefinitionFile=@R_INITIALIZATION_FILE@
 
 ###########################################################################
 # Number of Compute Threads - Each compute thread will 
