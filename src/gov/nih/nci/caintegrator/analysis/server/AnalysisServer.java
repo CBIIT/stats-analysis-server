@@ -36,10 +36,13 @@ import java.util.*;
  * 
  * AnalysisServer should register handlers which are specifed from a
  * configuration file.
+ * 
+ * Version 5.6  - changed error check to allow any number of reporters for clustering by samples
+ *                and allow 3000 reporters for clustering by genes.
  */
 public class AnalysisServer implements MessageListener, ExceptionListener, AnalysisResultSender {
 
-	public static String version = "5.5";
+	public static String version = "5.6";
 
 	private boolean debugRcommands = false;
 

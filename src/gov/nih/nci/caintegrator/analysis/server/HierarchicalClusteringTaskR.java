@@ -19,6 +19,8 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 
 	private HierarchicalClusteringResult result;
 	
+	public static final int MAX_REPORTERS_FOR_GENE_CLUSTERING = 3000;
+	
 	private static Logger logger = Logger.getLogger(HierarchicalClusteringTaskR.class);
 
 	public HierarchicalClusteringTaskR(HierarchicalClusteringRequest request) {
@@ -80,19 +82,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 		doRvoidEval("hcInputMatrix <- GeneFilterWithVariance(hcInputMatrix,"
 				+ hcRequest.getVarianceFilterValue() + ")");
 		
-		//check to see if the number of reporters to be used for the clustering is 
-		//too large. If it is then return an error
 		
-		int numReportersToUse = doREval("dim(hcInputMatrix)[1]").asInt();
-		
-		if (numReportersToUse > 1000) {
-			AnalysisServerException ex = new AnalysisServerException(
-			"Too many reporters to cluster , try increasing the variance filter value, attempted to use numReporters=" + numReportersToUse);
-			ex.setFailedRequest(hcRequest);
-			setException(ex);
-			logger.info("Attempted to use numReporters=" + numReportersToUse + " in hcClustering. Returning exception.");
-			return;
-		}
 
 		String rCmd = null;
 		if (hcRequest.getSampleGroup() != null) {
@@ -109,6 +99,8 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			rCmd = "hcInputMatrix <- getSubmatrix.rep(hcInputMatrix, reporterIds)";
 			doRvoidEval(rCmd);
 		}
+		
+		
 		String plotCmd = null;
 		// get the request parameters
 		if (hcRequest.getClusterBy() == ClusterByType.Samples) {
@@ -126,7 +118,19 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			//check the hcInputMatrix size. If there are more than 1000 reporters then 
 			//throw an exception. 
 			
+//			check to see if the number of reporters to be used for the clustering is 
+			//too large. If it is then return an error
 			
+			int numReportersToUse = doREval("dim(hcInputMatrix)[1]").asInt();
+			
+			if (numReportersToUse > MAX_REPORTERS_FOR_GENE_CLUSTERING) {
+				AnalysisServerException ex = new AnalysisServerException(
+				"Too many reporters to cluster , try increasing the variance filter value, attempted to use numReporters=" + numReportersToUse);
+				ex.setFailedRequest(hcRequest);
+				setException(ex);
+				logger.info("Attempted to use numReporters=" + numReportersToUse + " in hcClustering. Returning exception.");
+				return;
+			}
 			
 			
 			rCmd = "mycluster <- mygenecluster(hcInputMatrix,"
