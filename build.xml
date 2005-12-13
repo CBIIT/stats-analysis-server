@@ -13,6 +13,9 @@
 		 	 <fileset dir="${build.lib.dir}">
 	 	        <include name="*.jar"/>
 	 	      </fileset>
+	 	      <fileset dir="${anthill.dependency.artifacts.dir}">
+				<include name="*.jar"/>
+	 	      </fileset>
 	 	 </classpath>
 		</javac>
 		<jar jarfile="${build.lib.dir}/caintegrator-analysis-server.jar">
