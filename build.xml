@@ -31,6 +31,7 @@
 		  <tarfileset dir="${basedir}" >
 		  	<include name="${build.bin.dir}/*"/>
 		  	<include name="${build.lib.dir}/*.jar"/>
+		  	<include name="${anthill.dependency.artifacts.dir}/*.jar"/>
 		  	<include name="RdataFiles/**"/>
 		 	<include name="R_source/**"/>
 		   	<include name="log/*.log"/>
