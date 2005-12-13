@@ -1,32 +1,34 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
-import gov.nih.nci.caintegrator.analysis.messaging.*;
-
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
+import java.io.FileInputStream;
+import java.util.Hashtable;
+import java.util.Properties;
 
+import javax.jms.DeliveryMode;
+import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.ExceptionListener;
 import javax.jms.ObjectMessage;
+import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
-import javax.jms.Queue;
-import javax.jms.QueueSession;
-import javax.jms.QueueSender;
 import javax.jms.QueueReceiver;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.jms.DeliveryMode;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * This class implements the analysis server module.
