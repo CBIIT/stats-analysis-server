@@ -32,12 +32,14 @@
 		  <tarfileset dir="${basedir}" >
 		  	<include name="${build.bin.dir}/*"/>
 		  	<include name="${build.lib.dir}/*.jar"/>
-		  	<include name="${anthill.dependency.artifacts.dir}/*.jar"/>
 		  	<include name="RdataFiles/**"/>
 		 	<include name="R_source/**"/>
 		   	<include name="log/*.log"/>
 		  	<exclude name="build.xml"/>
 		  	<exclude name="basic_build.properties"/>
+		  </tarfileset>
+		  <tarfileset dir="${anthill.dependency.artifacts.dir}">
+			<include name="*.jar"/>
 		  </tarfileset>
 		</tar>
 	</target>
