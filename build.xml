@@ -13,6 +13,9 @@
 		 	 <fileset dir="${build.lib.dir}">
 	 	        <include name="*.jar"/>
 	 	      </fileset>
+	 	      <fileset dir="${anthill.dependency.artifacts.dir}">
+				<include name="*.jar"/>
+	 	      </fileset>
 	 	 </classpath>
 		</javac>
 		<jar jarfile="${build.lib.dir}/caintegrator-analysis-server.jar">
@@ -24,6 +27,7 @@
 		Builds the entire tar bar for deployment...
 	-->
 	<target name="build_tar" depends="build_jar">
+		<echo message="${anthill.dependency.artifacts.dir}"/>
 		<tar destfile="${basedir}/caintegrator-analysis-server.tar">
 		  <tarfileset dir="${basedir}" >
 		  	<include name="${build.bin.dir}/*"/>
@@ -33,6 +37,9 @@
 		   	<include name="log/*.log"/>
 		  	<exclude name="build.xml"/>
 		  	<exclude name="basic_build.properties"/>
+		  </tarfileset>
+		  <tarfileset dir="${anthill.dependency.artifacts.dir}" prefix="lib">
+			<include name="*.jar"/>
 		  </tarfileset>
 		</tar>
 	</target>
