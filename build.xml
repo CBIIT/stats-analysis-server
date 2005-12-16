@@ -38,7 +38,7 @@
 		  	<exclude name="build.xml"/>
 		  	<exclude name="basic_build.properties"/>
 		  </tarfileset>
-		  <tarfileset dir="${anthill.dependency.artifacts.dir}">
+		  <tarfileset dir="${anthill.dependency.artifacts.dir}" prefix="lib">
 			<include name="*.jar"/>
 		  </tarfileset>
 		</tar>
