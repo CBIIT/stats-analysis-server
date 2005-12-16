@@ -27,6 +27,7 @@
 		Builds the entire tar bar for deployment...
 	-->
 	<target name="build_tar" depends="build_jar">
+		<echo message="${anthill.dependency.artifacts.dir}"/>
 		<tar destfile="${basedir}/caintegrator-analysis-server.tar">
 		  <tarfileset dir="${basedir}" >
 		  	<include name="${build.bin.dir}/*"/>
