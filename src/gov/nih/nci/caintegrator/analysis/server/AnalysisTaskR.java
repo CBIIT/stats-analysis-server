@@ -14,6 +14,15 @@ import org.rosuda.JRclient.RFileInputStream;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
+/**
+ * This is the base class for all analysis tasks that are implemented in R. This class
+ * relies on Rserve (see http://stats.math.uni-augsburg.de/Rserve/) to handle communication with an 
+ * R process.
+ * 
+ * @author harrismic
+ *
+ */
+
 public abstract class AnalysisTaskR extends AnalysisTask {
 
 	private Rconnection rConnection = null;
@@ -100,8 +109,9 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	 * create the sampleId list. The returned lists can then be used as input
 	 * parameters to the statistical methods (for example ttest).
 	 * 
-	 * @param group
-	 * @return
+	 * @param rName The name that R should use for the group
+	 * @param group The group of IDs to use.
+	 * @return A string containing the R command to create the group.
 	 */
 	public static String getRgroupCmd(String rName, IdGroup group) {
 		StringBuffer sb = new StringBuffer();
@@ -123,12 +133,12 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	
 	/**
 	 * Get the byte representation of the image created with the plot command.
-	 * May be able to change this to return a Java Image object.  This code follows the
-	 * example of how to transfer an image using Rserve in the Rserve examples. 
+	 * This code follows the example of how to transfer an image using Rserve in the Rserve examples. 
 	 * 
-	 * @param request
 	 * @param plotCmd
-	 * @return
+	 * @param imgHeight the height of the image to create
+	 * @param imgWidth the width of the image to create
+	 * @return a byte array containing the image. 
 	 */
 	public byte[] getImageCode(String plotCmd, int imgHeight, int imgWidth) {
 

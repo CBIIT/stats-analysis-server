@@ -7,6 +7,15 @@ import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
 
+/**
+ * This class handles execution of R based analysis tasks using the 
+ * Java ThreadPoolExecutor class. 
+ * 
+ * @see gov.nih.nci.caintegrator.analysis.server.RThreadPoolExecutor
+ * 
+ * @author harrismic
+ *
+ */
 public class RThreadPoolExecutor extends ThreadPoolExecutor {
 
 	private AnalysisResultSender sender;
@@ -69,7 +78,7 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 	
 	/**
 	 * Get the host name that is performing the execution 
-	 * @return
+	 * @return the host name that is being used to executed the analysis
 	 */
 	public String getHostName() {
 		if (hostName == null) { 

@@ -31,19 +31,23 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
- * This class implements the analysis server module.
+ * The AnalysisServer listens for AnalysisRequests on a Java Messaging Service (JMS) queue.  
+ * Upon receiving a request, the analysis server performs an analystical task and sends an AnalysisResult object via JMS to the 
+ * AnalysisResponseQueue. The AnalysisServer assumes that there is a running JMS instance configured queue destinations called AnalysisRequest and
+ * AnalysisResponse. 
  * 
  * @author Michael A. Harris
  * 
+ * @see gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest
+ * @see gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult
  * 
- * AnalysisServer should register handlers which are specifed from a
- * configuration file.
  * 
- * Version 5.6  - changed error check to allow any number of reporters for clustering by samples
- *                and allow 3000 reporters for clustering by genes.
  */
 public class AnalysisServer implements MessageListener, ExceptionListener, AnalysisResultSender {
 
+	/**
+	 * The server version number.
+	 */
 	public static String version = "5.6";
 
 	private boolean debugRcommands = false;
@@ -87,14 +91,15 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 
 	
 	/**
-	 * Sets up all the JMS fixtures.
-	 * 
-	 * Use close() when finished with object.
-	 * 
+	 * Initialize the analysis server by initializing the ThreadPoolExecutor and
+	 * establishing a connection to the JMS analysis queue destinations.
+	 *
 	 * @param factoryJNDI
 	 *            name of the topic connection factory to look up.
-	 * @param topicJNDI
-	 *            name of the topic destination to look up
+	 *            
+	 * @param serverPropertiesFileName 
+	 * 			  full path to the server properties file
+	 *            
 	 */
 	public AnalysisServer(String factoryJNDI, String serverPropertiesFileName) throws JMSException,
 			NamingException {
@@ -320,7 +325,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * Process a class comparison analysis request.
 	 * 
-	 * @param ccRequest
+	 * @param ccRequest object containing the request parameters for the class comparison request.
 	 */
 	public void processClassComparisonRequest(ClassComparisonRequest ccRequest) {
 		executor.execute(new ClassComparisonTaskR(ccRequest, true));
@@ -329,7 +334,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * Process a hierarchicalClusteringAnalysisRequest.
 	 * 
-	 * @param hcRequest
+	 * @param hcRequest object containing the request parameters for the hierarchical clustering request.
 	 */
 	public void processHierarchicalClusteringRequest(
 			HierarchicalClusteringRequest hcRequest) {
@@ -339,13 +344,17 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * Process a PrincipalComponentAnalysisRequest.
 	 * 
-	 * @param pcaRequest
+	 * @param pcaRequest object containing the request parameters for the PCA analysis
 	 */
 	public void processPrincipalComponentAnalysisRequest(
 			PrincipalComponentAnalysisRequest pcaRequest) {
 		executor.execute(new PrincipalComponentAnalysisTaskR(pcaRequest, true));
 	}
 
+	/**
+	 * Sends an exception object to the response queue indicating that the request was not processes. 
+	 * Failure to process a request usually occurs when there is a problem with the input parameters for a request.
+	 */
 	public void sendException(AnalysisServerException analysisServerException) {
 		try {
 			logger.info("AnalysisServer sending AnalysisServerException sessionId="
@@ -378,7 +387,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	}
 
 	
-
+    /**
+     * Sends an analysis result to the response queue.
+     */
 	public void sendResult(AnalysisResult result) {
 
 		try {
@@ -408,6 +419,11 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		}
 	}
 
+	
+	/**
+	 * Instantiates the server which runs continuously listening for requests.
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		try {

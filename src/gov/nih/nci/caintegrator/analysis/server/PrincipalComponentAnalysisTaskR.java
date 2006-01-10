@@ -12,6 +12,15 @@ import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
 
+
+/**
+ * 
+ * Performs Principal Component Analysis using R.
+ * 
+ * @author harrismic
+ *
+ *
+ */
 public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 
 	private PrincipalComponentAnalysisResult result = null;

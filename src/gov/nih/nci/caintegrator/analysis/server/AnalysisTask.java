@@ -4,6 +4,13 @@ package gov.nih.nci.caintegrator.analysis.server;
 import gov.nih.nci.caintegrator.analysis.messaging.*;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
+/**
+ * This is the base class for all analysis tasks.  
+ * 
+ * @author harrismic
+ *
+ */
+
 public abstract class AnalysisTask implements Runnable {
 
 	private AnalysisRequest request;

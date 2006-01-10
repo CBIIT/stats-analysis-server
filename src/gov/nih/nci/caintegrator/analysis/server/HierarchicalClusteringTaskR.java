@@ -15,6 +15,12 @@ import gov.nih.nci.caintegrator.enumeration.*;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 //import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
+/**
+ * Performs Hierarchical Clustering using R.
+ * 
+ * @author harrismic
+ *
+ */
 public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 
 	private HierarchicalClusteringResult result;
@@ -41,7 +47,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 	 * This method is used to keep an enumerated type value change from breaking the call to
 	 * the R function. The R function is expecting an exact match on the string passed 
 	 * as a parameter.
-	 * @return
+	 * @return the quoted string representing the distance matrix type.
 	 */
 	public String getDistanceMatrixRparamStr() {
 	  switch(getRequest().getDistanceMatrix()) {
@@ -55,7 +61,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 	 * This method is used to keep an enumerated type value change from breaking the call to
 	 * the R function. The R function is expecting an exact match on the string passed 
 	 * as a parameter.
-	 * @return
+	 * @return the quoted string representing the linkage method 
 	 */
 	public String getLinkageMethodRparamStr() {
 	  switch(getRequest().getLinkageMethod()) {

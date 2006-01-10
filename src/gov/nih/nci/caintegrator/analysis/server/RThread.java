@@ -4,6 +4,18 @@ package gov.nih.nci.caintegrator.analysis.server;
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.*;
 
+/**
+ * This class handles initialization of the R process. 
+ * It is used to run R compute tasks such as ClassComparisonTaskR . 
+ * 
+ * @see gov.nih.nci.caintegrator.analysis.server.ClassComparisonTaskR
+ * @see gov.nih.nci.caintegrator.analysis.server.HierarchicalClusteringTaskR
+ * @see gov.nih.nci.caintegrator.analysis.server.PrincipalComponentAnalysisTaskR
+ * 
+ * @author harrismic
+ * 
+ *
+ */
 public class RThread extends Thread {
 
 	private String rServeIp;
