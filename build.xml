@@ -53,6 +53,7 @@
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMSMQ_LOCATION@" replace="${jms.location}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_INITIALIZATION_FILE@" replace="${R.initialization.file.path}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMS_RECONNECT_WAIT_TIME_MS@" replace="${jms.reconnectWaitTimeMS}" flags="g"/>
+		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_SERVER_LOG_FILE@" replace="${analysis-server.logfile}" flags="g"/>
    </target>
    <!--
 		TARGET: config-r-serv-conf
@@ -75,7 +76,7 @@
 	<target name="config-r-initialization-file">
         <delete file="${build.R.data.dir}/dataAndFunctions.R"/>
         <copy file="${build.R.data.dir}/templates/dataAndFunctions.R.template" tofile="${build.R.data.dir}/dataAndFunctions.R"/>
-        <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${R.serv.install.dir}" flags="g"/>	        
+        <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${analysis-server.install.dir}" flags="g"/>	        
         <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@DATA_FILE@" replace="${R.data.file}" flags="g"/>	        
    </target>
 </project>
