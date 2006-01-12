@@ -5,7 +5,7 @@
 		Compiles the source directory
 		NOTE: Requires the caintegrator-analysis-commons.jar to compile!
 	-->
-	<target name="build_jar" depends="config-analysis-server-properties,config-r-serv-conf, config-r-initialization-file">
+	<target name="build_jar" depends="config-analysis-server-properties, config-r-initialization-file">
 		<delete dir="${build.classes.dir}"/>
 		<mkdir dir="${build.classes.dir}" />
 		<javac srcdir="${build.source.dir}" destdir="${build.classes.dir}" source="1.5" excludes="**/test/**" debug="true" debuglevel="lines,vars,source">
@@ -56,20 +56,6 @@
 		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_SERVER_LOG_FILE@" replace="${analysis-server.logfile}" flags="g"/>
    </target>
    <!--
-		TARGET: config-r-serv-conf
-		Configures the Rserv.conf file for later packaging
-	-->
-	<target name="config-r-serv-conf">
-        <delete file="${build.bin.dir}/Rserv.conf"/>
-        <copy file="${build.bin.dir}/templates/Rserv.conf.template" tofile="${build.bin.dir}/Rserv.conf"/>
-        <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_REMOTE@" replace="${R.serv.remote}" flags="g"/>
-        <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_AUTH@" replace="${R.serv.auth}" flags="g"/>
-        <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_PLAINTEXT@" replace="${R.serv.plaintext}" flags="g"/>
-        <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_FILEIO@" replace="${R.serv.fileio}" flags="g"/>
-        <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_PORT@" replace="${R.serv.port}" flags="g"/>
-        <replaceregexp file = "${build.bin.dir}/Rserv.conf" match="@R_SERV_MAX_IN_BUFF@" replace="${R.serv.maxinbuff}" flags="g"/>
-   </target>
-	<!--
 		TARGET: config-r-initialization-file
 		Configures the dataAndFunctions.R file for running R
 	-->
