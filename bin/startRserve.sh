@@ -1,1 +1,1 @@
-R CMD Rserve --RS-conf Rserv.conf
+R CMD Rserve
