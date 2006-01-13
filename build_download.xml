@@ -1,0 +1,57 @@
+<project name="caintegrator-analysis-server" default="build_zip_file_anthill" basedir=".">
+	<property file="basic_build.properties"/>
+
+	<target name="build_dependency" if="${anthill.artifacts.dir}" depends="build_zip_file_anthill">
+		<echo>
+			Artifacts copied to ${anthill.artifacts.dir}
+		</echo>
+		<copy file="${module_name}.zip" todir="${anthill.artifacts.dir}"/>
+	</target>
+
+	<!--
+	TARGET: Zip
+		Zip the source code and compiled caintegrator-analysis-seerver.jar
+	-->
+	<target name="build_zip_file">
+		 <delete file="${module_name}.zip"/>
+	     <zip destfile="${module_name}.zip">
+			 <zipfileset dir="${build.source.dir}" prefix="${project_name}/${module_name}/${build.source.dir}"/>
+			 <zipfileset dir="${build.lib.dir}" prefix="${project_name}/${module_name}/${build.lib.dir}">
+			 	<include name="*.jar"/>
+			 	<exclude name="Rserve.jar"/>
+			 </zipfileset>
+			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
+			 	<include name="*.Rda"/>
+			 </zipfileset>
+			 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+                <include name="build.xml"/>
+                <include name="basic_build.properties"/>
+             </zipfileset>		
+         </zip>
+     </target>
+	<target name="noop"/>
+	<!--
+	TARGET: Zip
+		Zip the source code and compiled caintegrator-analysis-server.jar
+	-->
+	<target name="build_zip_file_anthill">
+		 <delete file="${module_name}.zip"/>
+	     <zip destfile="${module_name}.zip">
+			 <zipfileset dir="${build.source.dir}" prefix="${project_name}/${module_name}/${build.source.dir}"/>
+			 <zipfileset dir="${build.lib.dir}" prefix="${project_name}/${module_name}/${build.lib.dir}">
+			 	<exclude name="Rserve.jar"/>
+			 	<include name="*.jar"/>
+			 </zipfileset>
+			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
+			 	<include name="*.Rda"/>
+			 </zipfileset>
+	     	<zipfileset dir="${anthill.dependency.artifacts.dir}" prefix="${project_name}/${module_name}/${build.deploy.lib.dir}">
+			 	<include name="caintegrator-analysis-commons.jar"/>
+			 </zipfileset>
+			 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+                <include name="build.xml"/>
+                <include name="basic_build.properties"/>
+			 </zipfileset>		
+         </zip>
+     </target>
+</project>
