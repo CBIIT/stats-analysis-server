@@ -30,6 +30,7 @@
 			 </zipfileset>
 			 <zipfileset dir="${build.R.data.dir}/templates" prefix="${project_name}/${module_name}/${build.R.data.dir}/templates"/>
 			 <zipfileset dir="${build.log.dir}" prefix="${project_name}/${module_name}/${build.log.dir}"/>
+			 <zipfileset dir="${build.conf.dir}" prefix="${project_name}/${module_name}/${build.conf.dir}"/>
 			 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
                 <include name="build.xml"/>
                 <include name="basic_build.properties"/>
@@ -59,6 +60,7 @@
 			 </zipfileset>
 			 <zipfileset dir="${build.R.data.dir}/templates" prefix="${project_name}/${module_name}/${build.R.data.dir}/templates"/>
 	     	 <zipfileset dir="${build.log.dir}" prefix="${project_name}/${module_name}/${build.log.dir}"/>
+	     	 <zipfileset dir="${build.conf.dir}" prefix="${project_name}/${module_name}/${build.conf.dir}"/>
 	     	<zipfileset dir="${anthill.dependency.artifacts.dir}" prefix="${project_name}/${module_name}/${build.deploy.lib.dir}">
 			 	<include name="caintegrator-analysis-commons.jar"/>
 			 </zipfileset>
