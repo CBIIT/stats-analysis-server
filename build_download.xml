@@ -20,6 +20,7 @@
 			 	<include name="*.jar"/>
 			 	<exclude name="Rserve.jar"/>
 			 </zipfileset>
+			 <zipfileset dir="${build.R.source.dir}" prefix="${project_name}/${module_name}/${build.R.source.dir}"/>
 			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
 			 	<include name="*.Rda"/>
 			 </zipfileset>
@@ -42,9 +43,11 @@
 			 	<exclude name="Rserve.jar"/>
 			 	<include name="*.jar"/>
 			 </zipfileset>
+			 <zipfileset dir="${build.R.source.dir}" prefix="${project_name}/${module_name}/${build.R.source.dir}"/>
 			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
 			 	<include name="*.Rda"/>
 			 </zipfileset>
+	     	
 	     	<zipfileset dir="${anthill.dependency.artifacts.dir}" prefix="${project_name}/${module_name}/${build.deploy.lib.dir}">
 			 	<include name="caintegrator-analysis-commons.jar"/>
 			 </zipfileset>
