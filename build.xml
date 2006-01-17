@@ -6,8 +6,8 @@
 		NOTE: Requires the caintegrator-analysis-commons.jar to compile!
 	-->
 	<target name="jar_check">
-		<property name="RServe.jar" value="${build.lib.dir}/RServe.jar" />
-		<available file="${RServe.jar}" property="required_jars.present"/>
+		<property name="Rserve.jar" value="${build.lib.dir}/Rserve.jar" />
+		<available file="${Rserve.jar}" property="required_jars.present"/>
 		<condition property="required_jars.not.present">
 			<not>
 				<istrue value="${required_jars.present}"/>
@@ -15,7 +15,7 @@
 		</condition>
 	</target>
 	<target name="warning" if="required_jars.not.present" depends="jar_check">
-		<fail message="Build Failed! The required ${RServe.jar} is not present to compile!  Please see ${build.lib.dir}/readme.txt" />
+		<fail message="Build Failed! The required ${Rserve.jar} is not present to compile!  Please see ${build.lib.dir}/readme.txt" />
 	</target>
 	<target name="build_jar" if="required_jars.present" depends="config-analysis-server-properties,config-r-initialization-file,warning">
 		<delete dir="${build.classes.dir}"/>
