@@ -20,6 +20,10 @@
 			 	<include name="*.jar"/>
 			 	<exclude name="Rserve.jar"/>
 			 </zipfileset>
+			 <zipfileset dir="${build.bin.dir}" prefix="${project_name}/${module_name}/${build.bin.dir}">
+			 	<include name="*.sh"/>
+			 </zipfileset>
+			 <zipfileset dir="${build.bin.dir}/templates" prefix="${project_name}/${module_name}/${build.bin.dir}/templates"/>
 			 <zipfileset dir="${build.R.source.dir}" prefix="${project_name}/${module_name}/${build.R.source.dir}"/>
 			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
 			 	<include name="*.Rda"/>
@@ -43,6 +47,10 @@
 			 	<exclude name="Rserve.jar"/>
 			 	<include name="*.jar"/>
 			 </zipfileset>
+			 <zipfileset dir="${build.bin.dir}" prefix="${project_name}/${module_name}/${build.bin.dir}">
+			 	<include name="*.sh"/>
+			 </zipfileset>
+			 <zipfileset dir="${build.bin.dir}/templates" prefix="${project_name}/${module_name}/${build.bin.dir}/templates"/>
 			 <zipfileset dir="${build.R.source.dir}" prefix="${project_name}/${module_name}/${build.R.source.dir}"/>
 			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
 			 	<include name="*.Rda"/>
