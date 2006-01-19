@@ -18,6 +18,7 @@
 			 <zipfileset dir="${build.source.dir}" prefix="${project_name}/${module_name}/${build.source.dir}"/>
 			 <zipfileset dir="${build.lib.dir}" prefix="${project_name}/${module_name}/${build.lib.dir}">
 			 	<include name="*.jar"/>
+			 	<include name="readme.txt"/>
 			 	<exclude name="Rserve.jar"/>
 			 </zipfileset>
 			 <zipfileset dir="${build.bin.dir}" prefix="${project_name}/${module_name}/${build.bin.dir}">
@@ -48,6 +49,7 @@
 			 <zipfileset dir="${build.source.dir}" prefix="${project_name}/${module_name}/${build.source.dir}"/>
 			 <zipfileset dir="${build.lib.dir}" prefix="${project_name}/${module_name}/${build.lib.dir}">
 			 	<exclude name="Rserve.jar"/>
+			 	<include name="readme.txt"/>
 			 	<include name="*.jar"/>
 			 </zipfileset>
 			 <zipfileset dir="${build.bin.dir}" prefix="${project_name}/${module_name}/${build.bin.dir}">
