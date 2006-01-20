@@ -32,10 +32,12 @@
 			 <zipfileset dir="${build.R.data.dir}/templates" prefix="${project_name}/${module_name}/${build.R.data.dir}/templates"/>
 			 <zipfileset dir="${build.log.dir}" prefix="${project_name}/${module_name}/${build.log.dir}"/>
 			 <zipfileset dir="${build.conf.dir}" prefix="${project_name}/${module_name}/${build.conf.dir}"/>
-			 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
-                <include name="build.xml"/>
-                <include name="basic_build.properties"/>
-             </zipfileset>		
+			 <zipfileset dir="download" prefix="${project_name}/${module_name}/.">
+               <include name="build.xml"/>
+			 </zipfileset>		
+	     	 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+	     	     <include name="basic_build.properties"/>
+	     	 </zipfileset>	
          </zip>
      </target>
 	<target name="noop"/>
@@ -66,10 +68,12 @@
 	     	<zipfileset dir="${anthill.dependency.artifacts.dir}" prefix="${project_name}/${module_name}/${build.lib.dir}">
 			 	<include name="caintegrator-analysis-commons.jar"/>
 			 </zipfileset>
-			 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+			 <zipfileset dir="download" prefix="${project_name}/${module_name}/.">
                 <include name="build.xml"/>
-                <include name="basic_build.properties"/>
 			 </zipfileset>		
+	     	 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+	     	     <include name="basic_build.properties"/>
+	     	 </zipfileset>		
          </zip>
      </target>
 </project>
