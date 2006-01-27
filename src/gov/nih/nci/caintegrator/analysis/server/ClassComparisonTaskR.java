@@ -265,7 +265,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		double[] meanGrp1 = doREval("mean1 <- ccResult[,1]").asDoubleArray();
 		double[] meanGrp2 = doREval("mean2 <- ccResult[,2]").asDoubleArray();
 		double[] meanDif = doREval("meanDif <- ccResult[,3]").asDoubleArray();
-		double[] foldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
+		double[] absoluteFoldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
 		double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
 
 		// get the labels
@@ -284,7 +284,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			resultEntry.setMeanGrp1(meanGrp1[i]);
 			resultEntry.setMeanGrp2(meanGrp2[i]);
 			resultEntry.setMeanDiff(meanDif[i]);
-			resultEntry.setFoldChange(foldChange[i]);
+			resultEntry.setAbsoluteFoldChange(absoluteFoldChange[i]);
 			resultEntry.setPvalue(pva[i]);
 			resultEntries.add(resultEntry);
 		}
