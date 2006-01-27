@@ -96,11 +96,14 @@ public class ClassComparisonComparator implements Comparator {
 		  return 1;
 		}
 		
-		if (e1.getFoldChange() > e2.getFoldChange()) {
+		double absFC1 = Math.abs(e1.getFoldChange());
+		double absFC2 = Math.abs(e2.getFoldChange());
+		
+		if (absFC1 > absFC2) {
 		  return -1;
 		}
 		
-		if (e2.getFoldChange() > e1.getFoldChange()) {
+		if (absFC2 > absFC1) {
 		  return 1;
 		}
 		
