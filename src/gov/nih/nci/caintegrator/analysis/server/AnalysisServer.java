@@ -8,6 +8,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisReq
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -168,9 +169,14 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		// load properties from a properties file
 		Properties analysisServerConfigProps = new Properties();
 
+		FileInputStream in = null;
+		
+		
 		try {
-			analysisServerConfigProps.load(new FileInputStream(
-					serverPropertiesFileName));
+			
+			in = new FileInputStream(serverPropertiesFileName);
+			
+			analysisServerConfigProps.load(in);
 			
 			//Configure log4J
 			PropertyConfigurator.configure(analysisServerConfigProps);
@@ -193,6 +199,13 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		  logger.error(ex);
 		  //System.out.println("Error loading server properties from file: " + analysisServerConfigProps);
 		  //ex.printStackTrace(System.out);
+		}
+		finally {
+		  try { in.close(); }
+		  catch (IOException ex2) {
+			 logger.error("Error closing properties file.");
+			 logger.error(ex2);
+		  }
 		}
 		
 		// initialize the compute threads
