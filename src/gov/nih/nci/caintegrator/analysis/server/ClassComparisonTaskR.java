@@ -108,7 +108,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		logger.info(getExecutingThreadName() + ": processing class comparison request=" + ccRequest);
 
 		SampleGroup group1 = ccRequest.getGroup1();
-		SampleGroup group2 = ccRequest.getGroup2();
+		SampleGroup baselineGroup = ccRequest.getBaselineGroup();
 		
 		if ((group1 == null) || (group1.size() < MIN_GROUP_SIZE)) {
 			  AnalysisServerException ex = new AnalysisServerException(
@@ -119,9 +119,9 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		}
 		
 		
-		if ((group2 == null) || (group2.size() < MIN_GROUP_SIZE)) {
+		if ((baselineGroup == null) || (baselineGroup.size() < MIN_GROUP_SIZE)) {
 			  AnalysisServerException ex = new AnalysisServerException(
-				"Group2 is null or has less than " + MIN_GROUP_SIZE + " entries.");		 
+				"BaselineGroup is null or has less than " + MIN_GROUP_SIZE + " entries.");		 
 		      ex.setFailedRequest(ccRequest);
 		      setException(ex);
 		      return;
@@ -129,12 +129,12 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		
 		
 		//check to see if there are any overlapping samples between the two groups
-		if ((group1 != null)&&(group2 != null)) {
+		if ((group1 != null)&&(baselineGroup != null)) {
 		  
 		  //get overlap between the two sets
 		  Set<String> intersection = new HashSet<String>();
 		  intersection.addAll(group1);
-		  intersection.retainAll(group2);
+		  intersection.retainAll(baselineGroup);
 		  
 		  if (intersection.size() > 0) {
 		     //the groups are overlapping so return an exception
@@ -159,12 +159,12 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		//below eventhough the one group case won't be executed because of the tests above.
 		
 		
-		int grp1Len = 0, grp2Len = 0;
+		int grp1Len = 0, baselineGrpLen = 0;
 		
 		grp1Len = group1.size();
 		
 		String grp1RName = "GRP1IDS";
-		String grp2RName = "GRP2IDS";
+		String baselineGrpRName = "GRP2IDS";
 		
 		
 		String rCmd = null;
@@ -173,22 +173,22 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 
 		doRvoidEval(rCmd);
 
-		if (group2 != null) {
+		if (baselineGroup != null) {
 			// two group comparison
-			grp2Len = group2.size();
+			baselineGrpLen = baselineGroup.size();
 			
-			rCmd = getRgroupCmd(grp2RName, group2);
+			rCmd = getRgroupCmd(baselineGrpRName, baselineGroup);
 			doRvoidEval(rCmd);
 
 			// create the input data matrix using the sample groups
 			rCmd = "ccInputMatrix <- getSubmatrix.twogrps(dataMatrix,"
-					+ grp1RName + "," + grp2RName + ")";
+					+ grp1RName + "," + baselineGrpRName + ")";
 			doRvoidEval(rCmd);
 
 			// check to make sure all identifiers matched in the R data file
 			rCmd = "dim(ccInputMatrix)[2]";
 			int numMatched = doREval(rCmd).asInt();
-			if (numMatched != (grp1Len + grp2Len)) {
+			if (numMatched != (grp1Len + baselineGrpLen)) {
 				AnalysisServerException ex = new AnalysisServerException(
 						"Some sample ids did not match R data file for class comparison request.");
 				ex.setFailedRequest(ccRequest);
@@ -197,7 +197,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			}
 		} else {
 			// single group comparison
-			grp2Len = 0;
+			baselineGrpLen = 0;
 			rCmd = "ccInputMatrix <- getSubmatrix.onegrp(dataMatrix,"
 					+ grp1RName + ")";
 			doRvoidEval(rCmd);
@@ -205,7 +205,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 
 		rCmd = "dim(ccInputMatrix)[2]";
 		int numMatched = doREval(rCmd).asInt();
-		if (numMatched != (grp1Len + grp2Len)) {
+		if (numMatched != (grp1Len + baselineGrpLen)) {
 			AnalysisServerException ex = new AnalysisServerException(
 					"Some sample ids did not match R data file for class comparison request.");
 			ex.setFailedRequest(ccRequest);
@@ -217,12 +217,12 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		if (ccRequest.getStatisticalMethod() == StatisticalMethodType.TTest) {
 			// do the TTest computation
 			rCmd = "ccResult <- myttest(ccInputMatrix, " + grp1Len + ","
-					+ grp2Len + ")";
+					+ baselineGrpLen + ")";
 			doRvoidEval(rCmd);
 		} else if (ccRequest.getStatisticalMethod() == StatisticalMethodType.Wilcoxin) {
 			// do the Wilcox computation
 			rCmd = "ccResult <- mywilcox(ccInputMatrix, " + grp1Len + ","
-					+ grp2Len + ")";
+					+ baselineGrpLen + ")";
 			doRvoidEval(rCmd);
 		}
 
@@ -263,7 +263,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		// get the results and send
 
 		double[] meanGrp1 = doREval("mean1 <- ccResult[,1]").asDoubleArray();
-		double[] meanGrp2 = doREval("mean2 <- ccResult[,2]").asDoubleArray();
+		double[] meanBaselineGrp = doREval("meanBaseline <- ccResult[,2]").asDoubleArray();
 		double[] meanDif = doREval("meanDif <- ccResult[,3]").asDoubleArray();
 		double[] absoluteFoldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
 		double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
@@ -282,7 +282,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			resultEntry = new ClassComparisonResultEntry();
 			resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
 			resultEntry.setMeanGrp1(meanGrp1[i]);
-			resultEntry.setMeanGrp2(meanGrp2[i]);
+			resultEntry.setMeanBaselineGrp(meanBaselineGrp[i]);
 			resultEntry.setMeanDiff(meanDif[i]);
 			resultEntry.setAbsoluteFoldChange(absoluteFoldChange[i]);
 			resultEntry.setPvalue(pva[i]);
@@ -295,8 +295,8 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		ccResult.setResultEntries(resultEntries);
 
 		ccResult.setGroup1(group1);
-		if (group2 != null) {
-			ccResult.setGroup2(group2);
+		if (baselineGroup != null) {
+			ccResult.setGroup2(baselineGroup);
 		}
 	}
 
