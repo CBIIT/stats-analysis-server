@@ -164,7 +164,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		grp1Len = group1.size();
 		
 		String grp1RName = "GRP1IDS";
-		String baselineGrpRName = "GRP2IDS";
+		String baselineGrpRName = "BLGRPIDS";
 		
 		
 		String rCmd = null;
@@ -296,7 +296,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 
 		ccResult.setGroup1(group1);
 		if (baselineGroup != null) {
-			ccResult.setGroup2(baselineGroup);
+			ccResult.setBaselineGroup(baselineGroup);
 		}
 	}
 
