@@ -202,9 +202,11 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	public byte[] getImageCode(String plotCmd, int imgHeight, int imgWidth) {
 
 		byte[] imgCode = new byte[0];
+		
+		String fileName = null;
 
 		try {
-			String fileName = "image_" + getRequest().getSessionId() + "_"
+			fileName = "image_" + getRequest().getSessionId() + "_"
 					+ System.currentTimeMillis() + ".png";
 			
 		    fileName = fileName.replace(' ','_');  //should never have spaces but just to be sure
@@ -235,8 +237,10 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			is.close();
 			rConnection.removeFile(fileName);
 		} catch (IOException ex) {
+			logger.error("Caught IOException in getImageCode. FileName=" + fileName);
 			logger.error(ex);
 		} catch (RSrvException e) {
+			logger.error("Caught RSrvException in getImageCode. FileName=" + fileName);
 			logger.error(e);
 		}
 
@@ -262,6 +266,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 		  }
 	  }
 	  catch (IOException ex) {
+		logger.error("Caught IOException in getBytes method.");
 	    logger.error(ex);
 	  }
 	  byte[] returnArray = byteStream.toByteArray();
