@@ -17,7 +17,7 @@
 	<target name="warning" if="required_jars.not.present" depends="jar_check">
 		<fail message="Build Failed! The required ${Rserve.jar} is not present to compile!  Please see ${build.lib.dir}/readme.txt" />
 	</target>
-	<target name="build_jar" if="required_jars.present" depends="config-analysis-server-properties,config-r-initialization-file,warning">
+	<target name="build_jar" if="required_jars.present" depends="config-analysis-server-properties,config-r-initialization-file,config-rserv-script-file,warning">
 		<delete dir="${build.classes.dir}"/>
 		<mkdir dir="${build.classes.dir}" />
 		<javac srcdir="${build.source.dir}" destdir="${build.classes.dir}" source="1.5" excludes="**/test/**" debug="true" debuglevel="lines,vars,source">
@@ -77,4 +77,11 @@
         <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${analysis-server.install.dir}" flags="g"/>	        
         <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@DATA_FILE@" replace="${R.data.file}" flags="g"/>	        
    </target>
+	
+	<target name="config-rserv-script-file">
+		<delete file="${build.bin.dir}/startRserve.sh"/>
+		<copy file="${build.bin.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>
+		<replaceregexp file = "${build.bin.dir}/startRserve.sh" match="@R_SERV_TEMP_DIR@" replace="${analysis-server.install.dir}/tempFiles" flags="g"/>
+	</target>
+		
 </project>
