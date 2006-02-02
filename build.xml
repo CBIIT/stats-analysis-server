@@ -47,8 +47,12 @@
 		  	<include name="RdataFiles/**"/>
 		 	<include name="R_source/**"/>
 		   	<include name="log/*.log"/>
+		  	<include name="tempFiles/*.txt"/>
 		  	<exclude name="build.xml"/>
 		  	<exclude name="basic_build.properties"/>
+		  	<exclude name="${build.bin.dir}/test/**"/>
+		  	<exclude name="${build.bin.dir}/templates/**"/>
+		  	<exclude name="RdataFiles/templates/**"/>
 		  </tarfileset>
 		  <tarfileset dir="${anthill.dependency.artifacts.dir}" prefix="lib">
 			<include name="*.jar"/>
