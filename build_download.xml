@@ -1,5 +1,5 @@
 <project name="caintegrator-analysis-server" default="build_zip_file_anthill" basedir=".">
-	<property file="basic_build.properties"/>
+	<property file="download/basic_build.properties"/>
 
 	<target name="build_dependency" if="${anthill.artifacts.dir}" depends="build_zip_file_anthill">
 		<echo>
@@ -27,15 +27,18 @@
 			 <zipfileset dir="${build.bin.dir}/templates" prefix="${project_name}/${module_name}/${build.bin.dir}/templates"/>
 			 <zipfileset dir="${build.R.source.dir}" prefix="${project_name}/${module_name}/${build.R.source.dir}"/>
 			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
-			 	<include name="*.Rda"/>
+			 	<include name="${R.data.file}"/>
+			 </zipfileset>
+			 <zipfileset dir="tempFiles" prefix="${project_name}/${module_name}/tempFiles">
+			 	<include name="readme.txt"/>
 			 </zipfileset>
 			 <zipfileset dir="${build.R.data.dir}/templates" prefix="${project_name}/${module_name}/${build.R.data.dir}/templates"/>
 			 <zipfileset dir="${build.log.dir}" prefix="${project_name}/${module_name}/${build.log.dir}"/>
 			 <zipfileset dir="${build.conf.dir}" prefix="${project_name}/${module_name}/${build.conf.dir}"/>
-			 <zipfileset dir="download" prefix="${project_name}/${module_name}/.">
+			 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
                <include name="build.xml"/>
 			 </zipfileset>		
-	     	 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+	     	 <zipfileset dir="download" prefix="${project_name}/${module_name}/.">
 	     	     <include name="basic_build.properties"/>
 	     	 </zipfileset>	
          </zip>
@@ -60,7 +63,10 @@
 			 <zipfileset dir="${build.bin.dir}/templates" prefix="${project_name}/${module_name}/${build.bin.dir}/templates"/>
 			 <zipfileset dir="${build.R.source.dir}" prefix="${project_name}/${module_name}/${build.R.source.dir}"/>
 			 <zipfileset dir="${build.R.data.dir}" prefix="${project_name}/${module_name}/${build.R.data.dir}">
-			 	<include name="*.Rda"/>
+			 	<include name="${R.data.file}"/>
+			 </zipfileset>
+			 <zipfileset dir="tempFiles" prefix="${project_name}/${module_name}/tempFiles">
+			 	<include name="readme.txt"/>
 			 </zipfileset>
 			 <zipfileset dir="${build.R.data.dir}/templates" prefix="${project_name}/${module_name}/${build.R.data.dir}/templates"/>
 	     	 <zipfileset dir="${build.log.dir}" prefix="${project_name}/${module_name}/${build.log.dir}"/>
@@ -71,7 +77,7 @@
 			 <zipfileset dir="download" prefix="${project_name}/${module_name}/.">
                 <include name="build.xml"/>
 			 </zipfileset>		
-	     	 <zipfileset dir="." prefix="${project_name}/${module_name}/.">
+	     	 <zipfileset dir="download" prefix="${project_name}/${module_name}/.">
 	     	     <include name="basic_build.properties"/>
 	     	 </zipfileset>		
          </zip>
