@@ -123,6 +123,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	private static String defaultRserverIp = "localhost";
 
 	private static String RdataFileName = null;
+	
+	private static String requestQueueName;
+	
+	private static String responseQueueName;
 
 	private RThreadPoolExecutor executor;
 
@@ -193,6 +197,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			
 			reconnectWaitTimeMS = getLongProperty(analysisServerConfigProps, "reconnectWaitTimeMS", defaultReconnectWaitTimeMS);
 			
+			requestQueueName = getMandatoryStringProperty(analysisServerConfigProps, "analysis_request_queue");
+			
+			responseQueueName = getMandatoryStringProperty(analysisServerConfigProps, "analysis_response_queue");
 			
 		} catch (Exception ex) {
 		  logger.error("Error loading server properties from file: " + analysisServerConfigProps);
@@ -297,8 +304,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			  //Get the initial context with given properties
 			  context = new InitialContext(contextProperties);
 	
-			  requestQueue = (Queue) context.lookup("queue/AnalysisRequest");
-			  resultQueue = (Queue) context.lookup("queue/AnalysisResponse");
+			  requestQueue = (Queue) context.lookup(requestQueueName);
+			  resultQueue = (Queue) context.lookup(responseQueueName);
+			  
 			  QueueConnectionFactory qcf = (QueueConnectionFactory) context
 					.lookup(factoryJNDI);
 	
