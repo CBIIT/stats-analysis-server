@@ -9,6 +9,12 @@ jmsmq_location=@JMSMQ_LOCATION@
 ###########################################################################
 RdefinitionFile=@R_INITIALIZATION_FILE@
 
+################################################################
+# Set the request and response queue names
+##############################################################
+analysis_request_queue=@ANALYSIS_REQUEST_QUEUE@
+
+analysis_response_queue=@ANALYSIS_RESPONSE_QUEUE@
 ###########################################################################
 # Number of Compute Threads - Each compute thread will 
 # have an initialized Rconnection
