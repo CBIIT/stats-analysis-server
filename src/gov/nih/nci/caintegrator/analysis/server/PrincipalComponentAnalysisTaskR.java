@@ -129,19 +129,29 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 		  logger.info("PCA request has null reporter group. Using all reporters.");
 		}
 
-		if (pcaRequest.doVarianceFiltering()) {
-			double varianceFilterValue = pcaRequest.getVarianceFilterValue();
+		
+		if (pcaRequest.getVarianceFilterValue() >= 0.0) {
+			
 			logger.info("Processing principal component analysis request varianceFilterVal="
-							+ varianceFilterValue);
+							+ pcaRequest.getVarianceFilterValue());
 			doRvoidEval("pcaResult <- computePCAwithVariance(pcaInputMatrix,"
-					+ varianceFilterValue + " )");
-		} else if (pcaRequest.doFoldChangeFiltering()) {
+					+ pcaRequest.getVarianceFilterValue() + " )");
+		} 
+		else if (pcaRequest.doFoldChangeFiltering()) {
 			double foldChangeFilterValue = pcaRequest
 					.getFoldChangeFilterValue();
 			logger.info("Processing principal component analysis request foldChangeFilterVal="
 							+ foldChangeFilterValue);
 			doRvoidEval("pcaResult <- computePCAwithFC(pcaInputMatrix,"
 					+ foldChangeFilterValue + " )");
+		}
+		else {
+		   logger.error("Both variance filter and fold change filter are not active. Can't compute result.");
+		   AnalysisServerException ex = new AnalysisServerException(
+			"Both variance filter and fold change filter are not active");
+		   ex.setFailedRequest(pcaRequest);
+		   setException(ex);
+		   return;
 		}
 
 		// check to make sure at least 3 components came back
