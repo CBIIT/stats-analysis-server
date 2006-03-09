@@ -206,6 +206,13 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			doRvoidEval(rCmd);
 			plotCmd = "plot(mycluster, labels=dimnames(hcInputMatrix)[[1]], xlab=\"\", ylab=\"\",ps=8,sub=\"\", hang=-1)";
 		}
+		else {
+			AnalysisServerException ex = new AnalysisServerException("Unrecognized cluster by type");
+			ex.setFailedRequest(hcRequest);
+			setException(ex);
+			logger.error("Unrecognized cluster by type");
+			return;
+		}
 
 		
 		Vector orderedLabels = doREval("clusterLabels <-  mycluster$labels[mycluster$order]").asVector();

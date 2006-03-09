@@ -225,6 +225,11 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 					+ baselineGrpLen + ")";
 			doRvoidEval(rCmd);
 		}
+		else {
+		  logger.error("ClassComparision unrecognized statistical method.");
+		  this.setException(new AnalysisServerException("Internal error: unrecognized adjustment type."));
+		  return;
+		}
 
 		// do filtering
 		double foldChangeThreshold = ccRequest.getFoldChangeThreshold();
@@ -258,6 +263,11 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 					+ foldChangeThreshold + "," + pValueThreshold + ")";
 			doRvoidEval(rCmd);
 			ccResult.setPvaluesAreAdjusted(true);
+		}
+		else {
+			logger.error("ClassComparision Adjustment Type unrecognized.");
+			this.setException(new AnalysisServerException("Internal error: unrecognized adjustment type."));
+			return;
 		}
 
 		// get the results and send
