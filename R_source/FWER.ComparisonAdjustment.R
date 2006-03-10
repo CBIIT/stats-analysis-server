@@ -11,8 +11,9 @@
 #       Family-Wise Type-I Error Rate (FWER): Bonferroni
 
 adjustP.Bonferroni <- function(raw.result) {
-adjustP <- p.adjust(raw.result$pval, "bonferroni", length(raw.result$pval))
-adjust.result <- cbind(raw.result[,1:4],adjustP)
+woNAinPvalue.result <- raw.result[!is.na(raw.result$pval),]
+adjustP <- p.adjust(woNAinPvalue.result$pval, "bonferroni", length(woNAinPvalue.result$pval))
+adjust.result <- cbind(woNAinPvalue.result[,1:4],adjustP)
 return(adjust.result)
 }
 
