@@ -11,8 +11,9 @@
 #       False Discovery Rate (FDR): Benjamini-Hochberg
 
 adjustP.Benjamini.Hochberg <- function(raw.result) {
-adjustP <- p.adjust(raw.result$pval, "BH", length(raw.result$pval))
-adjust.result <- cbind(raw.result[,1:4],adjustP)
+woNAinPvalue.result <- raw.result[!is.na(raw.result$pval),]
+adjustP <- p.adjust(woNAinPvalue.result$pval, "BH", length(woNAinPvalue.result$pval))
+adjust.result <- cbind(woNAinPvalue.result[,1:4],adjustP)
 return(adjust.result)
 }
 
