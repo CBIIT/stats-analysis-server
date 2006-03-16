@@ -26,7 +26,7 @@
 
     GeneFilterWithVariance <- function(datmat, cons=0.70) {
     tmp1 <- apply(datmat, 1, var, na.rm=TRUE)
-    tmp2 <- quantile(tmp1,cons)
+    tmp2 <- quantile(tmp1,cons, na.rm=TRUE)
     filteredDataMatrix <- as.matrix(datmat[tmp1>=tmp2,])
     return(filteredDataMatrix)
     }
