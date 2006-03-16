@@ -171,142 +171,159 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 	
 		rCmd = getRgroupCmd(grp1RName, group1);
 
-		doRvoidEval(rCmd);
-
-		if (baselineGroup != null) {
-			// two group comparison
-			baselineGrpLen = baselineGroup.size();
-			
-			rCmd = getRgroupCmd(baselineGrpRName, baselineGroup);
+		try {
+		
 			doRvoidEval(rCmd);
-
-			// create the input data matrix using the sample groups
-			rCmd = "ccInputMatrix <- getSubmatrix.twogrps(dataMatrix,"
-					+ grp1RName + "," + baselineGrpRName + ")";
-			doRvoidEval(rCmd);
-
-			// check to make sure all identifiers matched in the R data file
+	
+			if (baselineGroup != null) {
+				// two group comparison
+				baselineGrpLen = baselineGroup.size();
+				
+				rCmd = getRgroupCmd(baselineGrpRName, baselineGroup);
+				doRvoidEval(rCmd);
+	
+				// create the input data matrix using the sample groups
+				rCmd = "ccInputMatrix <- getSubmatrix.twogrps(dataMatrix,"
+						+ grp1RName + "," + baselineGrpRName + ")";
+				doRvoidEval(rCmd);
+	
+				// check to make sure all identifiers matched in the R data file
+				rCmd = "dim(ccInputMatrix)[2]";
+				int numMatched = doREval(rCmd).asInt();
+				if (numMatched != (grp1Len + baselineGrpLen)) {
+					AnalysisServerException ex = new AnalysisServerException(
+							"Some sample ids did not match R data file for class comparison request.");
+					ex.setFailedRequest(ccRequest);
+					setException(ex);
+					return;
+				}
+			} else {
+				// single group comparison
+				baselineGrpLen = 0;
+				rCmd = "ccInputMatrix <- getSubmatrix.onegrp(dataMatrix,"
+						+ grp1RName + ")";
+				doRvoidEval(rCmd);
+			}
+	
 			rCmd = "dim(ccInputMatrix)[2]";
 			int numMatched = doREval(rCmd).asInt();
 			if (numMatched != (grp1Len + baselineGrpLen)) {
 				AnalysisServerException ex = new AnalysisServerException(
 						"Some sample ids did not match R data file for class comparison request.");
 				ex.setFailedRequest(ccRequest);
+				ex.setFailedRequest(ccRequest);
 				setException(ex);
 				return;
 			}
-		} else {
-			// single group comparison
-			baselineGrpLen = 0;
-			rCmd = "ccInputMatrix <- getSubmatrix.onegrp(dataMatrix,"
-					+ grp1RName + ")";
-			doRvoidEval(rCmd);
+	
+			if (ccRequest.getStatisticalMethod() == StatisticalMethodType.TTest) {
+				// do the TTest computation
+				rCmd = "ccResult <- myttest(ccInputMatrix, " + grp1Len + ","
+						+ baselineGrpLen + ")";
+				doRvoidEval(rCmd);
+			} else if (ccRequest.getStatisticalMethod() == StatisticalMethodType.Wilcoxin) {
+				// do the Wilcox computation
+				rCmd = "ccResult <- mywilcox(ccInputMatrix, " + grp1Len + ","
+						+ baselineGrpLen + ")";
+				doRvoidEval(rCmd);
+			}
+			else {
+			  logger.error("ClassComparision unrecognized statistical method.");
+			  this.setException(new AnalysisServerException("Internal error: unrecognized adjustment type."));
+			  return;
+			}
+	
+			// do filtering
+			double foldChangeThreshold = ccRequest.getFoldChangeThreshold();
+			double pValueThreshold = ccRequest.getPvalueThreshold();
+			MultiGroupComparisonAdjustmentType adjMethod = ccRequest
+					.getMultiGroupComparisonAdjustmentType();
+			if (adjMethod == MultiGroupComparisonAdjustmentType.NONE) {
+				// get differentially expressed reporters using
+				// unadjusted Pvalue
+	
+				// shouldn't need to pass in ccInputMatrix
+				rCmd = "ccResult  <- mydiferentiallygenes(ccResult,"
+						+ foldChangeThreshold + "," + pValueThreshold + ")";
+				doRvoidEval(rCmd);
+				ccResult.setPvaluesAreAdjusted(false);
+			} else if (adjMethod == MultiGroupComparisonAdjustmentType.FDR) {
+				// do adjustment
+				rCmd = "adjust.result <- adjustP.Benjamini.Hochberg(ccResult)";
+				doRvoidEval(rCmd);
+				// get differentially expressed reporters using adjusted Pvalue
+				rCmd = "ccResult  <- mydiferentiallygenes.adjustP(adjust.result,"
+						+ foldChangeThreshold + "," + pValueThreshold + ")";
+				doRvoidEval(rCmd);
+				ccResult.setPvaluesAreAdjusted(true);
+			} else if (adjMethod == MultiGroupComparisonAdjustmentType.FWER) {
+				// do adjustment
+				rCmd = "adjust.result <- adjustP.Bonferroni(ccResult)";
+				doRvoidEval(rCmd);
+				// get differentially expresseed reporters using adjusted Pvalue
+				rCmd = "ccResult  <- mydiferentiallygenes.adjustP(adjust.result,"
+						+ foldChangeThreshold + "," + pValueThreshold + ")";
+				doRvoidEval(rCmd);
+				ccResult.setPvaluesAreAdjusted(true);
+			}
+			else {
+				logger.error("ClassComparision Adjustment Type unrecognized.");
+				this.setException(new AnalysisServerException("Internal error: unrecognized adjustment type."));
+				return;
+			}
+	
+			// get the results and send
+	
+			double[] meanGrp1 = doREval("mean1 <- ccResult[,1]").asDoubleArray();
+			double[] meanBaselineGrp = doREval("meanBaseline <- ccResult[,2]").asDoubleArray();
+			double[] meanDif = doREval("meanDif <- ccResult[,3]").asDoubleArray();
+			double[] absoluteFoldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
+			double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
+	
+			// get the labels
+			Vector reporterIds = doREval("ccLabels <- dimnames(ccResult)[[1]]")
+					.asVector();
+	
+			// load the result object
+			// need to see if this works for single group comparison
+			List<ClassComparisonResultEntry> resultEntries = new ArrayList<ClassComparisonResultEntry>(
+					meanGrp1.length);
+			ClassComparisonResultEntry resultEntry;
+	
+			for (int i = 0; i < meanGrp1.length; i++) {
+				resultEntry = new ClassComparisonResultEntry();
+				resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
+				resultEntry.setMeanGrp1(meanGrp1[i]);
+				resultEntry.setMeanBaselineGrp(meanBaselineGrp[i]);
+				resultEntry.setMeanDiff(meanDif[i]);
+				resultEntry.setAbsoluteFoldChange(absoluteFoldChange[i]);
+				resultEntry.setPvalue(pva[i]);
+				resultEntries.add(resultEntry);
+			}
+			
+			
+			Collections.sort(resultEntries, classComparisonComparator);
+	
+			ccResult.setResultEntries(resultEntries);
+	
+			ccResult.setGroup1(group1);
+			if (baselineGroup != null) {
+				ccResult.setBaselineGroup(baselineGroup);
+			}
 		}
-
-		rCmd = "dim(ccInputMatrix)[2]";
-		int numMatched = doREval(rCmd).asInt();
-		if (numMatched != (grp1Len + baselineGrpLen)) {
-			AnalysisServerException ex = new AnalysisServerException(
-					"Some sample ids did not match R data file for class comparison request.");
-			ex.setFailedRequest(ccRequest);
-			ex.setFailedRequest(ccRequest);
-			setException(ex);
-			return;
+		catch (AnalysisServerException asex) {
+			AnalysisServerException aex = new AnalysisServerException(
+			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + asex.getMessage());
+	        aex.setFailedRequest(ccRequest);
+	        setException(aex);
+	        return;  
 		}
-
-		if (ccRequest.getStatisticalMethod() == StatisticalMethodType.TTest) {
-			// do the TTest computation
-			rCmd = "ccResult <- myttest(ccInputMatrix, " + grp1Len + ","
-					+ baselineGrpLen + ")";
-			doRvoidEval(rCmd);
-		} else if (ccRequest.getStatisticalMethod() == StatisticalMethodType.Wilcoxin) {
-			// do the Wilcox computation
-			rCmd = "ccResult <- mywilcox(ccInputMatrix, " + grp1Len + ","
-					+ baselineGrpLen + ")";
-			doRvoidEval(rCmd);
-		}
-		else {
-		  logger.error("ClassComparision unrecognized statistical method.");
-		  this.setException(new AnalysisServerException("Internal error: unrecognized adjustment type."));
-		  return;
-		}
-
-		// do filtering
-		double foldChangeThreshold = ccRequest.getFoldChangeThreshold();
-		double pValueThreshold = ccRequest.getPvalueThreshold();
-		MultiGroupComparisonAdjustmentType adjMethod = ccRequest
-				.getMultiGroupComparisonAdjustmentType();
-		if (adjMethod == MultiGroupComparisonAdjustmentType.NONE) {
-			// get differentially expressed reporters using
-			// unadjusted Pvalue
-
-			// shouldn't need to pass in ccInputMatrix
-			rCmd = "ccResult  <- mydiferentiallygenes(ccResult,"
-					+ foldChangeThreshold + "," + pValueThreshold + ")";
-			doRvoidEval(rCmd);
-			ccResult.setPvaluesAreAdjusted(false);
-		} else if (adjMethod == MultiGroupComparisonAdjustmentType.FDR) {
-			// do adjustment
-			rCmd = "adjust.result <- adjustP.Benjamini.Hochberg(ccResult)";
-			doRvoidEval(rCmd);
-			// get differentially expressed reporters using adjusted Pvalue
-			rCmd = "ccResult  <- mydiferentiallygenes.adjustP(adjust.result,"
-					+ foldChangeThreshold + "," + pValueThreshold + ")";
-			doRvoidEval(rCmd);
-			ccResult.setPvaluesAreAdjusted(true);
-		} else if (adjMethod == MultiGroupComparisonAdjustmentType.FWER) {
-			// do adjustment
-			rCmd = "adjust.result <- adjustP.Bonferroni(ccResult)";
-			doRvoidEval(rCmd);
-			// get differentially expresseed reporters using adjusted Pvalue
-			rCmd = "ccResult  <- mydiferentiallygenes.adjustP(adjust.result,"
-					+ foldChangeThreshold + "," + pValueThreshold + ")";
-			doRvoidEval(rCmd);
-			ccResult.setPvaluesAreAdjusted(true);
-		}
-		else {
-			logger.error("ClassComparision Adjustment Type unrecognized.");
-			this.setException(new AnalysisServerException("Internal error: unrecognized adjustment type."));
-			return;
-		}
-
-		// get the results and send
-
-		double[] meanGrp1 = doREval("mean1 <- ccResult[,1]").asDoubleArray();
-		double[] meanBaselineGrp = doREval("meanBaseline <- ccResult[,2]").asDoubleArray();
-		double[] meanDif = doREval("meanDif <- ccResult[,3]").asDoubleArray();
-		double[] absoluteFoldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
-		double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
-
-		// get the labels
-		Vector reporterIds = doREval("ccLabels <- dimnames(ccResult)[[1]]")
-				.asVector();
-
-		// load the result object
-		// need to see if this works for single group comparison
-		List<ClassComparisonResultEntry> resultEntries = new ArrayList<ClassComparisonResultEntry>(
-				meanGrp1.length);
-		ClassComparisonResultEntry resultEntry;
-
-		for (int i = 0; i < meanGrp1.length; i++) {
-			resultEntry = new ClassComparisonResultEntry();
-			resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
-			resultEntry.setMeanGrp1(meanGrp1[i]);
-			resultEntry.setMeanBaselineGrp(meanBaselineGrp[i]);
-			resultEntry.setMeanDiff(meanDif[i]);
-			resultEntry.setAbsoluteFoldChange(absoluteFoldChange[i]);
-			resultEntry.setPvalue(pva[i]);
-			resultEntries.add(resultEntry);
-		}
-		
-		
-		Collections.sort(resultEntries, classComparisonComparator);
-
-		ccResult.setResultEntries(resultEntries);
-
-		ccResult.setGroup1(group1);
-		if (baselineGroup != null) {
-			ccResult.setBaselineGroup(baselineGroup);
+		catch (Exception ex) {
+			AnalysisServerException asex = new AnalysisServerException(
+			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + ex.getMessage());
+	        asex.setFailedRequest(ccRequest);
+	        setException(asex);
+	        return;  
 		}
 	}
 

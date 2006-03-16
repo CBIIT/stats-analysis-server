@@ -104,89 +104,107 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 		logger.info(getExecutingThreadName() + " processing principal component analysis request=" + pcaRequest);
 		
 		double[] pca1, pca2, pca3;
-
-		doRvoidEval("pcaInputMatrix <- dataMatrix");
-
-		if (pcaRequest.getSampleGroup() != null) {
-			// sample group should never be null when passed from middle tier
-			String rCmd = getRgroupCmd("sampleIds", pcaRequest.getSampleGroup());
-			doRvoidEval(rCmd);
-			rCmd = "pcaInputMatrix <- getSubmatrix.onegrp(pcaInputMatrix, sampleIds)";
-			doRvoidEval(rCmd);
-		}
-		else {
-		  logger.error("PCA request has null sample group.");
-		}
-
-		if (pcaRequest.getReporterGroup() != null) {
-			String rCmd = getRgroupCmd("reporterIds", pcaRequest
-					.getReporterGroup());
-			doRvoidEval(rCmd);
-			rCmd = "pcaInputMatrix <- getSubmatrix.rep(pcaInputMatrix, reporterIds)";
-			doRvoidEval(rCmd);
-		}
-		else {
-		  logger.info("PCA request has null reporter group. Using all reporters.");
-		}
-
 		
-		if (pcaRequest.getVarianceFilterValue() >= 0.0) {
+		try {
+
+			doRvoidEval("pcaInputMatrix <- dataMatrix");
+	
+			if (pcaRequest.getSampleGroup() != null) {
+				// sample group should never be null when passed from middle tier
+				String rCmd = getRgroupCmd("sampleIds", pcaRequest.getSampleGroup());
+				doRvoidEval(rCmd);
+				rCmd = "pcaInputMatrix <- getSubmatrix.onegrp(pcaInputMatrix, sampleIds)";
+				doRvoidEval(rCmd);
+			}
+			else {
+			  logger.error("PCA request has null sample group.");
+			}
+	
+			if (pcaRequest.getReporterGroup() != null) {
+				String rCmd = getRgroupCmd("reporterIds", pcaRequest
+						.getReporterGroup());
+				doRvoidEval(rCmd);
+				rCmd = "pcaInputMatrix <- getSubmatrix.rep(pcaInputMatrix, reporterIds)";
+				doRvoidEval(rCmd);
+			}
+			else {
+			  logger.info("PCA request has null reporter group. Using all reporters.");
+			}
+	
 			
-			logger.info("Processing principal component analysis request varianceFilterVal="
-							+ pcaRequest.getVarianceFilterValue());
-			doRvoidEval("pcaResult <- computePCAwithVariance(pcaInputMatrix,"
-					+ pcaRequest.getVarianceFilterValue() + " )");
-		} 
-		else if (pcaRequest.doFoldChangeFiltering()) {
-			double foldChangeFilterValue = pcaRequest
-					.getFoldChangeFilterValue();
-			logger.info("Processing principal component analysis request foldChangeFilterVal="
-							+ foldChangeFilterValue);
-			doRvoidEval("pcaResult <- computePCAwithFC(pcaInputMatrix,"
-					+ foldChangeFilterValue + " )");
+			if (pcaRequest.getVarianceFilterValue() >= 0.0) {
+				
+				logger.info("Processing principal component analysis request varianceFilterVal="
+								+ pcaRequest.getVarianceFilterValue());
+				doRvoidEval("pcaResult <- computePCAwithVariance(pcaInputMatrix,"
+						+ pcaRequest.getVarianceFilterValue() + " )");
+			} 
+			else if (pcaRequest.doFoldChangeFiltering()) {
+				double foldChangeFilterValue = pcaRequest
+						.getFoldChangeFilterValue();
+				logger.info("Processing principal component analysis request foldChangeFilterVal="
+								+ foldChangeFilterValue);
+				doRvoidEval("pcaResult <- computePCAwithFC(pcaInputMatrix,"
+						+ foldChangeFilterValue + " )");
+			}
+			else {
+			   logger.error("Both variance filter and fold change filter are not active. Can't compute result.");
+			   AnalysisServerException ex = new AnalysisServerException(
+				"Both variance filter and fold change filter are not active");
+			   ex.setFailedRequest(pcaRequest);
+			   setException(ex);
+			   return;
+			}
+	
+			// check to make sure at least 3 components came back
+			int numComponents = doREval("length(pcaResult$x[1,])").asInt();
+			if (numComponents < 3) {
+				AnalysisServerException ex = new AnalysisServerException(
+						"PCA result has less than 3 components.");
+				ex.setFailedRequest(pcaRequest);
+				setException(ex);
+				return;
+			}
+	
+			pca1 = doREval("pcaMatrixX <- pcaResult$x[,1]").asDoubleArray();
+			pca2 = doREval("pcaMatrixY <- pcaResult$x[,2]").asDoubleArray();
+			pca3 = doREval("pcaMatrixZ <- pcaResult$x[,3]").asDoubleArray();
+			REXP exp = doREval("pcaLabels <- dimnames(pcaResult$x)");
+			// System.out.println("Got back xVals.len=" + xVals.length + "
+			// yVals.len=" + yVals.length + " zVals.len=" + zVals.length);
+			Vector labels = (Vector) exp.asVector();
+			Vector sampleIds = ((REXP) (labels.get(0))).asVector();
+	//		Vector pcaLabels = ((REXP) (labels.get(1))).asVector();
+	
+			List<PCAresultEntry> pcaResults = new ArrayList<PCAresultEntry>(
+					sampleIds.size());
+	
+			String sampleId = null;
+			int index = 0;
+			for (Iterator i = sampleIds.iterator(); i.hasNext();) {
+				sampleId = ((REXP) i.next()).asString();
+				pcaResults.add(new PCAresultEntry(sampleId, pca1[index],
+						pca2[index], pca3[index]));
+				index++;
+			}
+	
+			result.setResultEntries(pcaResults);
+			
 		}
-		else {
-		   logger.error("Both variance filter and fold change filter are not active. Can't compute result.");
-		   AnalysisServerException ex = new AnalysisServerException(
-			"Both variance filter and fold change filter are not active");
-		   ex.setFailedRequest(pcaRequest);
-		   setException(ex);
-		   return;
+		catch (AnalysisServerException asex) {
+			AnalysisServerException aex = new AnalysisServerException(
+			"Internal Error. Caught AnalysisServerException in PrincipalComponentAnalysisTaskR." + asex.getMessage());
+	        aex.setFailedRequest(pcaRequest);
+	        setException(aex);
+	        return;  
 		}
-
-		// check to make sure at least 3 components came back
-		int numComponents = doREval("length(pcaResult$x[1,])").asInt();
-		if (numComponents < 3) {
-			AnalysisServerException ex = new AnalysisServerException(
-					"PCA result has less than 3 components.");
-			ex.setFailedRequest(pcaRequest);
-			setException(ex);
-			return;
+		catch (Exception ex) {
+			AnalysisServerException asex = new AnalysisServerException(
+			"Internal Error. Caught AnalysisServerException in PrincipalComponentAnalysisTaskR." + ex.getMessage());
+	        asex.setFailedRequest(pcaRequest);
+	        setException(asex);
+	        return;  
 		}
-
-		pca1 = doREval("pcaMatrixX <- pcaResult$x[,1]").asDoubleArray();
-		pca2 = doREval("pcaMatrixY <- pcaResult$x[,2]").asDoubleArray();
-		pca3 = doREval("pcaMatrixZ <- pcaResult$x[,3]").asDoubleArray();
-		REXP exp = doREval("pcaLabels <- dimnames(pcaResult$x)");
-		// System.out.println("Got back xVals.len=" + xVals.length + "
-		// yVals.len=" + yVals.length + " zVals.len=" + zVals.length);
-		Vector labels = (Vector) exp.asVector();
-		Vector sampleIds = ((REXP) (labels.get(0))).asVector();
-//		Vector pcaLabels = ((REXP) (labels.get(1))).asVector();
-
-		List<PCAresultEntry> pcaResults = new ArrayList<PCAresultEntry>(
-				sampleIds.size());
-
-		String sampleId = null;
-		int index = 0;
-		for (Iterator i = sampleIds.iterator(); i.hasNext();) {
-			sampleId = ((REXP) i.next()).asString();
-			pcaResults.add(new PCAresultEntry(sampleId, pca1[index],
-					pca2[index], pca3[index]));
-			index++;
-		}
-
-		result.setResultEntries(pcaResults);
 
 		// generate the pca1 vs pca2 image
 //		doRvoidEval("maxComp1<-max(abs(pcaResult$x[,1]))");

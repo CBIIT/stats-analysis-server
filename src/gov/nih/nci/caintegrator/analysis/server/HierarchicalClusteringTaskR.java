@@ -141,101 +141,118 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 		logger.info(getExecutingThreadName() + " processing hierarchical clustering analysis request="
 						+ hcRequest);
 
-		// get the submatrix to operate on
-		doRvoidEval("hcInputMatrix <- dataMatrix");
-
-		doRvoidEval("hcInputMatrix <- GeneFilterWithVariance(hcInputMatrix,"
-				+ hcRequest.getVarianceFilterValue() + ")");
+		try {
 		
-		
-
-		String rCmd = null;
-		if (hcRequest.getSampleGroup() != null) {
-			// sample group should never be null when passed from middle tier
-			rCmd = getRgroupCmd("sampleIds", hcRequest.getSampleGroup());
-			doRvoidEval(rCmd);
-			rCmd = "hcInputMatrix <- getSubmatrix.onegrp(hcInputMatrix, sampleIds)";
-			doRvoidEval(rCmd);
-		}
-
-		if (hcRequest.getReporterGroup() != null) {
-			rCmd = getRgroupCmd("reporterIds", hcRequest.getReporterGroup());
-			doRvoidEval(rCmd);
-			rCmd = "hcInputMatrix <- getSubmatrix.rep(hcInputMatrix, reporterIds)";
-			doRvoidEval(rCmd);
-		}
-		
-		
-		String plotCmd = null;
-		// get the request parameters
-		if (hcRequest.getClusterBy() == ClusterByType.Samples) {
-			// cluster by samples
-			rCmd = "mycluster <- mysamplecluster(hcInputMatrix,"
-					+ getDistanceMatrixRparamStr()
-					+ ","
-					+ getLinkageMethodRparamStr()
-					+ ")";
-			doRvoidEval(rCmd);
-			plotCmd = "plot(mycluster, labels=dimnames(hcInputMatrix)[[2]], xlab=\"\", ylab=\"\",ps=8,sub=\"\", hang=-1)";
-		} else if (hcRequest.getClusterBy() == ClusterByType.Genes) {
-			// cluster by genes
+			// get the submatrix to operate on
+			doRvoidEval("hcInputMatrix <- dataMatrix");
+	
+			doRvoidEval("hcInputMatrix <- GeneFilterWithVariance(hcInputMatrix,"
+					+ hcRequest.getVarianceFilterValue() + ")");
 			
-			//check the hcInputMatrix size. If there are more than 1000 reporters then 
-			//throw an exception. 
 			
-//			check to see if the number of reporters to be used for the clustering is 
-			//too large. If it is then return an error
-			
-			int numReportersToUse = doREval("dim(hcInputMatrix)[1]").asInt();
-			
-			if (numReportersToUse > MAX_REPORTERS_FOR_GENE_CLUSTERING) {
-				AnalysisServerException ex = new AnalysisServerException(
-				"Too many reporters to cluster , try increasing the variance filter value, attempted to use numReporters=" + numReportersToUse);
-				ex.setFailedRequest(hcRequest);
-				setException(ex);
-				logger.info("Attempted to use numReporters=" + numReportersToUse + " in hcClustering. Returning exception.");
-				return;
+	
+			String rCmd = null;
+			if (hcRequest.getSampleGroup() != null) {
+				// sample group should never be null when passed from middle tier
+				rCmd = getRgroupCmd("sampleIds", hcRequest.getSampleGroup());
+				doRvoidEval(rCmd);
+				rCmd = "hcInputMatrix <- getSubmatrix.onegrp(hcInputMatrix, sampleIds)";
+				doRvoidEval(rCmd);
+			}
+	
+			if (hcRequest.getReporterGroup() != null) {
+				rCmd = getRgroupCmd("reporterIds", hcRequest.getReporterGroup());
+				doRvoidEval(rCmd);
+				rCmd = "hcInputMatrix <- getSubmatrix.rep(hcInputMatrix, reporterIds)";
+				doRvoidEval(rCmd);
 			}
 			
 			
-			rCmd = "mycluster <- mygenecluster(hcInputMatrix,"
-					+ getDistanceMatrixRparamStr()
-					+ ","
-					+ getLinkageMethodRparamStr()
-					+ ")";
-			doRvoidEval(rCmd);
-			plotCmd = "plot(mycluster, labels=dimnames(hcInputMatrix)[[1]], xlab=\"\", ylab=\"\",ps=8,sub=\"\", hang=-1)";
+			String plotCmd = null;
+			// get the request parameters
+			if (hcRequest.getClusterBy() == ClusterByType.Samples) {
+				// cluster by samples
+				rCmd = "mycluster <- mysamplecluster(hcInputMatrix,"
+						+ getDistanceMatrixRparamStr()
+						+ ","
+						+ getLinkageMethodRparamStr()
+						+ ")";
+				doRvoidEval(rCmd);
+				plotCmd = "plot(mycluster, labels=dimnames(hcInputMatrix)[[2]], xlab=\"\", ylab=\"\",ps=8,sub=\"\", hang=-1)";
+			} else if (hcRequest.getClusterBy() == ClusterByType.Genes) {
+				// cluster by genes
+				
+				//check the hcInputMatrix size. If there are more than 1000 reporters then 
+				//throw an exception. 
+				
+	//			check to see if the number of reporters to be used for the clustering is 
+				//too large. If it is then return an error
+				
+				int numReportersToUse = doREval("dim(hcInputMatrix)[1]").asInt();
+				
+				if (numReportersToUse > MAX_REPORTERS_FOR_GENE_CLUSTERING) {
+					AnalysisServerException ex = new AnalysisServerException(
+					"Too many reporters to cluster , try increasing the variance filter value, attempted to use numReporters=" + numReportersToUse);
+					ex.setFailedRequest(hcRequest);
+					setException(ex);
+					logger.info("Attempted to use numReporters=" + numReportersToUse + " in hcClustering. Returning exception.");
+					return;
+				}
+				
+				
+				rCmd = "mycluster <- mygenecluster(hcInputMatrix,"
+						+ getDistanceMatrixRparamStr()
+						+ ","
+						+ getLinkageMethodRparamStr()
+						+ ")";
+				doRvoidEval(rCmd);
+				plotCmd = "plot(mycluster, labels=dimnames(hcInputMatrix)[[1]], xlab=\"\", ylab=\"\",ps=8,sub=\"\", hang=-1)";
+			}
+			else {
+				AnalysisServerException ex = new AnalysisServerException("Unrecognized cluster by type");
+				ex.setFailedRequest(hcRequest);
+				setException(ex);
+				logger.error("Unrecognized cluster by type");
+				return;
+			}
+	
+			
+			Vector orderedLabels = doREval("clusterLabels <-  mycluster$labels[mycluster$order]").asVector();
+			float numPix = (float)orderedLabels.size() * 15.0f;
+			int imgWidth = Math.round(numPix/72.0f);
+			imgWidth = Math.max(3, imgWidth);
+			int imgHeight = 10;
+			
+			byte[] imgCode = getImageCode(plotCmd, imgHeight, imgWidth);
+			result.setImageCode(imgCode);
+			
+			List<String> orderedLabelList = new ArrayList<String>(orderedLabels.size());
+			String label = null;
+			for (int i=0; i < orderedLabels.size(); i++ ) {
+			  label = ((REXP) orderedLabels.get(i)).asString();
+			  orderedLabelList.add(i,label);
+			}
+			
+			if (hcRequest.getClusterBy() == ClusterByType.Genes) {
+			  result.setClusteredReporterIDs(orderedLabelList);
+			}
+			else if (hcRequest.getClusterBy() == ClusterByType.Samples) {
+			  result.setClusteredSampleIDs(orderedLabelList);
+			}
 		}
-		else {
-			AnalysisServerException ex = new AnalysisServerException("Unrecognized cluster by type");
-			ex.setFailedRequest(hcRequest);
-			setException(ex);
-			logger.error("Unrecognized cluster by type");
-			return;
+		catch (AnalysisServerException asex) {
+			AnalysisServerException aex = new AnalysisServerException(
+			"Internal Error. Caught AnalysisServerException in HierarchicalClusteringTaskR." + asex.getMessage());
+	        aex.setFailedRequest(hcRequest);
+	        setException(aex);
+	        return;  
 		}
-
-		
-		Vector orderedLabels = doREval("clusterLabels <-  mycluster$labels[mycluster$order]").asVector();
-		float numPix = (float)orderedLabels.size() * 15.0f;
-		int imgWidth = Math.round(numPix/72.0f);
-		imgWidth = Math.max(3, imgWidth);
-		int imgHeight = 10;
-		
-		byte[] imgCode = getImageCode(plotCmd, imgHeight, imgWidth);
-		result.setImageCode(imgCode);
-		
-		List<String> orderedLabelList = new ArrayList<String>(orderedLabels.size());
-		String label = null;
-		for (int i=0; i < orderedLabels.size(); i++ ) {
-		  label = ((REXP) orderedLabels.get(i)).asString();
-		  orderedLabelList.add(i,label);
-		}
-		
-		if (hcRequest.getClusterBy() == ClusterByType.Genes) {
-		  result.setClusteredReporterIDs(orderedLabelList);
-		}
-		else if (hcRequest.getClusterBy() == ClusterByType.Samples) {
-		  result.setClusteredSampleIDs(orderedLabelList);
+		catch (Exception ex) {
+			AnalysisServerException asex = new AnalysisServerException(
+			"Internal Error. Caught AnalysisServerException in HierarchicalClusteringTaskR." + ex.getMessage());
+	        asex.setFailedRequest(hcRequest);
+	        setException(asex);
+	        return;  
 		}
 		
 	}

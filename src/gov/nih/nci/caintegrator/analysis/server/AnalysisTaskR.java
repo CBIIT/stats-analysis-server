@@ -2,6 +2,7 @@ package gov.nih.nci.caintegrator.analysis.server;
 
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.IdGroup;
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -127,15 +128,19 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	 * 
 	 * @param c
 	 * @param command
+	 * @throws AnalysisServerException 
+	 * @throws RSrvException 
 	 */
-	protected void doRvoidEval(String command) {
+	protected void doRvoidEval(String command) throws AnalysisServerException  {
 		if (debugRcommands) {
 			logger.debug(command);
 		}
 		try {
 			rConnection.voidEval(command);
 		} catch (RSrvException e) {
+			logger.error("doRvoidEval threw RSrvException when executing command=" + command);
 			logger.error(e);
+			throw new AnalysisServerException("Internal Error. command=" + command);
 		}
 	}
 
@@ -145,8 +150,9 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	 * @param c
 	 * @param command
 	 * @return
+	 * @throws AnalysisServerException 
 	 */
-	protected REXP doREval(String command) {
+	protected REXP doREval(String command) throws AnalysisServerException {
 		REXP returnVal = null;
 		try {
 			if (debugRcommands) {
@@ -154,7 +160,9 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			}
 			returnVal = rConnection.eval(command);
 		} catch (RSrvException e) {
+		  logger.error("doREval threw RSrvException when executing command=" + command);
 		  logger.error(e);
+		  throw new AnalysisServerException("Internal Error. command=" + command);
 		}
 		return returnVal;
 	}
@@ -198,8 +206,9 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	 * @param imgHeight the height of the image to create
 	 * @param imgWidth the width of the image to create
 	 * @return a byte array containing the image. 
+	 * @throws AnalysisServerException 
 	 */
-	public byte[] getImageCode(String plotCmd, int imgHeight, int imgWidth) {
+	public byte[] getImageCode(String plotCmd, int imgHeight, int imgWidth) throws AnalysisServerException {
 
 		byte[] imgCode = new byte[0];
 		
@@ -239,9 +248,15 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 		} catch (IOException ex) {
 			logger.error("Caught IOException in getImageCode. FileName=" + fileName);
 			logger.error(ex);
+			throw new AnalysisServerException("Internal Error. Caught IOException in getImageCode plotCmd=" + plotCmd);
 		} catch (RSrvException e) {
 			logger.error("Caught RSrvException in getImageCode. FileName=" + fileName);
 			logger.error(e);
+			throw new AnalysisServerException("Internal Error. Caught IOException in getImageCode plotCmd=" + plotCmd);
+		} catch (Exception exg) {
+			logger.error("Caught exception in getImageCode. ex=" + exg.getMessage());
+			logger.error(exg);
+			throw new AnalysisServerException("Internal Error. Caught Exception in getImageCode plotCmd=" + plotCmd);
 		}
 
 		logger.info("getImageCode returning image numBytes=" + imgCode.length);
