@@ -185,15 +185,17 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 		sb.append(rName);
 		sb.append(" <- c(");
 		String id;
-		for (Iterator i = group.iterator(); i.hasNext();) {
-			id = (String) i.next();
-			sb.append("\"").append(id).append("\"");
-			if (i.hasNext()) {
-				sb.append(",");
-			} else {
-				sb.append(")");
+		
+		if (group != null) {
+			for (Iterator i = group.iterator(); i.hasNext();) {
+				id = (String) i.next();
+				sb.append("\"").append(id).append("\"");
+				if (i.hasNext()) {
+					sb.append(",");
+				} 
 			}
 		}
+		sb.append(")");
 		return sb.toString();
 	}
 	
