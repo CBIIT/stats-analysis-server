@@ -152,14 +152,22 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			
 	
 			String rCmd = null;
-			if (hcRequest.getSampleGroup() != null) {
-				// sample group should never be null when passed from middle tier
-				rCmd = getRgroupCmd("sampleIds", hcRequest.getSampleGroup());
-				doRvoidEval(rCmd);
-				rCmd = "hcInputMatrix <- getSubmatrix.onegrp(hcInputMatrix, sampleIds)";
-				doRvoidEval(rCmd);
+			
+			if ((hcRequest.getSampleGroup()==null)||(hcRequest.getSampleGroup().size() < 2)) {
+			   //sample group should never be null when passed from middle tier
+			   AnalysisServerException ex = new AnalysisServerException(
+						"Not enough samples to cluster.");		 
+			   ex.setFailedRequest(hcRequest);
+			   setException(ex);
+			   logger.error("Sample group is null or not enough samples for Hierarchical clustering.");
+			   return;
 			}
-	
+			
+			rCmd = getRgroupCmd("sampleIds", hcRequest.getSampleGroup());
+			doRvoidEval(rCmd);
+			rCmd = "hcInputMatrix <- getSubmatrix.onegrp(hcInputMatrix, sampleIds)";
+			doRvoidEval(rCmd);
+				
 			if (hcRequest.getReporterGroup() != null) {
 				rCmd = getRgroupCmd("reporterIds", hcRequest.getReporterGroup());
 				doRvoidEval(rCmd);

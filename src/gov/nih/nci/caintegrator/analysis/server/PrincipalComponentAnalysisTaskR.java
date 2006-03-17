@@ -109,19 +109,23 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 
 			doRvoidEval("pcaInputMatrix <- dataMatrix");
 	
-			if (pcaRequest.getSampleGroup() != null) {
-				// sample group should never be null when passed from middle tier
-				String rCmd = getRgroupCmd("sampleIds", pcaRequest.getSampleGroup());
-				doRvoidEval(rCmd);
-				rCmd = "pcaInputMatrix <- getSubmatrix.onegrp(pcaInputMatrix, sampleIds)";
-				doRvoidEval(rCmd);
+			if ((pcaRequest.getSampleGroup()==null)||(pcaRequest.getSampleGroup().size() < 2)) {
+			   //sample group should never be null when passed from middle tier
+			   AnalysisServerException ex = new AnalysisServerException(
+						"Not enough samples for PCA computation.");		 
+			   ex.setFailedRequest(pcaRequest);
+			   setException(ex);
+			   logger.error("pcaRequest has null sample group or not enough samples.");
+			   return;
 			}
-			else {
-			  logger.error("PCA request has null sample group.");
-			}
-	
+						
+			String rCmd = getRgroupCmd("sampleIds", pcaRequest.getSampleGroup());
+			doRvoidEval(rCmd);
+			rCmd = "pcaInputMatrix <- getSubmatrix.onegrp(pcaInputMatrix, sampleIds)";
+			doRvoidEval(rCmd);
+		
 			if (pcaRequest.getReporterGroup() != null) {
-				String rCmd = getRgroupCmd("reporterIds", pcaRequest
+				rCmd = getRgroupCmd("reporterIds", pcaRequest
 						.getReporterGroup());
 				doRvoidEval(rCmd);
 				rCmd = "pcaInputMatrix <- getSubmatrix.rep(pcaInputMatrix, reporterIds)";
