@@ -76,12 +76,12 @@ public class RThreadFactory implements ThreadFactory {
 
 	private String rServeIp;
 
-	private String rDataFileName;
+	private String rInitializationFileName;
 
-	public RThreadFactory(String rServeIp, String rDataFileName) {
+	public RThreadFactory(String rServeIp, String rInitializationFileName) {
 		super();
 		this.rServeIp = rServeIp;
-		this.rDataFileName = rDataFileName;
+		this.rInitializationFileName = rInitializationFileName;
 	}
 
 	
@@ -89,12 +89,12 @@ public class RThreadFactory implements ThreadFactory {
 	 * Return a new RThread. 
 	 */
 	public Thread newThread(Runnable r) {
-		RThread thread = new RThread(r, rServeIp, rDataFileName);
+		RThread thread = new RThread(r, rServeIp, rInitializationFileName);
 		return thread;
 	}
 
-	public String getRDataFileName() {
-		return rDataFileName;
+	public String getRInitializationFileName() {
+		return rInitializationFileName;
 	}
 
 	public String getRServeIp() {
