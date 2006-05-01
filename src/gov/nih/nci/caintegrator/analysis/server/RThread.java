@@ -80,16 +80,19 @@ public class RThread extends Thread {
 	private String rServeIp;
 
 	private String rInitializationFileName;
+	
+	private String rDataFileDirectory;
 
 	private RComputeConnection computeConnection;
 	
 	private static Logger logger = Logger.getLogger(RThread.class);
 
 
-	public RThread(Runnable target, String rServeIp, String rInitializationFileName) {
+	public RThread(Runnable target, String rServeIp, String rInitializationFileName, String rDataFileDirectory) {
 		super(target);
 		this.rServeIp = rServeIp;
 		this.rInitializationFileName = rInitializationFileName;
+		this.rDataFileDirectory = rDataFileDirectory;
 		initializeRComputeConnection();
 		logger.info("RThread name=" + getName()
 				+ " successfully initialized R connection.");
@@ -99,7 +102,7 @@ public class RThread extends Thread {
 		// load the test matrix and function definitions
 		try {
 			
-			computeConnection = new RComputeConnection(rServeIp, null);
+			computeConnection = new RComputeConnection(rServeIp, rDataFileDirectory);
 			//rConnection = new Rconnection(rServeIp);
 
 			String rCmd;

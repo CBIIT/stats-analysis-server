@@ -248,7 +248,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 	public void cleanUp() {
 		//doRvoidEval("remove(hcInputMatrix)");
 		//doRvoidEval("remove(mycluster)");
-		setRconnection(null);
+		setRComputeConnection(null);
 	}
 
 }

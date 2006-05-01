@@ -1,5 +1,6 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import org.apache.log4j.Logger;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
@@ -12,25 +13,24 @@ import org.rosuda.JRclient.Rconnection;
  */
 public class RComputeConnection extends Rconnection {
 
-	private String rDataFileName;
+	private String rDataFileName = null;
+	private String rDataFileDirectory = null;
+	private static Logger logger = Logger.getLogger(RComputeConnection.class);
 	
 //	public RComputeConnection(String rDataFileName) throws RSrvException   {
 //		super();
 //		this.rDataFileName = rDataFileName;	
 //	}
 	
-	public RComputeConnection(String host) throws RSrvException {
-	  this(host, null);
-	}
 	
-	public RComputeConnection(String host, String rDataFileName) throws RSrvException {
+	public RComputeConnection(String host, String rDataFileDirectory) throws RSrvException {
 	  super(host);
-	  this.rDataFileName = rDataFileName;
+	  this.rDataFileDirectory = rDataFileDirectory;
 	}
 	
-	public RComputeConnection(String host, int port, String rDataFileName) throws RSrvException {
+	public RComputeConnection(String host, int port, String rDataFileDirectory) throws RSrvException {
 	  super(host, port);
-	  this.rDataFileName = rDataFileName;
+	  this.rDataFileDirectory = rDataFileDirectory;
 	}
 	
 	public String getRdataFileName() { return rDataFileName; }
@@ -39,7 +39,14 @@ public class RComputeConnection extends Rconnection {
 	public void setRDataFile(String rDataFileName) throws RSrvException  {
 	  
 		//load the rDataFile from disk
+		long start = System.currentTimeMillis();
+
+		String fullFileName = rDataFileDirectory + rDataFileName;
 		
+		String rCmd = "load(\"" + fullFileName  + "\")";
+		voidEval(rCmd);
+		long elapsedTime = System.currentTimeMillis() - start;
+		logger.info("Successfully loaded rDataFile=" + fullFileName + " elapsedTimeMS=" + elapsedTime);
 		
 	}
 

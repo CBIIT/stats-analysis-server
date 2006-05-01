@@ -341,6 +341,6 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 	public void cleanUp() {
 		//doRvoidEval("remove(ccInputMatrix)");
 		//doRvoidEval("remove(ccResult)");
-		setRconnection(null);
+		setRComputeConnection(null);
 	}
 }

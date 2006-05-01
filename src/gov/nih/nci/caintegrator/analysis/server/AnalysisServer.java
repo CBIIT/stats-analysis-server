@@ -122,7 +122,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	
 	private static String defaultRserverIp = "localhost";
 
-	private static String RdataFileName = null;
+	private static String RinitializationFileName = null;
+	
+    private static String RdataFileDirectory = null;
 	
 	private static String requestQueueName;
 	
@@ -191,7 +193,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			
 			numComputeThreads = getIntegerProperty(analysisServerConfigProps,"num_compute_threads", defaultNumComputeThreads);
 			
-			RdataFileName = getMandatoryStringProperty(analysisServerConfigProps,"RdefinitionFile");
+			RinitializationFileName = getMandatoryStringProperty(analysisServerConfigProps,"RinitializationFileName");
+			
+			RdataFileDirectory = getMandatoryStringProperty(analysisServerConfigProps, "RdataFileDirectory" );
 			
 			debugRcommands = getBooleanProperty(analysisServerConfigProps, "debugRcommands", false);
 			
@@ -218,7 +222,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		// initialize the compute threads
 		
 		executor = new RThreadPoolExecutor(numComputeThreads, RserverIp,
-				RdataFileName, this);
+				RinitializationFileName, RdataFileDirectory, this);
 		
 		executor.setDebugRcommmands(debugRcommands);
 		
@@ -232,7 +236,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		establishQueueConnection();
 		
 		logger.info("AnalysisServer version=" + version
-				+ " successfully initialized. numComputeThreads=" + numComputeThreads + " RserverIp=" + RserverIp + " RdataFileName=" + RdataFileName);
+				+ " successfully initialized. numComputeThreads=" + numComputeThreads + " RserverIp=" + RserverIp + " RinitializationFileName=" + RinitializationFileName);
 		
 
 	}
