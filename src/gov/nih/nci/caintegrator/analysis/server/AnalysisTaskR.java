@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
 import org.rosuda.JRclient.RFileInputStream;
 import org.rosuda.JRclient.RSrvException;
-import org.rosuda.JRclient.Rconnection;
+//import org.rosuda.JRclient.Rconnection;
 
 /**
  * This is the base class for all analysis tasks that are implemented in R. This class
@@ -85,7 +85,7 @@ import org.rosuda.JRclient.Rconnection;
 
 public abstract class AnalysisTaskR extends AnalysisTask {
 
-	private Rconnection rConnection = null;
+	private RComputeConnection computeConnection = null;
 
 	private boolean debugRcommands = false;
 	
@@ -107,12 +107,31 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	 */
 	public abstract void run();
 
-	public void setRconnection(Rconnection connection) {
-		this.rConnection = connection;
+	public void setRComputeConnection(RComputeConnection connection) {
+		this.computeConnection = connection;
+		
+		//check to see if the data file on the compute connection is the 
+		//same as that for the analysis task
+		String requestDataFileName = getRequest().getDataFileName();
+		if (!requestDataFileName.equals(connection.getRdataFileName())) {
+		  try {
+			logger.info("AnalysisTaskR (setRComputeConnection request=" + getRequest() + " switching data file from=" + connection.getRdataFileName() + 
+					       " to=" + requestDataFileName);
+		    connection.setRDataFile(requestDataFileName);
+		  }
+		  catch (RSrvException ex) {
+		    logger.error("Error setting the compute connection to requestDataFileName=" + requestDataFileName);
+		  }
+		}
+		else {
+		  logger.info("AnalysisTaskR (setRComputeConnection request=" + getRequest() + " no data file switch required current=" + connection.getRdataFileName() + 
+					       " reques=" + requestDataFileName);
+		}
+		
 	}
 
-	public Rconnection getRconnection() {
-		return rConnection;
+	public RComputeConnection getRComputeConnection() {
+		return computeConnection;
 	}
 
 	public boolean getDebugRcommands() {
@@ -136,7 +155,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			logger.debug(command);
 		}
 		try {
-			rConnection.voidEval(command);
+			computeConnection.voidEval(command);
 		} catch (RSrvException e) {
 			logger.error("doRvoidEval threw RSrvException when executing command=" + command);
 			logger.error(e);
@@ -158,7 +177,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			if (debugRcommands) {
 			  logger.debug(command);
 			}
-			returnVal = rConnection.eval(command);
+			returnVal = computeConnection.eval(command);
 		} catch (RSrvException e) {
 		  logger.error("doREval threw RSrvException when executing command=" + command);
 		  logger.error(e);
@@ -243,10 +262,10 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			doRvoidEval(plotCmd);
 			doRvoidEval("dev.off()");
 
-			RFileInputStream is = rConnection.openFile(fileName);
+			RFileInputStream is = computeConnection.openFile(fileName);
 			imgCode = getBytes(is);
 			is.close();
-			rConnection.removeFile(fileName);
+			computeConnection.removeFile(fileName);
 		} catch (IOException ex) {
 			logger.error("Caught IOException in getImageCode. FileName=" + fileName);
 			logger.error(ex);
