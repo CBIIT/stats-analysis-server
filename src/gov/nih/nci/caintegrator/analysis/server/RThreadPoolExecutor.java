@@ -3,7 +3,9 @@ package gov.nih.nci.caintegrator.analysis.server;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -81,19 +83,23 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 	private String hostName = null;
 	private boolean debugRcommands = false;
 	
+	//The rConnectionPool will contain a mapping from an Rbinary file name (a data file) to 
+	//an Rconnection.  The Rconnection will have the data file preloaded and ready to run an 
+	//analysis task. 
+	
 	private static Logger logger = Logger.getLogger(RThreadPoolExecutor.class);
 
-	public RThreadPoolExecutor(int nThreads, String RserveIp, String RdataFile,
+	public RThreadPoolExecutor(int nThreads, String RserveIp, String RinitializationFile,
 			AnalysisResultSender sender) {
 
 		// create a new fixed thread pool
 		super(nThreads, nThreads, Long.MAX_VALUE, TimeUnit.NANOSECONDS,
 				new LinkedBlockingQueue<Runnable>(), new RThreadFactory(
-						RserveIp, RdataFile));
+						RserveIp, RinitializationFile));
 
 		this.sender = sender;
 		this.hostName = getHostName();
-
+		
 		prestartAllCoreThreads();
 	}
 
@@ -103,7 +109,7 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 		RThread rThread = (RThread) thread;
 		
 		rTask.setExecutingThreadName(rThread.getName());
-		rTask.setRconnection(rThread.getRconnection());
+		rTask.setRComputeConnection(rThread.getRComputeConnection());
 		rTask.setDebugRcommands(debugRcommands);
 		rTask.setStartTime(System.currentTimeMillis());
 		
