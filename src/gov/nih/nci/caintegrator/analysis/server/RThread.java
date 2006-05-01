@@ -79,34 +79,36 @@ public class RThread extends Thread {
 
 	private String rServeIp;
 
-	private String rDataFileName;
+	private String rInitializationFileName;
 
-	private Rconnection rConnection;
+	private RComputeConnection computeConnection;
 	
 	private static Logger logger = Logger.getLogger(RThread.class);
 
 
-	public RThread(Runnable target, String rServeIp, String rDataFileName) {
+	public RThread(Runnable target, String rServeIp, String rInitializationFileName) {
 		super(target);
 		this.rServeIp = rServeIp;
-		this.rDataFileName = rDataFileName;
-		initializeRconnection();
+		this.rInitializationFileName = rInitializationFileName;
+		initializeRComputeConnection();
 		logger.info("RThread name=" + getName()
 				+ " successfully initialized R connection.");
 	}
 
-	public void initializeRconnection() {
+	public void initializeRComputeConnection() {
 		// load the test matrix and function definitions
 		try {
-			rConnection = new Rconnection(rServeIp);
+			
+			computeConnection = new RComputeConnection(rServeIp, null);
+			//rConnection = new Rconnection(rServeIp);
 
 			String rCmd;
 			// System.out.println("Server vesion: "+c.getServerVersion());
 			long start, elapsedtime;
-			if (rConnection.needLogin()) { // if server requires
+			if (computeConnection.needLogin()) { // if server requires
 											// authentication, send one
 				logger.info("authentication required.");
-				rConnection.login("guest", "guest");
+				computeConnection.login("guest", "guest");
 			}
 
 			// System.out.println("\tInitializing the Rserver with data and
@@ -114,8 +116,8 @@ public class RThread extends Thread {
 
 			start = System.currentTimeMillis();
 
-			rCmd = "source(\"" + rDataFileName + "\")";
-			rConnection.voidEval(rCmd);
+			rCmd = "source(\"" + rInitializationFileName + "\")";
+			computeConnection.voidEval(rCmd);
 			elapsedtime = System.currentTimeMillis() - start;
 			logger.info("\tDone initializing Rserver connection elapsedTime="
 							+ elapsedtime);
@@ -129,13 +131,13 @@ public class RThread extends Thread {
 		}
 	}
 
-	public Rconnection getRconnection() {
-		return rConnection;
+	public RComputeConnection getRComputeConnection() {
+		return computeConnection;
 	}
 
 	
-	public String getRDataFileName() {
-		return rDataFileName;
+	public String getRInitializationFileName() {
+		return rInitializationFileName;
 	}
 
 	public String getRServeIp() {
@@ -147,7 +149,7 @@ public class RThread extends Thread {
 	}
 
 	public void finalize() {
-		rConnection.close();
+		computeConnection.close();
 		try {
 			super.finalize();
 		} catch (Throwable e) {
