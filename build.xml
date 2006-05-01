@@ -68,10 +68,10 @@
         <copy file="${build.bin.dir}/templates/analysisServer.properties.template" tofile="${build.bin.dir}/analysisServer.properties"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMSMQ_LOCATION@" replace="${jms.location}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_INITIALIZATION_FILE@" replace="${R.initialization.file.path}" flags="g"/>
+		 <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_DATAFILE_DIRECTORY@" replace="${R.data.file.directory}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMS_RECONNECT_WAIT_TIME_MS@" replace="${jms.reconnectWaitTimeMS}" flags="g"/>
 		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_SERVER_LOG_FILE@" replace="${analysis-server.logfile}" flags="g"/>
-		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_REQUEST_QUEUE@" replace="${analysis-server.request-queue}" flags="g"/>
-		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_RESPONSE_QUEUE@" replace="${analysis-server.response-queue}" flags="g"/>
+		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_REQUEST_QUEUE@" replace="${analysis-server.request-queue}" flags="g"/>		
    </target>
    <!--
 		TARGET: config-r-initialization-file
