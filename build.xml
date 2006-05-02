@@ -78,10 +78,9 @@
 		Configures the dataAndFunctions.R file for running R
 	-->
 	<target name="config-r-initialization-file">
-        <delete file="${build.R.data.dir}/dataAndFunctions.R"/>
-        <copy file="${build.R.data.dir}/templates/dataAndFunctions.R.template" tofile="${build.R.data.dir}/dataAndFunctions.R"/>
-        <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${analysis-server.install.dir}" flags="g"/>	        
-        <replaceregexp file = "${build.R.data.dir}/dataAndFunctions.R" match="@DATA_FILE@" replace="${R.data.file}" flags="g"/>	        
+        <delete file="${build.R.data.dir}/RFunctions.R"/>
+        <copy file="${build.R.data.dir}/templates/RFunctions.R.template" tofile="${build.R.data.dir}/RFunctions.R"/>
+        <replaceregexp file = "${build.R.data.dir}/RFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${analysis-server.install.dir}" flags="g"/>	                
    </target>
 	
 	<target name="config-rserv-script-file">
