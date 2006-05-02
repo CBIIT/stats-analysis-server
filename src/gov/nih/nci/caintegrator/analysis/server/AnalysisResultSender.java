@@ -1,6 +1,8 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
+import javax.jms.Destination;
+
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
@@ -72,7 +74,7 @@ import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 public interface AnalysisResultSender {
 
-	public void sendResult(AnalysisResult result);
+	public void sendResult(AnalysisResult result, Destination resultDestination);
 
-	public void sendException(AnalysisServerException ex);
+	public void sendException(AnalysisServerException ex, Destination exceptionDestination);
 }

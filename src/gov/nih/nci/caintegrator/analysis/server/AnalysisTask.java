@@ -1,6 +1,8 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
+import javax.jms.Destination;
+
 import gov.nih.nci.caintegrator.analysis.messaging.*;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
@@ -73,6 +75,8 @@ import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 public abstract class AnalysisTask implements Runnable {
 
 	private AnalysisRequest request;
+	
+	private Destination jmsDestination = null;
 
 	private String executingThreadName = "";
 
@@ -139,5 +143,13 @@ public abstract class AnalysisTask implements Runnable {
 
 	public void setStartTime(Long startTime) {
 		this.startTime = startTime;
+	}
+
+	public Destination getJMSDestination() {
+		return jmsDestination;
+	}
+
+	public void setJMSDestination(Destination jmsDestination) {
+		this.jmsDestination = jmsDestination;
 	}
 }

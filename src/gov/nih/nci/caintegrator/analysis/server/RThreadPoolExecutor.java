@@ -126,11 +126,11 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 		
 		if (rTask.getException() != null) {
 		  logger.info(rTask.getExecutingThreadName() + " failed to complete task=" + rTask + " host=" + getHostName());
-		  sender.sendException(rTask.getException());
+		  sender.sendException(rTask.getException(), rTask.getJMSDestination());
 		}
 		else {
 		  logger.info(rTask.getExecutingThreadName() + " completed task=" + rTask + " host=" + getHostName() + " computeTime(ms)=" + rTask.getComputeTime());
-		  sender.sendResult(rTask.getResult());
+		  sender.sendResult(rTask.getResult(), rTask.getJMSDestination());
 		}
 		
 		rTask.cleanUp();

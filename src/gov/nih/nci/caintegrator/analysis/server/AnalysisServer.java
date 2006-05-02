@@ -13,6 +13,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.jms.DeliveryMode;
+import javax.jms.Destination;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -128,7 +129,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	
 	private static String requestQueueName;
 	
-	private static String responseQueueName;
+	//private static String responseQueueName;
 
 	private RThreadPoolExecutor executor;
 
@@ -136,7 +137,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 
 	private Queue requestQueue;
 
-	private Queue resultQueue;
+	//private Queue resultQueue;
 
 	private QueueSession queueSession;
 	
@@ -203,7 +204,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			
 			requestQueueName = getMandatoryStringProperty(analysisServerConfigProps, "analysis_request_queue");
 			
-			responseQueueName = getMandatoryStringProperty(analysisServerConfigProps, "analysis_response_queue");
+			//responseQueueName = getMandatoryStringProperty(analysisServerConfigProps, "analysis_response_queue");
 			
 		} catch (Exception ex) {
 		  logger.error("Error loading server properties from file: " + analysisServerConfigProps);
@@ -309,7 +310,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			  context = new InitialContext(contextProperties);
 	
 			  requestQueue = (Queue) context.lookup(requestQueueName);
-			  resultQueue = (Queue) context.lookup(responseQueueName);
+			  //resultQueue = (Queue) context.lookup(responseQueueName);
 			  
 			  QueueConnectionFactory qcf = (QueueConnectionFactory) context
 					.lookup(factoryJNDI);
@@ -382,12 +383,14 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			//System.out.println("AnalysisProcessor got request: " + request);
 			logger.info("AnalysisProcessor got request: " + request);
 			
+			Destination resultDestination =  m.getJMSReplyTo();
+			
 			if (request instanceof ClassComparisonRequest) {
-				processClassComparisonRequest((ClassComparisonRequest) request);
+				processClassComparisonRequest((ClassComparisonRequest) request, resultDestination);
 			} else if (request instanceof HierarchicalClusteringRequest) {
-				processHierarchicalClusteringRequest((HierarchicalClusteringRequest) request);
+				processHierarchicalClusteringRequest((HierarchicalClusteringRequest) request, resultDestination);
 			} else if (request instanceof PrincipalComponentAnalysisRequest) {
-				processPrincipalComponentAnalysisRequest((PrincipalComponentAnalysisRequest) request);
+				processPrincipalComponentAnalysisRequest((PrincipalComponentAnalysisRequest) request, resultDestination);
 			}
 
 			// sendResult(request);
@@ -410,36 +413,43 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	 * Process a class comparison analysis request.
 	 * 
 	 * @param ccRequest object containing the request parameters for the class comparison request.
+	 * @param resultQueue2 
 	 */
-	public void processClassComparisonRequest(ClassComparisonRequest ccRequest) {
-		executor.execute(new ClassComparisonTaskR(ccRequest, true));
+	public void processClassComparisonRequest(ClassComparisonRequest ccRequest, Destination resultDestination) {
+		ClassComparisonTaskR ccTaskR = new ClassComparisonTaskR(ccRequest, true);
+		ccTaskR.setJMSDestination(resultDestination);
+		executor.execute(ccTaskR);
 	}
 
 	/**
 	 * Process a hierarchicalClusteringAnalysisRequest.
 	 * 
 	 * @param hcRequest object containing the request parameters for the hierarchical clustering request.
+	 * @param resultQueue2 
 	 */
-	public void processHierarchicalClusteringRequest(
-			HierarchicalClusteringRequest hcRequest) {
-		executor.execute(new HierarchicalClusteringTaskR(hcRequest, true));
+	public void processHierarchicalClusteringRequest(HierarchicalClusteringRequest hcRequest, Destination resultDestination) {
+		HierarchicalClusteringTaskR hcTaskR = new HierarchicalClusteringTaskR(hcRequest, true);
+		hcTaskR.setJMSDestination(resultDestination);
+		executor.execute(hcTaskR);
 	}
 
 	/**
 	 * Process a PrincipalComponentAnalysisRequest.
 	 * 
 	 * @param pcaRequest object containing the request parameters for the PCA analysis
+	 * @param resultQueue2 
 	 */
-	public void processPrincipalComponentAnalysisRequest(
-			PrincipalComponentAnalysisRequest pcaRequest) {
-		executor.execute(new PrincipalComponentAnalysisTaskR(pcaRequest, true));
+	public void processPrincipalComponentAnalysisRequest(PrincipalComponentAnalysisRequest pcaRequest, Destination resultDestination) {
+		PrincipalComponentAnalysisTaskR pcaTaskR = new PrincipalComponentAnalysisTaskR(pcaRequest, true);
+		pcaTaskR.setJMSDestination(resultDestination);
+		executor.execute(pcaTaskR);
 	}
 
 	/**
 	 * Sends an exception object to the response queue indicating that the request was not processes. 
 	 * Failure to process a request usually occurs when there is a problem with the input parameters for a request.
 	 */
-	public void sendException(AnalysisServerException analysisServerException) {
+	public void sendException(AnalysisServerException analysisServerException, Destination exceptionDestination) {
 		try {
 			logger.info("AnalysisServer sending AnalysisServerException sessionId="
 							+ analysisServerException.getFailedRequest()
@@ -453,7 +463,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			ObjectMessage msg = exceptionSession
 			        .createObjectMessage(analysisServerException);
 			
-			QueueSender exceptionSender = exceptionSession.createSender(resultQueue);
+			Queue exceptionQueue = (Queue) exceptionDestination;
+			
+			QueueSender exceptionSender = exceptionSession.createSender(exceptionQueue);
 			exceptionSender.send(msg, DeliveryMode.NON_PERSISTENT,
 					Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
 			
@@ -474,7 +486,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
     /**
      * Sends an analysis result to the response queue.
      */
-	public void sendResult(AnalysisResult result) {
+	public void sendResult(AnalysisResult result, Destination resultDestination) {
 
 		try {
 			logger.debug("AnalysisServer sendResult sessionId="
@@ -486,6 +498,8 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		
 			ObjectMessage msg = resultSession
 			        .createObjectMessage(result);
+			
+			Queue resultQueue = (Queue) resultDestination;
 		
 			QueueSender resultSender = resultSession.createSender(resultQueue);
 		
