@@ -194,7 +194,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			
 			numComputeThreads = getIntegerProperty(analysisServerConfigProps,"num_compute_threads", defaultNumComputeThreads);
 			
-			RinitializationFileName = getMandatoryStringProperty(analysisServerConfigProps,"RinitializationFileName");
+			RinitializationFileName = getMandatoryStringProperty(analysisServerConfigProps,"RinitializationFile");
 			
 			RdataFileDirectory = getMandatoryStringProperty(analysisServerConfigProps, "RdataFileDirectory" );
 			
