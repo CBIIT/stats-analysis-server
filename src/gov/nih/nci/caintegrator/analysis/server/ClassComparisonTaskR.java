@@ -341,6 +341,12 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 	public void cleanUp() {
 		//doRvoidEval("remove(ccInputMatrix)");
 		//doRvoidEval("remove(ccResult)");
-		setRComputeConnection(null);
+		try {
+			setRComputeConnection(null);
+		} catch (AnalysisServerException e) {
+			logger.error("Error in cleanUp method.");
+			logger.error(e);
+			setException(e);
+		}
 	}
 }

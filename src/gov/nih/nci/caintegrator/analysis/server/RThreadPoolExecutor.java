@@ -1,6 +1,8 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -107,9 +109,14 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 		
 		AnalysisTaskR rTask = (AnalysisTaskR) task;
 		RThread rThread = (RThread) thread;
-		
 		rTask.setExecutingThreadName(rThread.getName());
-		rTask.setRComputeConnection(rThread.getRComputeConnection());
+		try {
+			rTask.setRComputeConnection(rThread.getRComputeConnection());
+		} catch (AnalysisServerException e) {
+			rTask.setException(e);
+			logger.error("Caught AnalysisServerException when trying to set the RComputeConnection");
+			logger.error(e);
+		}
 		rTask.setDebugRcommands(debugRcommands);
 		rTask.setStartTime(System.currentTimeMillis());
 		

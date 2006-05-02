@@ -1,5 +1,7 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
+
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
@@ -36,15 +38,23 @@ public class RComputeConnection extends Rconnection {
 	public String getRdataFileName() { return rDataFileName; }
 	
 	
-	public void setRDataFile(String rDataFileName) throws RSrvException  {
+	public void setRDataFile(String rDataFileName) throws AnalysisServerException   {
 	  
 		//load the rDataFile from disk
 		long start = System.currentTimeMillis();
+		
+		this.rDataFileName = rDataFileName;
 
 		String fullFileName = rDataFileDirectory + rDataFileName;
 		
 		String rCmd = "load(\"" + fullFileName  + "\")";
-		voidEval(rCmd);
+		try {
+			voidEval(rCmd);
+		} catch (RSrvException e) {
+			logger.error("Error (setRDataFile rDataFileName=" + rDataFileName);
+			logger.error(e);
+			throw new AnalysisServerException("Error setting the RDataFile to rDataFileName=" + rDataFileName);
+		}
 		long elapsedTime = System.currentTimeMillis() - start;
 		logger.info("Successfully loaded rDataFile=" + fullFileName + " elapsedTimeMS=" + elapsedTime);
 		

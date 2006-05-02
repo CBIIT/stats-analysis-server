@@ -248,7 +248,13 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 	public void cleanUp() {
 		//doRvoidEval("remove(hcInputMatrix)");
 		//doRvoidEval("remove(mycluster)");
-		setRComputeConnection(null);
+		try {
+			setRComputeConnection(null);
+		} catch (AnalysisServerException e) {
+		   logger.error("Error in cleanUp method");
+		   logger.error(e);
+		   setException(e);
+		}
 	}
 
 }

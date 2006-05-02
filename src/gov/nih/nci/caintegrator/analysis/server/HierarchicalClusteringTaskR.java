@@ -1,18 +1,17 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringResult;
+import gov.nih.nci.caintegrator.enumeration.ClusterByType;
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
-
-import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
-import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringResult;
-import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
-import gov.nih.nci.caintegrator.enumeration.*;
-import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 //import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 /**
@@ -276,7 +275,13 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 	public void cleanUp() {
 		//doRvoidEval("remove(hcInputMatrix)");
 		//doRvoidEval("remove(mycluster)");
-		setRComputeConnection(null);
+		try {
+			setRComputeConnection(null);
+		} catch (AnalysisServerException e) {
+			logger.error("Error in cleanUp method");
+			logger.error(e);
+		    setException(e);
+		}
 	}
 
 }
