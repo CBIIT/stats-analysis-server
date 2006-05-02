@@ -1,4 +1,3 @@
-load("@ANALYSIS_SERVER_INSTALL_DIR@/RdataFiles/@DATA_FILE@")
 source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/getSubmatrix.R")
 source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/computePCA_function.R")
 source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/ttest.R")
