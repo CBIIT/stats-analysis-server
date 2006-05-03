@@ -107,24 +107,24 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	 */
 	public abstract void run();
 
-	public void setRComputeConnection(RComputeConnection connection) throws AnalysisServerException {
-		this.computeConnection = connection;
+	public void setDataFile(String dataFileName) throws AnalysisServerException {
 		
-		//check to see if the data file on the compute connection is the 
-		//same as that for the analysis task
-		String requestDataFileName = getRequest().getDataFileName();
-		if (!requestDataFileName.equals(connection.getRdataFileName())) {
+		String connectionDataFileName = getRComputeConnection().getRdataFileName();
+		if (!dataFileName.equals(connectionDataFileName)) {
 		  
-		  logger.info("AnalysisTaskR (setRComputeConnection request=" + getRequest() + " switching data file from=" + connection.getRdataFileName() + 
-				       " to=" + requestDataFileName);
-	      connection.setRDataFile(requestDataFileName);
+		  logger.info("AnalysisTaskR.setDataFile request=" + getRequest() + " switching data file from=" + connectionDataFileName + 
+				       " to=" + dataFileName);
+	      computeConnection.setRDataFile(dataFileName);
 		  
 		}
 		else {
-		  logger.info("AnalysisTaskR (setRComputeConnection request=" + getRequest() + " no data file switch required current=" + connection.getRdataFileName() + 
-					       " reques=" + requestDataFileName);
+		  logger.info("AnalysisTaskR.setDataFile request=" + getRequest() + " no data file switch required correct file already loaded current=" + connectionDataFileName + 
+					       " request=" + dataFileName);
 		}
-		
+	}
+	
+	public void setRComputeConnection(RComputeConnection connection) throws AnalysisServerException {
+		this.computeConnection = connection;
 	}
 
 	public RComputeConnection getRComputeConnection() {

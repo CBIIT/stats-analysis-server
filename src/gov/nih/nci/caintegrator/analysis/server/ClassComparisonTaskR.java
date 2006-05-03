@@ -101,12 +101,30 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 
 	public void run() {
 
+	
+		
 		ClassComparisonRequest ccRequest = (ClassComparisonRequest) getRequest();
 		
 		ccResult = new ClassComparisonResult(ccRequest.getSessionId(), ccRequest.getTaskId());
 
 		logger.info(getExecutingThreadName() + ": processing class comparison request=" + ccRequest);
 
+		
+		
+		//set the data file
+//		check to see if the data file on the compute connection is the 
+		//same as that for the analysis task
+		
+		
+		try {
+			setDataFile(ccRequest.getDataFileName());
+		} catch (AnalysisServerException e) {
+			logger.error("Internal Error. Error setting data file to fileName=" + ccRequest.getDataFileName());
+			setException(e);
+			return;
+		}
+		
+		
 		SampleGroup group1 = ccRequest.getGroup1();
 		SampleGroup baselineGroup = ccRequest.getBaselineGroup();
 		

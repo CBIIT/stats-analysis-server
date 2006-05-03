@@ -103,6 +103,15 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 		
 		logger.info(getExecutingThreadName() + " processing principal component analysis request=" + pcaRequest);
 		
+		try {
+			setDataFile(pcaRequest.getDataFileName());
+		} catch (AnalysisServerException e) {
+			logger.error("Internal Error. Error setting data file to fileName=" + pcaRequest.getDataFileName());
+			setException(e);
+			return;
+		}
+		
+		
 		double[] pca1, pca2, pca3;
 		
 		try {

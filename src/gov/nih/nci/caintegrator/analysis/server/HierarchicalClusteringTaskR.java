@@ -139,6 +139,14 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 				getRequest().getTaskId());
 		logger.info(getExecutingThreadName() + " processing hierarchical clustering analysis request="
 						+ hcRequest);
+		
+		try {
+			setDataFile(hcRequest.getDataFileName());
+		} catch (AnalysisServerException e) {
+			logger.error("Internal Error. Error setting data file to fileName=" + hcRequest.getDataFileName());
+			setException(e);
+			return;
+		}
 
 		try {
 		
