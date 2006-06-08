@@ -206,7 +206,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 		}
 		catch (AnalysisServerException asex) {
 			AnalysisServerException aex = new AnalysisServerException(
-			"Internal Error. Caught AnalysisServerException in PrincipalComponentAnalysisTaskR." + asex.getMessage());
+			"Problem with PCA computation (Possibly too few samples or reporters specified). Caught AnalysisServerException in PrincipalComponentAnalysisTaskR." + asex.getMessage());
 	        aex.setFailedRequest(pcaRequest);
 	        setException(aex);
 	        return;  
