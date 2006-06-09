@@ -257,7 +257,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 		}
 		catch (AnalysisServerException asex) {
 			AnalysisServerException aex = new AnalysisServerException(
-			"Internal Error. Caught AnalysisServerException in HierarchicalClusteringTaskR." + asex.getMessage());
+			"Problem with clustering computation (Try using a less stringent variance filter). Caught AnalysisServerException in HierarchicalClusteringTaskR." + asex.getMessage());
 	        aex.setFailedRequest(hcRequest);
 	        setException(aex);
 	        return;  
