@@ -109,6 +109,11 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 
 	public void setDataFile(String dataFileName) throws AnalysisServerException {
 		
+		if (dataFileName == null) {
+		  logger.error("setDataFile dataFileName=null");
+		  throw new AnalysisServerException("Null dataFileName passed to setDataFileName");
+		}
+		
 		String connectionDataFileName = getRComputeConnection().getRdataFileName();
 		if (!dataFileName.equals(connectionDataFileName)) {
 		  

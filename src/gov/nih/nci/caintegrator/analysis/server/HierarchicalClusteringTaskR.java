@@ -143,6 +143,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 		try {
 			setDataFile(hcRequest.getDataFileName());
 		} catch (AnalysisServerException e) {
+			e.setFailedRequest(hcRequest);
 			logger.error("Internal Error. Error setting data file to fileName=" + hcRequest.getDataFileName());
 			setException(e);
 			return;

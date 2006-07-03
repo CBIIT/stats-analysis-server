@@ -106,6 +106,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 		try {
 			setDataFile(pcaRequest.getDataFileName());
 		} catch (AnalysisServerException e) {
+			e.setFailedRequest(pcaRequest);
 			logger.error("Internal Error. Error setting data file to fileName=" + pcaRequest.getDataFileName());
 			setException(e);
 			return;

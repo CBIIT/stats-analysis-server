@@ -119,6 +119,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		try {
 			setDataFile(ccRequest.getDataFileName());
 		} catch (AnalysisServerException e) {
+			e.setFailedRequest(ccRequest);
 			logger.error("Internal Error. Error setting data file to fileName=" + ccRequest.getDataFileName());
 			setException(e);
 			return;
