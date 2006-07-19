@@ -6,10 +6,13 @@
 # Date: July 2006
 #################################################################################################
 
+# Pearson Correlation is parametric test for correlation.
 # Pearson correlation analysis was used to describe associations between measurements. Pearson's 
 # correlation coefficient is a measure of linear association. Two variables can be perfectly related, 
 # however, if the relationship is not linear, Pearson's correlation coefficient is not an appropriate
 # statistics for measuring their association. 
+
+# Spearman's correlation is a non-parametric test for the strength of the relationship between pairs of variables
 # Spearman Rank Correlation measures the correlation between two sequences of values. The two sequences 
 # are ranked separately and the differences in rank are calculated at each position. The range of Spearman 
 # Correlation is from -1 to 1. Spearman Correlation can detect certain linear and non-linear correlations. 
