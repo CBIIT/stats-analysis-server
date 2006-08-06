@@ -3,6 +3,7 @@ package gov.nih.nci.caintegrator.analysis.server;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -391,6 +392,8 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processHierarchicalClusteringRequest((HierarchicalClusteringRequest) request, resultDestination);
 			} else if (request instanceof PrincipalComponentAnalysisRequest) {
 				processPrincipalComponentAnalysisRequest((PrincipalComponentAnalysisRequest) request, resultDestination);
+			} else if (request instanceof CompoundAnalysisRequest) {
+				processCompoundAnalysisReqeust((CompoundAnalysisRequest) request, resultDestination);
 			}
 
 			// sendResult(request);
@@ -409,6 +412,12 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	}
 	
 	
+	private void processCompoundAnalysisReqeust(CompoundAnalysisRequest request, Destination resultDestination) {
+	  CompoundRequestTaskR compoundTaskR = new CompoundRequestTaskR(request, true);
+	  compoundTaskR.setJMSDestination(resultDestination);
+	  executor.execute(compoundTaskR);
+	}
+
 	/**
 	 * Process a class comparison analysis request.
 	 * 
