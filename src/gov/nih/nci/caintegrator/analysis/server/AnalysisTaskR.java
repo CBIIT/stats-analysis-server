@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
@@ -218,6 +219,23 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 		}
 		sb.append(")");
 		return sb.toString();
+	}
+	
+	public static String getRgroupCmd(String rName, List items) {
+	  StringBuffer sb = new StringBuffer();
+	  sb.append(rName);
+	  sb.append(" <- c(");
+	  String str;
+	  
+	  for (Iterator i = items.iterator(); i.hasNext(); ) {
+		str = (String) i.next();
+		sb.append("\"").append(str).append("\"");
+		if (i.hasNext()) {
+			sb.append(",");
+		} 
+	  }
+	  sb.append(")");
+	  return sb.toString();
 	}
 	
 	
