@@ -4,6 +4,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -394,6 +395,8 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processPrincipalComponentAnalysisRequest((PrincipalComponentAnalysisRequest) request, resultDestination);
 			} else if (request instanceof CompoundAnalysisRequest) {
 				processCompoundAnalysisReqeust((CompoundAnalysisRequest) request, resultDestination);
+			} else if (request instanceof CorrelationRequest) {
+			    processCorrelationRequest((CorrelationRequest) request, resultDestination);
 			}
 
 			// sendResult(request);
@@ -452,6 +455,12 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		PrincipalComponentAnalysisTaskR pcaTaskR = new PrincipalComponentAnalysisTaskR(pcaRequest, true);
 		pcaTaskR.setJMSDestination(resultDestination);
 		executor.execute(pcaTaskR);
+	}
+	
+	private void processCorrelationRequest(CorrelationRequest corrRequest, Destination resultDestination) {
+	  CorrelationTaskR corrTaskR = new CorrelationTaskR(corrRequest, true);
+	  corrTaskR.setJMSDestination(resultDestination);
+	  executor.execute(corrTaskR);
 	}
 
 	/**
