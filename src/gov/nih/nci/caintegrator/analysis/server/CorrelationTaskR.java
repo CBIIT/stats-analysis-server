@@ -46,7 +46,9 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		
 		try {
 		
-			// get the submatrix to operate on
+			//Need to handle case where gene expression reporters are passed in..
+			
+			
 			String cmd = CorrelationTaskR.getRgroupCmd("GRP1", corrRequest.getVector1());
 			doRvoidEval(cmd);
 			
@@ -89,14 +91,18 @@ public class CorrelationTaskR extends AnalysisTaskR {
 
 	@Override
 	public void cleanUp() {
-		// TODO Auto-generated method stub
-
+		try {
+			setRComputeConnection(null);
+		} catch (AnalysisServerException e) {
+			logger.error("Error in cleanUp method.");
+			logger.error(e);
+			setException(e);
+		}
 	}
 
 	@Override
 	public AnalysisResult getResult() {
-		// TODO Auto-generated method stub
-		return null;
+		return result;
 	}
 
 }
