@@ -75,7 +75,7 @@ myttest <- function(datmat, m1=length(grp1ids), m2=length(grp21ids), var.equal=T
   return(result)
 }
 
-# raw.result<- myttest(datmat,length(grp1ids), length(grp21ids))
+# raw.result<- myttest(datmat,length(grp1ids), length(grp2ids))
 # return: result$mean1,result$mean2,result$mean.dif,result$fc,result$pval
 # call FDR.ComparisonAdjustment.R or FWER.ComparisonAdjustment.R 
 
