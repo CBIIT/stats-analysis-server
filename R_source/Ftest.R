@@ -12,8 +12,8 @@
 # Output =  data frame (with header row) containing:
 # Reporters, means of groups, maximal fold change, p-values.
 
-Ftests <- function(m, pheno) {
-  ngenes <- dim(m)[1]
+Ftests <- function(datmat, pheno) {
+  ngenes <- dim(datmat)[1]
   tbl <- table(pheno)
   grps <- names(tbl)
   ngrps <- length(grps)
@@ -22,12 +22,12 @@ Ftests <- function(m, pheno) {
   ssi <- matrix(NA, ngenes, ngrps)
   for(i in 1:ngrps){
     if (tbl[i] > 1) {
-      temp <- m[,pheno==grps[i]]
+      temp <- datmat[,pheno==grps[i]]
       n[,i] <- apply(!is.na(temp), 1, sum)
       means[,i] <- apply(temp, 1, mean, na.rm=T)
       ssi[,i]<- apply((temp-matrix(means[,i],nrow(temp),ncol(temp)))^2, 1, sum, na.rm=T)
     } else {
-      temp <- m[,pheno==grps[i]]
+      temp <- datmat[,pheno==grps[i]]
       n[,i] <- !is.na(temp)
       means[,i] <- temp
       ssi[,i]<- 0
@@ -35,7 +35,7 @@ Ftests <- function(m, pheno) {
   }
   nvec <- apply(n, 1, sum)
   within<- apply(ssi, 1, sum)
-  between<- apply(m, 1, var, na.rm=T)*(nvec-1) - within
+  between<- apply(datmat, 1, var, na.rm=T)*(nvec-1) - within
   ndegenerate <- apply(n==0, 1, sum) 
   df1 <- ngrps-ndegenerate-1
   df2 <- nvec-ngrps+ndegenerate
@@ -46,10 +46,10 @@ Ftests <- function(m, pheno) {
   mfc <- rep(NA, ngenes)
   mfc <- apply(means,1,max, na.rm=T) - apply(means,1,min, na.rm=T)
   result <- data.frame(means=means,mfc=2^mfc,pval=pval)
-  if (is.null(rownames(m)))
-    rownames(result) <- paste("v",1:nrow(m), sep="")
+  if (is.null(rownames(datmat)))
+    rownames(result) <- paste("v",1:nrow(datmat), sep="")
     else
-    rownames(result) <- rownames(m)
+    rownames(result) <- rownames(datmat)
   return(result)
  }
 
