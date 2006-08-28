@@ -35,10 +35,22 @@ public class CorrelationTaskR extends AnalysisTaskR {
 						+ corrRequest);
 		
 		try {
-			setDataFile(corrRequest.getDataFileName());
+			
+			String dataFileName = corrRequest.getDataFileName();
+			
+			if (dataFileName == null) {
+			  //check to make sure that the vectors have data
+			  if ((corrRequest.getVector1()==null)||(corrRequest.getVector2()==null)) {
+				throw new AnalysisServerException("Problem with correlation request. No data file specified and vectors are null.");
+			  }	  
+			}
+			else {
+			  setDataFile(corrRequest.getDataFileName());
+			}
+			
 		} catch (AnalysisServerException e) {
 			e.setFailedRequest(corrRequest);
-			logger.error("Internal Error. Error setting data file to fileName=" + corrRequest.getDataFileName());
+			logger.error("Internal Error. " + e.getMessage());
 			setException(e);
 			return;
 		}
