@@ -228,7 +228,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	  String str;
 	  
 	  for (Iterator i = items.iterator(); i.hasNext(); ) {
-		str = (String) i.next();
+		str = i.next().toString();
 		sb.append("\"").append(str).append("\"");
 		if (i.hasNext()) {
 			sb.append(",");
