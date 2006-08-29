@@ -77,6 +77,9 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  cmd = "r <- correlation(GRP1,GRP2, \"spearman\")";
 			  rVal = doREval(cmd);
 			}
+			else {
+			  throw new AnalysisServerException("Unrecognized correlationType or correlation type is null.");
+			}
 	
 			double r = rVal.asDouble();
 			result.setCorrelationValue(r);
@@ -94,7 +97,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		}
 		catch (Exception ex) {
 			AnalysisServerException asex = new AnalysisServerException(
-			"Internal Error. Caught AnalysisServerException in CorrelationTaskR." + ex.getMessage());
+			"Internal Error. Caught Exception in CorrelationTaskR exClass=" + ex.getClass() + " msg=" + ex.getMessage());
 	        asex.setFailedRequest(corrRequest);
 	        setException(asex);
 	        return;  
