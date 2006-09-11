@@ -61,10 +61,10 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			//Need to handle case where gene expression reporters are passed in..
 			
 			
-			String cmd = CorrelationTaskR.getRgroupCmd("GRP1", corrRequest.getVector1());
+			String cmd = CorrelationTaskR.getRgroupCmd("GRP1", corrRequest.getVector1().getValues());
 			doRvoidEval(cmd);
 			
-			cmd = CorrelationTaskR.getRgroupCmd("GRP2", corrRequest.getVector2());
+			cmd = CorrelationTaskR.getRgroupCmd("GRP2", corrRequest.getVector2().getValues());
 			doRvoidEval(cmd);
 			
 			REXP rVal = null;
@@ -83,9 +83,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	
 			double r = rVal.asDouble();
 			result.setCorrelationValue(r);
-			result.setVector1Name(corrRequest.getVector1Name());
-			result.setVector1(corrRequest.getVector1());			
-			result.setVector2Name(corrRequest.getVector2Name());
+			result.setVector1(corrRequest.getVector1());
 			result.setVector2(corrRequest.getVector2());
 		}
 		catch (AnalysisServerException asex) {
