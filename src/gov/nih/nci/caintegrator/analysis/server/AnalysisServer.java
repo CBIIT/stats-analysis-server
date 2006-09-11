@@ -5,6 +5,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -111,7 +112,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "6.6";
+	public static String version = "6.8";
 
 	private boolean debugRcommands = false;
 
@@ -397,6 +398,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processCompoundAnalysisReqeust((CompoundAnalysisRequest) request, resultDestination);
 			} else if (request instanceof CorrelationRequest) {
 			    processCorrelationRequest((CorrelationRequest) request, resultDestination);
+			} else if (request instanceof FTestRequest) {
+				processFTest((FTestRequest) request, resultDestination);
+				
 			}
 
 			// sendResult(request);
@@ -415,6 +419,12 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	}
 	
 	
+	private void processFTest(FTestRequest request, Destination resultDestination) {
+		FTestTaskR ftTaskR = new FTestTaskR(request, true);
+		ftTaskR.setJMSDestination(resultDestination);
+		executor.execute(ftTaskR);
+	}
+
 	private void processCompoundAnalysisReqeust(CompoundAnalysisRequest request, Destination resultDestination) {
 	  CompoundRequestTaskR compoundTaskR = new CompoundRequestTaskR(request, true);
 	  compoundTaskR.setJMSDestination(resultDestination);
