@@ -29,8 +29,7 @@ public class FTestTaskR extends AnalysisTaskR {
 	private Comparator ftComparator = new FTestComparator();
 
 	public FTestTaskR(AnalysisRequest request) {
-		super(request);
-		// TODO Auto-generated constructor stub
+		this(request, false);
 	}
 
 	public FTestTaskR(AnalysisRequest request, boolean debugRcommands) {
@@ -229,14 +228,18 @@ public class FTestTaskR extends AnalysisTaskR {
 
 	@Override
 	public void cleanUp() {
-		// TODO Auto-generated method stub
-
+		try {
+			setRComputeConnection(null);
+		} catch (AnalysisServerException e) {
+			logger.error("Error in cleanUp method.");
+			logger.error(e);
+			setException(e);
+		}
 	}
 
 	@Override
 	public AnalysisResult getResult() {
-		// TODO Auto-generated method stub
-		return null;
+		return result;
 	}
 
 }
