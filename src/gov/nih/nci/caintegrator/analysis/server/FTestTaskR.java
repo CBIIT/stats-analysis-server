@@ -43,6 +43,7 @@ public class FTestTaskR extends AnalysisTaskR {
 		logger.info(getExecutingThreadName() + " processing FTestRequest request="
 						+ ftRequest);
 		
+		
 		try {
 			
 			String dataFileName = ftRequest.getDataFileName();
@@ -73,6 +74,7 @@ public class FTestTaskR extends AnalysisTaskR {
 		    String matName = null;
 		    String phenoCmd = "pheno <- cbind(";
 		    
+		    result.setSampleGroups(sampleGroups);
 		    
 			for (int i=0; i < sampleGroups.size(); i++) {
 			  grp = (SampleGroup)sampleGroups.get(i);
