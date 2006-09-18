@@ -72,7 +72,7 @@ public class FTestTaskR extends AnalysisTaskR {
 			String grpName = null;
 			String bindCmd = "compMat <- cbind(";
 		    String matName = null;
-		    String phenoCmd = "pheno <- cbind(";
+		    String phenoCmd = "pheno <- as.factor(c(";
 		    
 		    result.setSampleGroups(sampleGroups);
 		    
@@ -96,7 +96,7 @@ public class FTestTaskR extends AnalysisTaskR {
 			  }
 			  else {
 				bindCmd += ")"; 
-				phenoCmd += ")";
+				phenoCmd += "))";
 			  }
 			  
 			  //to build pheno matrix use c(rep(i,grp.size()) 
