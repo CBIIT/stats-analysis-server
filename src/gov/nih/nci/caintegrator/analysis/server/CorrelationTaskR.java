@@ -1,9 +1,12 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import java.util.List;
+
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
+import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
 import gov.nih.nci.caintegrator.enumeration.CorrelationType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
@@ -33,6 +36,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		result = new CorrelationResult(getRequest().getSessionId(), getRequest().getTaskId());
 		logger.info(getExecutingThreadName() + " processing correlation request="
 						+ corrRequest);
+		REXP rVal;
 		
 		try {
 			
@@ -58,16 +62,66 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		
 		try {
 		
-			//Need to handle case where gene expression reporters are passed in..
+			//Check to see if a reporter was passed in
+			ReporterInfo reporter1 = corrRequest.getReporter1();
+			ReporterInfo reporter2 = corrRequest.getReporter2();
+			
+			//get the submatrix of the patients specified
+			List<String> sampleIds = corrRequest.getSampleIds();
+			String sampleIdscmd = getRgroupCmd("sampleIds", sampleIds);
+			String cmd;
+			Double r = -1.0;
+			
+			cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
+		
+			
+			if ((reporter1 != null) && (reporter2 != null)) {
+			  //CASE 1:  correlation between two reporters
+				
+              //get the data matrix for reporter 1
+			  setDataFile(reporter1.getDataFileName());
+			  doRvoidEval(sampleIdscmd);
+			  cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
+			  doRvoidEval(cmd);			  
+			  cmd = "RM1 <- getSubmatrix.rep(SM," + reporter1.getReporterName() + ")";
+			  doRvoidEval(cmd);
+			 // result.setVector1(RM1);
+			  
+			  //need to set vector 1 with RM1
+			  
+			  
+			  //get the data matrix for reporter 2
+			  setDataFile(reporter2.getDataFileName());
+			  doRvoidEval(sampleIdscmd);
+			  cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
+			  doRvoidEval(cmd);			  
+			  cmd = "RM2 <- getSubmatrix.rep(SM," + reporter2.getReporterName() + ")";
+				
+			  //need to set vector 2 with RM2
+			  //result.setVector2(RM2);
+			  
+			  if (corrRequest.getCorrelationType() == CorrelationType.PEARSON) {
+				  cmd = "r <- correlation(RM1,RM2,\"pearson\")";
+				  rVal = doREval(cmd);
+				}
+				else if (corrRequest.getCorrelationType() == CorrelationType.SPEARMAN) {
+				  cmd = "r <- correlation(RM1,RM2, \"spearman\")";
+				  rVal = doREval(cmd);
+				}
+			  
+			}
 			
 			
-			String cmd = CorrelationTaskR.getRgroupCmd("GRP1", corrRequest.getVector1().getValues());
+			
+			
+			
+			//String cmd = CorrelationTaskR.getRgroupCmd("GRP1", corrRequest.getVector1().getValues());
 			doRvoidEval(cmd);
 			
 			cmd = CorrelationTaskR.getRgroupCmd("GRP2", corrRequest.getVector2().getValues());
 			doRvoidEval(cmd);
 			
-			REXP rVal = null;
+			//REXP rVal = null;
 			
 			if (corrRequest.getCorrelationType() == CorrelationType.PEARSON) {
 			  cmd = "r <- correlation(GRP1,GRP2,\"pearson\")";
@@ -81,7 +135,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  throw new AnalysisServerException("Unrecognized correlationType or correlation type is null.");
 			}
 	
-			double r = rVal.asDouble();
+			//double r = rVal.asDouble();
 			result.setCorrelationValue(r);
 			result.setVector1(corrRequest.getVector1());
 			result.setVector2(corrRequest.getVector2());

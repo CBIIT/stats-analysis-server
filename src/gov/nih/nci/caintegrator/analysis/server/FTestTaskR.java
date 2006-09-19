@@ -1,5 +1,7 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,7 +27,7 @@ import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 public class FTestTaskR extends AnalysisTaskR {
 
     private FTestResult result;
-	private static Logger logger = Logger.getLogger(CorrelationTaskR.class);
+	private static Logger logger = Logger.getLogger(FTestTaskR.class);
 	private Comparator ftComparator = new FTestComparator();
 
 	public FTestTaskR(AnalysisRequest request) {
@@ -121,9 +123,8 @@ public class FTestTaskR extends AnalysisTaskR {
 			if (adjMethod == MultiGroupComparisonAdjustmentType.NONE) {
 				// get differentially expressed reporters using
 				// unadjusted Pvalue
-	
-				// shouldn't need to pass in ccInputMatrix
-				rCmd = "ftResult  <- mydiferentiallygenes(ftResult,"
+					
+				rCmd = "ftResult  <- filterDiffExpressedGenes.FTest(ftResult,"
 						+ foldChangeThreshold + "," + pValueThreshold + ")";
 				doRvoidEval(rCmd);
 				result.setArePvaluesAdjusted(false);
@@ -132,7 +133,7 @@ public class FTestTaskR extends AnalysisTaskR {
 				rCmd = "adjust.result <- adjustP.Benjamini.Hochberg(ftResult)";
 				doRvoidEval(rCmd);
 				// get differentially expressed reporters using adjusted Pvalue
-				rCmd = "ftResult  <- mydiferentiallygenes.adjustP(adjust.result,"
+				rCmd = "ftResult  <- filterDiffExpressedGenes.FTest.adjustP(adjust.result,"
 						+ foldChangeThreshold + "," + pValueThreshold + ")";
 				doRvoidEval(rCmd);
 				result.setArePvaluesAdjusted(true);
@@ -141,7 +142,7 @@ public class FTestTaskR extends AnalysisTaskR {
 				rCmd = "adjust.result <- adjustP.Bonferroni(ftResult)";
 				doRvoidEval(rCmd);
 				// get differentially expresseed reporters using adjusted Pvalue
-				rCmd = "ftResult  <- mydiferentiallygenes.adjustP(adjust.result,"
+				rCmd = "ftResult  <- filterDiffExpressedGenes.FTest.adjustP(adjust.result,"
 						+ foldChangeThreshold + "," + pValueThreshold + ")";
 				doRvoidEval(rCmd);
 				result.setArePvaluesAdjusted(true);
@@ -152,39 +153,50 @@ public class FTestTaskR extends AnalysisTaskR {
 				return;
 			}
 			
-			//now extract the result
-//			double[] meanGrp1 = doREval("mean1 <- ftResult[,1]").asDoubleArray();
-//			double[] meanBaselineGrp = doREval("meanBaseline <- ftResult[,2]").asDoubleArray();
-//			double[] meanDif = doREval("meanDif <- ftResult[,3]").asDoubleArray();
-//			double[] absoluteFoldChange = doREval("fc <- ftResult[,4]").asDoubleArray();
-//			double[] pva = doREval("pva <- ftResult[,5]").asDoubleArray();
+			
+			double[][] grpMean = new double[sampleGroups.size()][];
+			int ind;
+			for (int i=0; i < sampleGroups.size(); i++) {
+			  ind = i+1;
+		      grpMean[i] = doREval("mean <- ftResult[," + ind + "]").asDoubleArray();
+			}
+			
+			//double[][] grpMean = doREval("mean <- as.matrix(ftResult[,1:" + sampleGroups.size()  + "])").asDoubleMatrix();
+	
+			logger.info("grpMean[0].length=" + grpMean[0].length);
 			
 			
-			double[][] grpMean = doREval("mean <- ftResult[,1:" + sampleGroups.size()  + "]").asDoubleMatrix();
+			double[] maxFoldChange = doREval("maxFC <- ftResult$mfc").asDoubleArray();
 			
-			int index = sampleGroups.size() + 1;
 			
-			double[] maxFoldChange = doREval("maxFC <- ftResult[," + index + "]").asDoubleArray();
-			index++;
-			double[] pval = doREval("pval <- ftResult[," + index + "]").asDoubleArray();
+			double[] pval = doREval("pval <- ftResult$pval").asDoubleArray();
 		
+			logger.info("FTest: maxFoldChange.length=" + maxFoldChange.length);
+			logger.info("FTest: pval.length=" + pval.length);
 			
 //			 get the labels
 			Vector reporterIds = doREval("ftLabels <- dimnames(ftResult)[[1]]")
 					.asVector();
-	
+			
+			logger.info("reporterIds.size=" + reporterIds.size());
+			
+			
+			
 			// load the result object
 			// need to see if this works for single group comparison
 			List<FTestResultEntry> resultEntries = new ArrayList<FTestResultEntry>(
 					maxFoldChange.length);
 			FTestResultEntry resultEntry;
 	        int numEntries = maxFoldChange.length;
+	        double[] grpm;
+	       
 			for (int i = 0; i < numEntries; i++) {
 				resultEntry = new FTestResultEntry();
 				resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
-				//resultEntry.setMeanGrp1(meanGrp1[i]);
-				for (int j=0; j < sampleGroups.size(); j++) {
-				  resultEntry.setGroupAverage(j, grpMean[i][j]);
+				grpm = new double[sampleGroups.size()];
+				for (int j=0; j <  sampleGroups.size(); j++) {
+				  grpm[j] = grpMean[j][i];
+				  resultEntry.setGroupMeans(grpm);
 				}
 				
 				resultEntry.setMaximumFoldChange(maxFoldChange[i]);
@@ -213,16 +225,23 @@ public class FTestTaskR extends AnalysisTaskR {
 		}
 		catch (AnalysisServerException asex) {
 			AnalysisServerException aex = new AnalysisServerException(
-			"Problem computing correlation. Caught AnalysisServerException in CorrelationTaskR." + asex.getMessage());
+			"Problem computing FTest. Caught AnalysisServerException in FTestTaskR." + asex.getMessage());
 	        aex.setFailedRequest(ftRequest);
 	        setException(aex);
+	        logger.error("Caught AnalysisServerException in FTestTaskR");
+	        logger.error(asex);
 	        return;  
 		}
 		catch (Exception ex) {
 			AnalysisServerException asex = new AnalysisServerException(
-			"Internal Error. Caught Exception in CorrelationTaskR exClass=" + ex.getClass() + " msg=" + ex.getMessage());
+			"Internal Error. Caught Exception in FTestTaskR exClass=" + ex.getClass() + " msg=" + ex.getMessage());
 	        asex.setFailedRequest(ftRequest);
 	        setException(asex);
+	        logger.error("Caught Exception in FTestTaskR");
+	        StringWriter sw = new StringWriter();
+	        PrintWriter pw  = new PrintWriter(sw);
+	        ex.printStackTrace(pw);
+	        logger.error(sw.toString());
 	        return;  
 		}
 
