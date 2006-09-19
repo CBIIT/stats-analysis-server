@@ -13,6 +13,19 @@ filtered.result <- woNAinPvalue.result[sel,]
 return(filtered.result)
 }
 
+filterDiffExpressedGenes.FTest <- function(raw.result,cons1=2, cons2=0.001, na.rm=TRUE) {
+woNAinPvalue.result <- raw.result[!is.na(raw.result$pval),]
+sel <- (woNAinPvalue.result$mfc >= cons1) & (woNAinPvalue.result$pval <=cons2)
+filtered.result <- woNAinPvalue.result[sel,]
+return(filtered.result)
+}
+
+filterDiffExpressedGenes.FTest.adjustP <- function(adjust.result, cons1=2, cons2=0.1) {
+sel <- (adjust.result$mfc >= cons1) & (adjust.result$adjustP <=cons2)
+filtered.result <- adjust.result[sel,]
+return(filtered.result)
+}
+
 
 # Call function
 # filtered.result <- mydiferentiallygenes(raw.result,2,0.001)
