@@ -46,6 +46,38 @@ public class FTestTaskR extends AnalysisTaskR {
 						+ ftRequest);
 		
 		
+		//check for overlap between the groups and for groups with too few members
+		List<SampleGroup> groups = ftRequest.getSampleGroups();
+		boolean errorCondition = false;
+		SampleGroup idsSeen = new SampleGroup();
+		String errorMsg = null;
+		for (SampleGroup group : groups) {
+		  if (group.size() < 3) {
+			 errorMsg = "Group: " + group.getGroupName() + " has less than three members. Sending exception.";
+		     logger.error(errorMsg);
+		     errorCondition = true;
+		     break;
+		  }
+		  
+		  if (idsSeen.containsAny(group)) {
+			errorMsg = "Group: " + group.getGroupName() + " contains overlapping ids. Sending exception.";
+		 	logger.error(errorMsg);
+		 	errorCondition = true;
+		 	break;
+		  }
+		  
+		  idsSeen.addAll(group);
+		}
+		
+		if (errorCondition) {
+	      AnalysisServerException ex = new AnalysisServerException("One or more groups have overlapping members or contain less than 3 entries.");
+		  ex.setFailedRequest(ftRequest);
+		  logger.error("Groups have overlapping members or less than 3 entries.");
+		  setException(ex);
+		  return;
+		}
+		
+		
 		try {
 			
 			String dataFileName = ftRequest.getDataFileName();
