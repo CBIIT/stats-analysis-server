@@ -52,8 +52,8 @@ public class FTestTaskR extends AnalysisTaskR {
 		SampleGroup idsSeen = new SampleGroup();
 		String errorMsg = null;
 		for (SampleGroup group : groups) {
-		  if (group.size() < 3) {
-			 errorMsg = "Group: " + group.getGroupName() + " has less than three members. Sending exception.";
+		  if (group.size() < 2) {
+			 errorMsg = "Group: " + group.getGroupName() + " has less than two members. Sending exception.";
 		     logger.error(errorMsg);
 		     errorCondition = true;
 		     break;
