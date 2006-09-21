@@ -9,7 +9,7 @@
 getSubmatrix.twogrps <- function(datmat, grp1ids, grp2ids) {
 	allids <- dimnames(datmat)[[2]]
     Submatrix <- cbind(datmat[,allids%in%grp1ids],datmat[,allids%in%grp2ids])
-    return(Submatrix)
+    return(as.matrix(Submatrix))
 }
 
 # Submatrix <- getSubmatrix.twogrps(datmat, grp1ids, grp2ids)  
@@ -17,7 +17,7 @@ getSubmatrix.twogrps <- function(datmat, grp1ids, grp2ids) {
 # Generate submatrix based on one group sample IDs
 getSubmatrix.onegrp <- function(datmat, grpids) {
 	allids <- dimnames(datmat)[[2]]
-    Submatrix <- datmat[,allids%in%grpids]
+    Submatrix <- as.matrix(datmat[,allids%in%grpids])
     return(Submatrix)
 }
 
@@ -26,7 +26,7 @@ getSubmatrix.onegrp <- function(datmat, grpids) {
 # Generate submatrix based on reporters
 getSubmatrix.rep <- function(datmat, rep.ids) {
 	allrep.ids <- dimnames(datmat)[[1]]
-    Submatrix.rep <- datmat[allrep.ids%in%rep.ids,]
+    Submatrix.rep <- as.matrix(datmat[allrep.ids%in%rep.ids,])
     return(Submatrix.rep)
 }
 
