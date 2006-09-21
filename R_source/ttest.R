@@ -50,13 +50,15 @@ myttest <- function(datmat, m1=length(grp1ids), m2=length(grp21ids), var.equal=T
        # denom=pooled variance.
        denom <- (rowVars(datmat[,1:m1,drop=FALSE], na.rm=TRUE)*(n1-1) +
                  rowVars(datmat[,(m1+1):m,drop=FALSE], na.rm=TRUE)*(n2-1))/(n-2)
+       std1 <- sqrt(rowVars(datmat[,1:m1,drop=FALSE], na.rm=TRUE))     
+       std2 <- sqrt(rowVars(datmat[,(m1+1):m,drop=FALSE], na.rm=TRUE))  
        tmp.sd <- sqrt(denom*((n1+n2)/(n1*n2)))
        tmp.df <- n-2
       }
        tpt <- (mean1-mean2)/tmp.sd
        ind <- which(n>2)
        pval[ind] <- ifelse(tpt[ind]<=0, 2*pt(tpt[ind],tmp.df[ind]), 2*(1-pt(tpt[ind],tmp.df[ind])))
-       result <- data.frame(mean1, mean2, mean.dif=mean1-mean2,fc=2^(abs(mean1-mean2)),pval=pval)
+       result <- data.frame(mean1, mean2, mean.dif=mean1-mean2,fc=2^(abs(mean1-mean2)),pval=pval,std1=std1,std2=std2)
       }
   else {
     # one sample t test
@@ -66,7 +68,7 @@ myttest <- function(datmat, m1=length(grp1ids), m2=length(grp21ids), var.equal=T
     tmp.t <- tmp.mean*sqrt(n)/tmp.sd
     tmp <- which(n>1)
     pval[tmp] <- ifelse(tmp.t[tmp]<=0, 2*pt(tmp.t[tmp],n[tmp]-1), 2*(1-pt(tmp.t[tmp],n[tmp]-1)))
-    result <- data.frame(mean=tmp.mean, fc=2^(abs(tmp.mean)),pval=pval)
+    result <- data.frame(mean=tmp.mean, fc=2^(abs(tmp.mean)),pval=pval,std=tmp.sd)
     }
     if (is.null(rownames(datmat)))
     rownames(result) <- paste("v",1:nrow(datmat), sep="")
