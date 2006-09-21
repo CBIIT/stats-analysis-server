@@ -55,8 +55,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			ReporterInfo reporter1 = corrRequest.getReporter1();
 			ReporterInfo reporter2 = corrRequest.getReporter2();
 			
-			result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
-			result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());
+			
 			
 			//get the submatrix of the patients specified
 			List<String> sampleIds = corrRequest.getSampleIds();
@@ -69,7 +68,8 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			
 			if ((reporter1 != null) && (reporter2 != null)) {
 			  //CASE 1:  correlation between two reporters
-				
+			  result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
+			  result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());
               //get the data matrix for reporter 1
 			  setDataFile(reporter1.getDataFileName());
 			  doRvoidEval(sampleIdscmd);
