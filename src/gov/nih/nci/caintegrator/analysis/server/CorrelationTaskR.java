@@ -55,6 +55,9 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			ReporterInfo reporter1 = corrRequest.getReporter1();
 			ReporterInfo reporter2 = corrRequest.getReporter2();
 			
+			result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
+			result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());
+			
 			//get the submatrix of the patients specified
 			List<String> sampleIds = corrRequest.getSampleIds();
 			String sampleIdscmd = getRgroupCmd("sampleIds", sampleIds);
@@ -75,7 +78,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  cmd = "RM1 <- getSubmatrix.rep(SM,\"" + reporter1.getReporterName() + "\")";
 			  double[] vec1 =  doREval(cmd).asDoubleArray();
 			  //need to make sure that the vectors are in the same order wrt sample ids
-			  cmd = "RM1_labels <- dimnames(RM1)[[1]]";
+			  cmd = "RM1labels <- dimnames(RM1)[[1]]";
 			  Vector RM1_ids = doREval(cmd).asVector();
 			  
 			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
@@ -99,6 +102,9 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  doRvoidEval(cmd);			  
 			  cmd = "RM2 <- getSubmatrix.rep(SM,\"" + reporter2.getReporterName() + "\")";
 			  double[] vec2 = doREval(cmd).asDoubleArray();
+			  
+			  
+			  cmd = "RM2labels <- dimnames(RM2)[[1]]";
 			  Vector RM2_ids = doREval(cmd).asVector();
 			 
 			  //set the vector with the values for vector2
