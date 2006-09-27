@@ -16,7 +16,9 @@ import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
 import gov.nih.nci.caintegrator.analysis.messaging.DataPoint;
+import gov.nih.nci.caintegrator.analysis.messaging.DoubleVector;
 import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
+import gov.nih.nci.caintegrator.enumeration.AxisType;
 import gov.nih.nci.caintegrator.enumeration.CorrelationType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
@@ -70,60 +72,12 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  //CASE 1:  correlation between two reporters
 			  result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
 			  result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());
-              //get the data matrix for reporter 1
-			  setDataFile(reporter1.getDataFileName());
-			  doRvoidEval(sampleIdscmd);
-			  cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
-			  doRvoidEval(cmd);			  
-			  cmd = "RM1 <- getSubmatrix.rep(SM,\"" + reporter1.getReporterName() + "\")";
-			  double[] vec1 =  doREval(cmd).asDoubleArray();
-			  //need to make sure that the vectors are in the same order wrt sample ids
-			  cmd = "RM1labels <- dimnames(RM1)[[1]]";
-			  Vector RM1_ids = doREval(cmd).asVector();
 			  
 			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
-			  String id;
-			  DataPoint point;
-			  for (int i=0; i < RM1_ids.size(); i++) {
-				  //create objects and store.
-				  id = ((REXP)RM1_ids.get(i)).toString();
-				  point = vecMap.get(id);
-				  if (point == null) {
-				    point = new DataPoint(id);
-				    vecMap.put(id, point);
-				  }
-				  point.setX(vec1[i]);
-			  }
-			  
-			  //get the data matrix for reporter 2
-			  setDataFile(reporter2.getDataFileName());
-			  doRvoidEval(sampleIdscmd);
-			  cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
-			  doRvoidEval(cmd);			  
-			  cmd = "RM2 <- getSubmatrix.rep(SM,\"" + reporter2.getReporterName() + "\")";
-			  double[] vec2 = doREval(cmd).asDoubleArray();
-			  
-			  
-			  cmd = "RM2labels <- dimnames(RM2)[[1]]";
-			  Vector RM2_ids = doREval(cmd).asVector();
-			 
-			  //set the vector with the values for vector2
-			  for (int i=0; i < RM2_ids.size(); i++) {
-				  //create objects and store.
-				  id = ((REXP)RM2_ids.get(i)).toString();
-				  point = vecMap.get(id);
-				  
-				  if (point != null) {
-					point.setY(vec2[i]);				   
-				  }
-				  else {
-					logger.warn("Correlation skipping id=" + id + " not found in data file 2");
-					vecMap.remove(id);
-				  }
-			  }
-			  
+			  setDataPoints(reporter1,sampleIds,vecMap, AxisType.X_AXIS, true);
+			  setDataPoints(reporter2,sampleIds,vecMap, AxisType.Y_AXIS, false);
+			   
 			  points = new ArrayList<DataPoint>(vecMap.values());
-			  
 			  
 			  String v1str = "v1 <- c(" + getDataString(points, true,false);
 			  String v2str = "v2 <- c(" + getDataString(points,false,true);
@@ -139,6 +93,24 @@ public class CorrelationTaskR extends AnalysisTaskR {
 				  r = doREval(cmd).asDouble();
 				}
 			  
+			}
+			else if ((reporter1!=null) && (reporter2==null)) {
+			  //CASE2 : a reporter against a vector
+			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
+			  setDataPoints(reporter1,sampleIds,vecMap, AxisType.X_AXIS, true);
+			  
+			  //get the vector
+//			  DoubleVector vec1 = corrRequest.getVector1();
+//			  vec1.
+				
+			}
+			else if ((reporter1==null) && (reporter2!=null) ) {
+			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
+			  setDataPoints(reporter2,sampleIds,vecMap, AxisType.X_AXIS, true);
+			}
+			else { 
+			  //handle the two vector case
+				
 			}
 			
 			
@@ -191,6 +163,57 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		}
 	}
 
+	private void setDataPoints(ReporterInfo reporter, List<String> sampleIds, Map<String, DataPoint> pointMap, AxisType axis, boolean createNewPoints) {
+		
+		try {
+			
+			List<DataPoint> retList = new ArrayList<DataPoint>();
+			setDataFile(reporter.getDataFileName());
+		
+			String sampleIdscmd = getRgroupCmd("sampleIds", sampleIds);
+			doRvoidEval(sampleIdscmd);
+			
+			String cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
+			doRvoidEval(cmd);			  
+			cmd = "RM <- getSubmatrix.rep(SM,\"" + reporter.getReporterName() + "\")";
+			double[] vec =  doREval(cmd).asDoubleArray();
+			//need to make sure that the vectors are in the same order wrt sample ids
+			cmd = "RMlabels <- dimnames(RM1)[[1]]";
+			Vector RM_ids = doREval(cmd).asVector();
+			DataPoint point;
+			String id;
+			for (int i=0; i < RM_ids.size(); i++) {
+			  id = ((REXP)RM_ids.get(i)).toString();
+			  
+			  point = pointMap.get(id);
+			  if (point == null) {
+				if (createNewPoints) {
+			      point = new DataPoint(id);
+			      pointMap.put(id, point);
+				}
+				else {
+				  logger.warn("Could not find id=" + id + " in point map reporter=" + reporter.getReporterName());
+				  continue;
+				}
+			  }
+			   
+			  if (axis == AxisType.X_AXIS) {
+			    point.setX(vec[i]);
+			  }
+			  else if (axis == AxisType.Y_AXIS) {
+			    point.setY(vec[i]);
+			  }
+			  else if (axis == AxisType.Z_AXIS) {
+			    point.setZ(vec[i]);
+			  }
+			}
+		
+		} catch (AnalysisServerException ex) {
+		  logger.error("Caught AnalysisServerException in getVector method for reporter=" + reporter);
+		  logger.error(ex);
+		}
+	}
+	
 	@Override
 	public void cleanUp() {
 		try {
