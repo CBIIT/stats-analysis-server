@@ -5,6 +5,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
 import gov.nih.nci.caintegrator.analysis.messaging.DataPoint;
+import gov.nih.nci.caintegrator.analysis.messaging.PCAresultEntry;
 import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
 import gov.nih.nci.caintegrator.enumeration.AxisType;
 import gov.nih.nci.caintegrator.enumeration.CorrelationType;
@@ -139,10 +140,8 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			result.setDataPoints(points);
 		}
 		catch (AnalysisServerException asex) {
-			AnalysisServerException aex = new AnalysisServerException(
-			"Problem computing correlation. Caught AnalysisServerException in CorrelationTaskR." + asex.getMessage());
-	        aex.setFailedRequest(corrRequest);
-	        setException(aex);
+		    asex.setFailedRequest(corrRequest);
+	        setException(asex);
 	        logger.error("Caught AnalysisServerException");
 	        logger.error(asex);
 	        return;  
@@ -161,7 +160,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		}
 	}
 
-	private void setDataPoints(ReporterInfo reporter, List<String> sampleIds, Map<String, DataPoint> pointMap, AxisType axis, boolean createNewPoints) {
+	private void setDataPoints(ReporterInfo reporter, List<String> sampleIds, Map<String, DataPoint> pointMap, AxisType axis, boolean createNewPoints) throws AnalysisServerException{
 		
 		try {
 			
@@ -176,12 +175,21 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			cmd = "RM <- getSubmatrix.rep(SM,\"" + reporter.getReporterName() + "\")";
 			double[] vec =  doREval(cmd).asDoubleArray();
 			//need to make sure that the vectors are in the same order wrt sample ids
-			cmd = "RMlabels <- dimnames(RM1)[[1]]";
+			cmd = "RMlabels <- dimnames(RM)[[1]]";
 			Vector RM_ids = doREval(cmd).asVector();
+			
+		    if (RM_ids == null) {
+		      throw new AnalysisServerException("Reporter " + reporter.getReporterName() + " not found in data file=" + reporter.getDataFileName() + ".");
+		    }
+			
 			DataPoint point;
 			String id;
+			REXP exp;
 			for (int i=0; i < RM_ids.size(); i++) {
-			  id = ((REXP)RM_ids.get(i)).asString();
+			  exp = (REXP) RM_ids.get(i);
+			  id = exp.asString();
+			  
+			  logger.info("Adding data point with id=" + id);
 			  
 			  point = pointMap.get(id);
 			  if (point == null) {
@@ -206,9 +214,10 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  }
 			}
 		
-		} catch (AnalysisServerException ex) {
-		  logger.error("Caught AnalysisServerException in getVector method for reporter=" + reporter);
-		  logger.error(ex);
+		} 
+		catch (Exception ex2) {
+			logger.error("Caught exception in setDataPoints method for reporter=" + reporter);
+			logger.error(ex2);
 		}
 	}
 	
