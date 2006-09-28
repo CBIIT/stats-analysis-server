@@ -1,26 +1,24 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
+import gov.nih.nci.caintegrator.analysis.messaging.DataPoint;
+import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
+import gov.nih.nci.caintegrator.enumeration.AxisType;
+import gov.nih.nci.caintegrator.enumeration.CorrelationType;
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
-import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
-import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
-import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
-import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
-import gov.nih.nci.caintegrator.analysis.messaging.DataPoint;
-import gov.nih.nci.caintegrator.analysis.messaging.DoubleVector;
-import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
-import gov.nih.nci.caintegrator.enumeration.AxisType;
-import gov.nih.nci.caintegrator.enumeration.CorrelationType;
-import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
@@ -183,7 +181,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			DataPoint point;
 			String id;
 			for (int i=0; i < RM_ids.size(); i++) {
-			  id = ((REXP)RM_ids.get(i)).toString();
+			  id = ((REXP)RM_ids.get(i)).asString();
 			  
 			  point = pointMap.get(id);
 			  if (point == null) {
