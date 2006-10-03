@@ -5,7 +5,6 @@ import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
 import gov.nih.nci.caintegrator.analysis.messaging.DataPoint;
-import gov.nih.nci.caintegrator.analysis.messaging.PCAresultEntry;
 import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
 import gov.nih.nci.caintegrator.enumeration.AxisType;
 import gov.nih.nci.caintegrator.enumeration.CorrelationType;
@@ -29,6 +28,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	private CorrelationResult result;
 	
 	private static Logger logger = Logger.getLogger(CorrelationTaskR.class);
+	private CorrelationRequest corrRequest;
 
 	
 	public CorrelationTaskR(AnalysisRequest request) {
@@ -43,12 +43,12 @@ public class CorrelationTaskR extends AnalysisTaskR {
 
 	@Override
 	public void run() {
-		CorrelationRequest corrRequest = (CorrelationRequest) getRequest();
+		corrRequest = (CorrelationRequest) getRequest();
 		result = new CorrelationResult(getRequest().getSessionId(), getRequest().getTaskId());
 		logger.info(getExecutingThreadName() + " processing correlation request="
 						+ corrRequest);
-		double rVal = -1.0;
-		List<DataPoint> points = Collections.emptyList();
+		
+		List<DataPoint> computePoints = null;
 	
 		try {
 		
@@ -56,88 +56,42 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			ReporterInfo reporter1 = corrRequest.getReporter1();
 			ReporterInfo reporter2 = corrRequest.getReporter2();
 			
-			
-			
-			//get the submatrix of the patients specified
-			List<String> sampleIds = corrRequest.getSampleIds();
-			String sampleIdscmd = getRgroupCmd("sampleIds", sampleIds);
-			String cmd;
-			Double r = -1.0;
-			
-			cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
-		
-			
+			List<String> restrictingSampleIds = corrRequest.getSampleIds();			
+			Double r = null;
+			Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
+						
 			if ((reporter1 != null) && (reporter2 != null)) {
 			  //CASE 1:  correlation between two reporters
 			  result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
 			  result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());
-			  
-			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
-			  setDataPoints(reporter1,sampleIds,vecMap, AxisType.X_AXIS, true);
-			  setDataPoints(reporter2,sampleIds,vecMap, AxisType.Y_AXIS, false);
-			   
-			  points = new ArrayList<DataPoint>(vecMap.values());
-			  
-			  String v1str = "v1 <- c(" + getDataString(points, true,false);
-			  String v2str = "v2 <- c(" + getDataString(points,false,true);
-			  
-			  doRvoidEval(v1str);
-			  doRvoidEval(v2str);
-			  if (corrRequest.getCorrelationType() == CorrelationType.PEARSON) {
-				  cmd = "r <- correlation(v1,v2,\"pearson\")";
-				  r = doREval(cmd).asDouble();
-				}
-				else if (corrRequest.getCorrelationType() == CorrelationType.SPEARMAN) {
-				  cmd = "r <- correlation(v1,v2, \"spearman\")";
-				  r = doREval(cmd).asDouble();
-				}
-			  
+			  			 			 
+			  setDataPoints(reporter1,restrictingSampleIds,vecMap, AxisType.X_AXIS, true);
+			  setDataPoints(reporter2,restrictingSampleIds,vecMap, AxisType.Y_AXIS, false);  
 			}
 			else if ((reporter1!=null) && (reporter2==null)) {
-			  //CASE2 : a reporter against a vector
-			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
-			  setDataPoints(reporter1,sampleIds,vecMap, AxisType.X_AXIS, true);
+			  //CASE2 : a reporter against a vector			 
+			  List<DataPoint> yPoints = corrRequest.getVector2();
+			  setDataPoints(yPoints,vecMap, true);
+			  setDataPoints(reporter1,restrictingSampleIds,vecMap, AxisType.X_AXIS, false);
+			}
+			else if ((reporter1==null) && (reporter2!=null) ) {			  
+			  List<DataPoint> xPoints = corrRequest.getVector1();
+			  setDataPoints(xPoints,vecMap, true);
+			  setDataPoints(reporter2,restrictingSampleIds,vecMap, AxisType.Y_AXIS, false);
+			}
+			else { 			  
+			  List<DataPoint> xPoints = corrRequest.getVector1();
+			  setDataPoints(xPoints, vecMap, true);
 			  
-			  //get the vector
-//			  DoubleVector vec1 = corrRequest.getVector1();
-//			  vec1.
-				
-			}
-			else if ((reporter1==null) && (reporter2!=null) ) {
-			  Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
-			  setDataPoints(reporter2,sampleIds,vecMap, AxisType.X_AXIS, true);
-			}
-			else { 
-			  //handle the two vector case
-				
-			}
+			  List<DataPoint> yPoints = corrRequest.getVector2();
+			  setDataPoints(yPoints, vecMap, false);
+			}		
 			
+			computePoints = new ArrayList<DataPoint>(vecMap.values());
+			r = this.computeCorrelationCofficient(computePoints);
 			
-			//String cmd = CorrelationTaskR.getRgroupCmd("GRP1", corrRequest.getVector1().getValues());
-//			doRvoidEval(cmd);
-//			
-//			cmd = CorrelationTaskR.getRgroupCmd("GRP2", corrRequest.getVector2().getValues());
-//			doRvoidEval(cmd);
-			
-			//REXP rVal = null;
-			
-//			if (corrRequest.getCorrelationType() == CorrelationType.PEARSON) {
-//			  cmd = "r <- correlation(GRP1,GRP2,\"pearson\")";
-//			  rVal = doREval(cmd);
-//			}
-//			else if (corrRequest.getCorrelationType() == CorrelationType.SPEARMAN) {
-//			  cmd = "r <- correlation(GRP1,GRP2, \"spearman\")";
-//			  rVal = doREval(cmd);
-//			}
-//			else {
-//			  throw new AnalysisServerException("Unrecognized correlationType or correlation type is null.");
-//			}
-	
-			//double r = rVal.asDouble();
-			result.setCorrelationValue(r);
-			//result.setVector1(vec1);
-			//result.setVector2(vec2);
-			result.setDataPoints(points);
+			result.setCorrelationValue(r);			
+			result.setDataPoints(computePoints);
 		}
 		catch (AnalysisServerException asex) {
 		    asex.setFailedRequest(corrRequest);
@@ -160,18 +114,94 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		}
 	}
 
+	/**
+	 * Compute the correlation coefficient based on the specified compute points.
+	 * @param computePoints
+	 * @return
+	 * @throws AnalysisServerException
+	 */
+	private Double computeCorrelationCofficient(List<DataPoint> computePoints) throws AnalysisServerException {
+		String v1str = "v1 <- c(" + getDataString(computePoints, true,false);
+		  String v2str = "v2 <- c(" + getDataString(computePoints,false,true);
+		  Double r = null;
+		  String cmd;
+		  		  
+		  doRvoidEval(v1str);
+		  doRvoidEval(v2str);
+		  if (corrRequest.getCorrelationType() == CorrelationType.PEARSON) {
+		    cmd = "r <- correlation(v1,v2,\"pearson\")";
+		    r = doREval(cmd).asDouble();
+		  }
+		  else if (corrRequest.getCorrelationType() == CorrelationType.SPEARMAN) {
+		    cmd = "r <- correlation(v1,v2, \"spearman\")";
+		    r = doREval(cmd).asDouble();
+		  }
+		  
+		  return r;
+	}
+	
+	/**
+	 * Load the pontMap with the points
+	 * @param points
+	 * @param pointMap
+	 * @param createPoints
+	 */
+	private void setDataPoints(List<DataPoint> points, Map<String, DataPoint> pointMap, boolean createPoints) {
+	  String id;
+	  DataPoint dp;
+	  
+	  for (DataPoint point : points) {	
+		  
+		id = point.getId();
+		dp = pointMap.get(id);
+		
+		if (dp == null)  { 
+		  if (createPoints) {
+		    pointMap.put(id, point);
+		  }
+		  else {
+			logger.warn("pointMap does not contain an entry with id=" + id + " skipping point...");
+		  }
+		}
+		else {
+		  if (dp.getX() == null) dp.setX(point.getX());
+		  if (dp.getY() == null) dp.setY(point.getY());
+		  if (dp.getZ() == null) dp.setZ(point.getZ());
+		}
+	  }
+	}
+
+	/**
+	 * Load the point map with the sample information from the binary file for the reporter specified.
+	 * @param reporter
+	 * @param sampleIds
+	 * @param pointMap
+	 * @param axis
+	 * @param createNewPoints
+	 * @throws AnalysisServerException
+	 */
 	private void setDataPoints(ReporterInfo reporter, List<String> sampleIds, Map<String, DataPoint> pointMap, AxisType axis, boolean createNewPoints) throws AnalysisServerException{
 		
 		try {
 			
 			List<DataPoint> retList = new ArrayList<DataPoint>();
 			setDataFile(reporter.getDataFileName());
-		
-			String sampleIdscmd = getRgroupCmd("sampleIds", sampleIds);
-			doRvoidEval(sampleIdscmd);
+		    String cmd;
 			
-			String cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
-			doRvoidEval(cmd);			  
+			if ((sampleIds != null)&&(!sampleIds.isEmpty())) {
+			  String sampleIdscmd = getRgroupCmd("sampleIds", sampleIds);
+			  doRvoidEval(sampleIdscmd);
+			
+			  cmd = "SM <- getSubmatrix.onegrp(dataMatrix, sampleIds)";
+			  doRvoidEval(cmd);			  
+			}
+			else {
+			  //use the entire data matrix without restricting on samples
+			  cmd = "SM <- dataMatrix";
+			  doRvoidEval(cmd);
+			}
+			
+			
 			cmd = "RM <- getSubmatrix.rep(SM,\"" + reporter.getReporterName() + "\")";
 			double[] vec =  doREval(cmd).asDoubleArray();
 			//need to make sure that the vectors are in the same order wrt sample ids
@@ -198,7 +228,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			      pointMap.put(id, point);
 				}
 				else {
-				  logger.warn("Could not find id=" + id + " in point map reporter=" + reporter.getReporterName());
+				  logger.warn("Could not find id=" + id + " in point map reporter=" + reporter.getReporterName() + " skipping point..");
 				  continue;
 				}
 			  }
