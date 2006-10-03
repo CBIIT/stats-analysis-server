@@ -218,10 +218,12 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 				}
 			} else {
 				// single group comparison
-				baselineGrpLen = 0;
-				rCmd = "ccInputMatrix <- getSubmatrix.onegrp(dataMatrix,"
-						+ grp1RName + ")";
-				doRvoidEval(rCmd);
+//				baselineGrpLen = 0;
+//				rCmd = "ccInputMatrix <- getSubmatrix.onegrp(dataMatrix,"
+//						+ grp1RName + ")";
+//				doRvoidEval(rCmd);
+				logger.error("Single group comparison is not currently supported.");
+				throw new AnalysisServerException("Unsupported operation: Attempted to do a single group comparison.");
 			}
 	
 			rCmd = "dim(ccInputMatrix)[2]";
@@ -346,6 +348,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + asex.getMessage());
 	        aex.setFailedRequest(ccRequest);
 	        setException(aex);
+	        logger.error(asex);
 	        return;  
 		}
 		catch (Exception ex) {
@@ -353,6 +356,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + ex.getMessage());
 	        asex.setFailedRequest(ccRequest);
 	        setException(asex);
+	        logger.error(ex);
 	        return;  
 		}
 	}
