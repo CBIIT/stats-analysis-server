@@ -303,7 +303,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 	
 			double[] meanGrp1 = doREval("mean1 <- ccResult$mean1").asDoubleArray();
 			double[] meanBaselineGrp = doREval("meanBaseline <- ccResult$mean2").asDoubleArray();
-			double[] meanDif = doREval("meanDif <- ccResult$mean.diff").asDoubleArray();
+			double[] meanDif = doREval("meanDif <- ccResult$mean.dif").asDoubleArray();
 			double[] absoluteFoldChange = doREval("fc <- ccResult$fc").asDoubleArray();
 			double[] pva = doREval("pva <- ccResult$pval").asDoubleArray();
 			double[] stdG1 = doREval("stdG1 <- ccResult$std1").asDoubleArray();
