@@ -13,6 +13,7 @@ import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,8 +88,8 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  setDataPoints(yPoints, vecMap, false);
 			}		
 			
-			computePoints = new ArrayList<DataPoint>(vecMap.values());
-			r = this.computeCorrelationCofficient(computePoints);
+			computePoints = getComputePoints(vecMap.values());
+			r = computeCorrelationCofficient(computePoints);
 			
 			result.setCorrelationValue(r);			
 			result.setDataPoints(computePoints);
@@ -112,6 +113,16 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	        logger.error(sw.toString());
 	        return;  
 		}
+	}
+
+	private List<DataPoint> getComputePoints(Collection<DataPoint> points) {
+		List<DataPoint> computePoints = new ArrayList<DataPoint>();
+		for (DataPoint point: points) {
+	      if ((point.getX()!=null) &&(point.getY()!=null)) {
+	        computePoints.add(point);
+	      }
+		}
+		return computePoints;
 	}
 
 	/**
@@ -149,9 +160,15 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	private void setDataPoints(List<DataPoint> points, Map<String, DataPoint> pointMap, boolean createPoints) {
 	  String id;
 	  DataPoint dp;
+	
+	  
+	  if (points == null) {
+	    logger.error("setDataPoints passed null paramter points");
+	    return;
+	  }
 	  
 	  for (DataPoint point : points) {	
-		  
+		  	  
 		id = point.getId();
 		dp = pointMap.get(id);
 		
@@ -277,24 +294,26 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	private String getDataString(List<DataPoint> points, boolean useX, boolean useY) {
 	  StringBuffer sb = new StringBuffer();
 	  DataPoint point;
+	  boolean pointAppended = false;
 	  for (Iterator i=points.iterator(); i.hasNext(); ) {
 		 point = (DataPoint) i.next();
-		 if (useX) {
-		   sb.append("\"").append(point.getX()).append("\"");
-		 } 
 		 
-		 
-		 if (useY) {
-		   sb.append("\"").append(point.getY()).append("\"");
+		 if ((point.getX()!=null)&&(point.getY()!=null)) {
+			 if (pointAppended) {
+		       sb.append(",");
+			 }
+			 if (useX) {
+			   sb.append("\"").append(point.getX()).append("\"");
+			 } 
+			 
+			 
+			 if (useY) {
+			   sb.append("\"").append(point.getY()).append("\"");
+			 }
+			 pointAppended = true;
 		 }
-		 
-		 if (i.hasNext()) {
-		   sb.append(",");
-		 }
-		 else {
-		   sb.append(")");	 
-		 }		
 	  }
+	  sb.append(")");
 	  return sb.toString();
       
 	}
