@@ -169,6 +169,10 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	  
 	  for (DataPoint point : points) {	
 		  	  
+		if (point == null) {
+		  logger.warn("Found null point in points list. This should not happen.");
+		}
+		  
 		id = point.getId();
 		dp = pointMap.get(id);
 		
@@ -183,7 +187,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		else {
 		  if (dp.getX() == null) dp.setX(point.getX());
 		  if (dp.getY() == null) dp.setY(point.getY());
-		  if (dp.getZ() == null) dp.setZ(point.getZ());
+		  //if (dp.getZ() == null) dp.setZ(point.getZ());
 		}
 	  }
 	}
