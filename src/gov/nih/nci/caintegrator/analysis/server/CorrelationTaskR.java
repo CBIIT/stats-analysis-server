@@ -71,16 +71,23 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			}
 			else if ((reporter1!=null) && (reporter2==null)) {
 			  //CASE2 : a reporter against a vector			 
+			  result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
+			  result.setGroup2Name(corrRequest.getVector2Name());
 			  List<DataPoint> yPoints = corrRequest.getVector2();
 			  setDataPoints(yPoints,vecMap, true);
 			  setDataPoints(reporter1,restrictingSampleIds,vecMap, AxisType.X_AXIS, false);
 			}
-			else if ((reporter1==null) && (reporter2!=null) ) {			  
+			else if ((reporter1==null) && (reporter2!=null) ) {	
+				
+			  result.setGroup1Name(corrRequest.getVector1Name());
+			  result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());					
 			  List<DataPoint> xPoints = corrRequest.getVector1();
 			  setDataPoints(xPoints,vecMap, true);
 			  setDataPoints(reporter2,restrictingSampleIds,vecMap, AxisType.Y_AXIS, false);
 			}
 			else { 			  
+			  result.setGroup1Name(corrRequest.getVector1Name());
+			  result.setGroup2Name(corrRequest.getVector2Name());
 			  List<DataPoint> xPoints = corrRequest.getVector1();
 			  setDataPoints(xPoints, vecMap, true);
 			  
