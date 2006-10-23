@@ -6,6 +6,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
 import gov.nih.nci.caintegrator.analysis.messaging.DataPoint;
 import gov.nih.nci.caintegrator.analysis.messaging.ReporterInfo;
+import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
 import gov.nih.nci.caintegrator.enumeration.AxisType;
 import gov.nih.nci.caintegrator.enumeration.CorrelationType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -57,7 +58,8 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			ReporterInfo reporter1 = corrRequest.getReporter1();
 			ReporterInfo reporter2 = corrRequest.getReporter2();
 			
-			List<String> restrictingSampleIds = corrRequest.getSampleIds();			
+			//List<String> restrictingSampleIds = corrRequest.getSampleIds();
+			
 			Double r = null;
 			Map <String, DataPoint> vecMap = new HashMap<String, DataPoint>();
 						
@@ -66,8 +68,8 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  result.setGroup1Name(reporter1.getGeneSymbol() + "_" + reporter1.getReporterName());
 			  result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());
 			  			 			 
-			  setDataPoints(reporter1,restrictingSampleIds,vecMap, AxisType.X_AXIS, true);
-			  setDataPoints(reporter2,restrictingSampleIds,vecMap, AxisType.Y_AXIS, false);  
+			  setDataPoints(reporter1,reporter1.getSampleGroup(),vecMap, AxisType.X_AXIS, true);
+			  setDataPoints(reporter2,reporter2.getSampleGroup(),vecMap, AxisType.Y_AXIS, false);  
 			}
 			else if ((reporter1!=null) && (reporter2==null)) {
 			  //CASE2 : a reporter against a vector			 
@@ -75,7 +77,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  result.setGroup2Name(corrRequest.getVector2Name());
 			  List<DataPoint> yPoints = corrRequest.getVector2();
 			  setDataPoints(yPoints,vecMap, true);
-			  setDataPoints(reporter1,restrictingSampleIds,vecMap, AxisType.X_AXIS, false);
+			  setDataPoints(reporter1,reporter1.getSampleGroup(),vecMap, AxisType.X_AXIS, false);
 			}
 			else if ((reporter1==null) && (reporter2!=null) ) {	
 				
@@ -83,7 +85,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  result.setGroup2Name(reporter2.getGeneSymbol() + "_" + reporter2.getReporterName());					
 			  List<DataPoint> xPoints = corrRequest.getVector1();
 			  setDataPoints(xPoints,vecMap, true);
-			  setDataPoints(reporter2,restrictingSampleIds,vecMap, AxisType.Y_AXIS, false);
+			  setDataPoints(reporter2,reporter2.getSampleGroup(),vecMap, AxisType.Y_AXIS, false);
 			}
 			else { 			  
 			  result.setGroup1Name(corrRequest.getVector1Name());
@@ -174,10 +176,12 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	    return;
 	  }
 	  
+	  
 	  for (DataPoint point : points) {	
 		  	  
 		if (point == null) {
-		  logger.warn("Found null point in points list. This should not happen.");
+		  logger.warn("Found null point in points list. Skipping ...");
+		  continue;
 		}
 		  
 		id = point.getId();
@@ -208,7 +212,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 	 * @param createNewPoints
 	 * @throws AnalysisServerException
 	 */
-	private void setDataPoints(ReporterInfo reporter, List<String> sampleIds, Map<String, DataPoint> pointMap, AxisType axis, boolean createNewPoints) throws AnalysisServerException{
+	private void setDataPoints(ReporterInfo reporter, SampleGroup sampleIds, Map<String, DataPoint> pointMap, AxisType axis, boolean createNewPoints) throws AnalysisServerException{
 		
 		try {
 			
@@ -237,7 +241,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			Vector RM_ids = doREval(cmd).asVector();
 			
 		    if (RM_ids == null) {
-		      throw new AnalysisServerException("Reporter " + reporter.getReporterName() + " not found in data file=" + reporter.getDataFileName() + ".");
+		      throw new AnalysisServerException("No expression data found for reporter " + reporter.getReporterName() + " in data file=" + reporter.getDataFileName() + ".");
 		    }
 			
 			DataPoint point;
@@ -247,7 +251,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			  exp = (REXP) RM_ids.get(i);
 			  id = exp.asString();
 			  
-			  logger.info("Adding data point with id=" + id);
+			  //logger.info("Adding data point with id=" + id);
 			  
 			  point = pointMap.get(id);
 			  if (point == null) {

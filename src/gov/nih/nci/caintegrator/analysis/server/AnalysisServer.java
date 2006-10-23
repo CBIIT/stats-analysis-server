@@ -12,6 +12,8 @@ import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -112,7 +114,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "9.5";
+	public static String version = "10.0";
 
 	private boolean debugRcommands = false;
 
@@ -380,6 +382,14 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		// exceptions.
 		try {
 
+			logger.info("AnalysisServer: in onMessage.. ");
+			
+			if (m==null) {
+			  logger.info("Got null messge! This should not happen.");
+			}
+			
+			logger.info(" messge=" + m.getJMSType());
+			
 			// String msg = ((TextMessage)m).getText();
 			ObjectMessage msg = (ObjectMessage) m;
 			AnalysisRequest request = (AnalysisRequest) msg.getObject();
@@ -413,7 +423,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 
 		} catch (Exception ex2) {
 		  logger.error("Got exception in onMessage:");
-		  logger.error(ex2);
+		  StringWriter sw = new StringWriter();
+	      PrintWriter pw  = new PrintWriter(sw);
+	      ex2.printStackTrace(pw);
+	      logger.error(sw.toString());
 		}
 
 	}
