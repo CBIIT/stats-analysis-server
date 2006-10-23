@@ -1,0 +1,92 @@
+<project name="caintegrator-analysis-server" default="build_tar" basedir=".">
+	<property file="basic_build.properties" />
+	<!--
+		TARGET: COMPILE
+		Compiles the source directory
+		NOTE: Requires the caintegrator-analysis-commons.jar to compile!
+	-->
+	<target name="jar_check">
+		<property name="Rserve.jar" value="${build.lib.dir}/Rserve.jar" />
+		<available file="${Rserve.jar}" property="required_jars.present"/>
+		<condition property="required_jars.not.present">
+			<not>
+				<istrue value="${required_jars.present}"/>
+			</not>
+		</condition>
+	</target>
+	<target name="warning" if="required_jars.not.present" depends="jar_check">
+		<fail message="Build Failed! The required ${Rserve.jar} is not present to compile!  Please see ${build.lib.dir}/readme.txt" />
+	</target>
+	<target name="build_jar" if="required_jars.present" depends="config-analysis-server-properties,config-r-initialization-file,config-rserv-script-file,warning">
+		<delete dir="${build.classes.dir}"/>
+		<mkdir dir="${build.classes.dir}" />
+		<javac srcdir="${build.source.dir}" destdir="${build.classes.dir}" source="1.5" excludes="**/test/**" debug="true" debuglevel="lines,vars,source">
+		 <classpath>
+		 	 <fileset dir="${build.lib.dir}">
+	 	        <include name="*.jar"/>
+	 	      </fileset>
+	 	      <fileset dir="${anthill.dependency.artifacts.dir}">
+				<include name="*.jar"/>
+	 	      </fileset>
+	 	 </classpath>
+		</javac>
+		<jar jarfile="${build.lib.dir}/caintegrator-analysis-server.jar">
+          <fileset dir="${build.classes.dir}"/>
+	     </jar>
+	</target>
+	<!--
+		TARGET: build_tar
+		Builds the entire tar bar for deployment...
+	-->
+	<target name="build_tar" depends="build_jar">
+		<echo message="${anthill.dependency.artifacts.dir}"/>
+		<tar destfile="${basedir}/caintegrator-analysis-server.tar">
+		  <tarfileset dir="${basedir}" >
+		  	<include name="${build.bin.dir}/*"/>
+		  	<include name="${build.lib.dir}/*.jar"/>
+		  	<include name="RdataFiles/**"/>
+		 	<include name="R_source/**"/>
+		   	<include name="log/*.log"/>
+		  	<include name="tempFiles/*.txt"/>
+		  	<exclude name="build.xml"/>
+		  	<exclude name="basic_build.properties"/>
+		  	<exclude name="${build.bin.dir}/test/**"/>
+		  	<exclude name="${build.bin.dir}/templates/**"/>
+		  	<exclude name="RdataFiles/templates/**"/>
+		  </tarfileset>
+		  <tarfileset dir="${anthill.dependency.artifacts.dir}" prefix="lib">
+			<include name="*.jar"/>
+		  </tarfileset>
+		</tar>
+	</target>
+	<!--
+		TARGET: config-analysis-server-properties
+		Configures the analysisServer.properties file for later packaging
+	-->
+	<target name="config-analysis-server-properties">
+        <delete file="${build.bin.dir}/analysisServer.properties"/>
+        <copy file="${build.source.dir}/templates/analysisServer.properties.template" tofile="${build.bin.dir}/analysisServer.properties"/>
+        <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMSMQ_LOCATION@" replace="${jms.location}" flags="g"/>
+        <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_INITIALIZATION_FILE@" replace="${R.initialization.file.path}" flags="g"/>
+		 <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_DATAFILE_DIRECTORY@" replace="${R.data.file.directory}" flags="g"/>
+        <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMS_RECONNECT_WAIT_TIME_MS@" replace="${jms.reconnectWaitTimeMS}" flags="g"/>
+		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_SERVER_LOG_FILE@" replace="${analysis-server.logfile}" flags="g"/>
+		<replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@ANALYSIS_REQUEST_QUEUE@" replace="${analysis-server.request-queue}" flags="g"/>		
+   </target>
+   <!--
+		TARGET: config-r-initialization-file
+		Configures the dataAndFunctions.R file for running R
+	-->
+	<target name="config-r-initialization-file">
+        <delete file="${build.R.data.dir}/RFunctions.R"/>
+        <copy file="${build.R.data.dir}/templates/RFunctions.R.template" tofile="${build.R.data.dir}/RFunctions.R"/>
+        <replaceregexp file = "${build.R.data.dir}/RFunctions.R" match="@ANALYSIS_SERVER_INSTALL_DIR@" replace="${analysis-server.install.dir}" flags="g"/>	                
+   </target>
+	
+	<target name="config-rserv-script-file">
+		<delete file="${build.bin.dir}/startRserve.sh"/>
+		<copy file="${build.source.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>
+		<replaceregexp file = "${build.bin.dir}/startRserve.sh" match="@R_SERV_TEMP_DIR@" replace="${analysis-server.install.dir}/tempFiles" flags="g"/>
+	</target>
+		
+</project>
