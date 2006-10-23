@@ -65,7 +65,7 @@
 	-->
 	<target name="config-analysis-server-properties">
         <delete file="${build.bin.dir}/analysisServer.properties"/>
-        <copy file="${build.bin.dir}/templates/analysisServer.properties.template" tofile="${build.bin.dir}/analysisServer.properties"/>
+        <copy file="${build.src.dir}/templates/analysisServer.properties.template" tofile="${build.bin.dir}/analysisServer.properties"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@JMSMQ_LOCATION@" replace="${jms.location}" flags="g"/>
         <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_INITIALIZATION_FILE@" replace="${R.initialization.file.path}" flags="g"/>
 		 <replaceregexp file = "${build.bin.dir}/analysisServer.properties" match="@R_DATAFILE_DIRECTORY@" replace="${R.data.file.directory}" flags="g"/>
@@ -85,7 +85,7 @@
 	
 	<target name="config-rserv-script-file">
 		<delete file="${build.bin.dir}/startRserve.sh"/>
-		<copy file="${build.bin.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>
+		<copy file="${build.src.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>
 		<replaceregexp file = "${build.bin.dir}/startRserve.sh" match="@R_SERV_TEMP_DIR@" replace="${analysis-server.install.dir}/tempFiles" flags="g"/>
 	</target>
 		
