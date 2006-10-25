@@ -2,6 +2,7 @@ package gov.nih.nci.caintegrator.analysis.server;
 
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.CategoricalCorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
@@ -409,8 +410,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			} else if (request instanceof CorrelationRequest) {
 			    processCorrelationRequest((CorrelationRequest) request, resultDestination);
 			} else if (request instanceof FTestRequest) {
-				processFTest((FTestRequest) request, resultDestination);
-				
+				processFTest((FTestRequest) request, resultDestination);				
+			} else if (request instanceof CategoricalCorrelationRequest) {
+			    processCategoricalCorrelationRequest((CategoricalCorrelationRequest) request, resultDestination);
 			}
 
 			// sendResult(request);
@@ -432,6 +434,12 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	}
 	
 	
+	private void processCategoricalCorrelationRequest(CategoricalCorrelationRequest request, Destination resultDestination) {
+	  CategoricalCorrelationTaskR catCorrTaskR = new CategoricalCorrelationTaskR(request, true);
+	  catCorrTaskR.setJMSDestination(resultDestination);
+	  executor.execute(catCorrTaskR);
+	}
+
 	private void processFTest(FTestRequest request, Destination resultDestination) {
 		FTestTaskR ftTaskR = new FTestTaskR(request, true);
 		ftTaskR.setJMSDestination(resultDestination);
