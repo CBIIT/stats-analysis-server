@@ -7,15 +7,7 @@ jmsmq_location=@JMSMQ_LOCATION@
 ###########################################################################
 #	The location of the Rembrandt R data file and R function definitions
 ###########################################################################
-RinitializationFile=@R_INITIALIZATION_FILE@
-
-RdataFileDirectory=@R_DATAFILE_DIRECTORY@
-################################################################
-# Set the request and response queue names
-##############################################################
-analysis_request_queue=@ANALYSIS_REQUEST_QUEUE@
-
-#analysis_response_queue=@ANALYSIS_RESPONSE_QUEUE@  (no longer requered since we are now using the JMS replyTo field) 
+RdefinitionFile=@R_INITIALIZATION_FILE@
 
 ###########################################################################
 # Number of Compute Threads - Each compute thread will 
