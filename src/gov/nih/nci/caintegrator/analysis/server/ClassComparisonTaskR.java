@@ -134,6 +134,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 				"Group1 is null or has less than " + MIN_GROUP_SIZE + " entries.");		 
 		      ex.setFailedRequest(ccRequest);
 		      setException(ex);
+		      logger.error(ex.getMessage());
 		      return;
 		}
 		
@@ -143,6 +144,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 				"BaselineGroup is null or has less than " + MIN_GROUP_SIZE + " entries.");		 
 		      ex.setFailedRequest(ccRequest);
 		      setException(ex);
+		      logger.error(ex.getMessage());
 		      return;
 		}
 		
@@ -169,6 +171,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 				      "Can not perform class comparison with overlapping groups. Overlapping ids=" + ids.toString());		 
 				      ex.setFailedRequest(ccRequest);
 				      setException(ex);
+				      logger.error(ex.getMessage());
 				      return;   
 		  }
 		}
@@ -214,6 +217,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 							"Some sample ids did not match R data file for class comparison request.");
 					ex.setFailedRequest(ccRequest);
 					setException(ex);
+					logger.error(ex.getMessage());
 					return;
 				}
 			} else {
@@ -234,6 +238,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 				ex.setFailedRequest(ccRequest);
 				ex.setFailedRequest(ccRequest);
 				setException(ex);
+				logger.error(ex.getMessage());
 				return;
 			}
 	

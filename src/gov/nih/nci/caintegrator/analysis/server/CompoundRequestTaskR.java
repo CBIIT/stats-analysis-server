@@ -40,8 +40,11 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 			//execute the request
 			logger.info("CompoundRequestTaskR: running request: " + request);
 			runRequest(request);
+			if (getException() != null) {
+			  logger.error(getException());
+			  return;
+			}
 		}
-
 	}
 
 	private void runRequest(AnalysisRequest request) {
@@ -61,10 +64,14 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
       try {
 		task.setRComputeConnection(this.getRComputeConnection());
 		task.run();
+		if (task.getException() != null) {
+		  throw task.getException();
+		}
 		result.addResult(task.getResult());
-		task.cleanUp();
 	  } catch (AnalysisServerException e) {
 		this.setException(e);
+	  } finally {
+		task.cleanUp();
 	  }
 	}
 
