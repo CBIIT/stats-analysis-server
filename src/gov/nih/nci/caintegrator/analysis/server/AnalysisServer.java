@@ -3,6 +3,7 @@ package gov.nih.nci.caintegrator.analysis.server;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.CategoricalCorrelationRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
@@ -115,7 +116,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "10.2";
+	public static String version = "10.5";
 
 	private boolean debugRcommands = false;
 
@@ -413,6 +414,8 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processFTest((FTestRequest) request, resultDestination);				
 			} else if (request instanceof CategoricalCorrelationRequest) {
 			    processCategoricalCorrelationRequest((CategoricalCorrelationRequest) request, resultDestination);
+			} else if (request instanceof ClassComparisonLookupRequest) {
+				processClassComparisonLookupRequest((ClassComparisonLookupRequest) request, resultDestination);
 			}
 
 			// sendResult(request);
@@ -434,6 +437,12 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	}
 	
 	
+	private void processClassComparisonLookupRequest(ClassComparisonLookupRequest request, Destination resultDestination) {
+	  ClassComparisonLookupTaskR ccLookupTaskR = new ClassComparisonLookupTaskR(request, true);
+	  ccLookupTaskR.setJMSDestination(resultDestination);
+	  executor.execute(ccLookupTaskR);
+	}
+
 	private void processCategoricalCorrelationRequest(CategoricalCorrelationRequest request, Destination resultDestination) {
 	  CategoricalCorrelationTaskR catCorrTaskR = new CategoricalCorrelationTaskR(request, true);
 	  catCorrTaskR.setJMSDestination(resultDestination);
