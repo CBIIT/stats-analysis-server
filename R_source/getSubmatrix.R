@@ -26,8 +26,14 @@ getSubmatrix.onegrp <- function(datmat, grpids) {
 # Generate submatrix based on reporters
 getSubmatrix.rep <- function(datmat, rep.ids) {
 	allrep.ids <- dimnames(datmat)[[1]]
-    Submatrix.rep <- matrix(datmat[allrep.ids%in%rep.ids,],nrow = length(rep.ids), ncol = dim(datmat)[[2]], byrow = TRUE)
-    return(Submatrix.rep)
+	if (length(rep.ids)==1) {
+	Submatrix.rep <- t(as.matrix(datmat[allrep.ids%in%rep.ids,]))
+	dimnames(Submatrix.rep)[[1]] <- rep.ids
+	}
+	else {
+        Submatrix.rep <- as.matrix(datmat[allrep.ids%in%rep.ids,])
+	}
+   	return(Submatrix.rep)
 }
 
 # Submatrix.rep <- getSubmatrix.rep(datmat, rep.ids)  
