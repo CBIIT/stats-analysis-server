@@ -399,8 +399,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			logger.info("AnalysisProcessor got request: " + request);
 			
 			Destination resultDestination =  m.getJMSReplyTo();
-			
-			if (request instanceof ClassComparisonRequest) {
+			if (request instanceof ClassComparisonLookupRequest) {
+				processClassComparisonLookupRequest((ClassComparisonLookupRequest) request, resultDestination);
+			} else if (request instanceof ClassComparisonRequest) {
 				processClassComparisonRequest((ClassComparisonRequest) request, resultDestination);
 			} else if (request instanceof HierarchicalClusteringRequest) {
 				processHierarchicalClusteringRequest((HierarchicalClusteringRequest) request, resultDestination);
@@ -414,9 +415,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processFTest((FTestRequest) request, resultDestination);				
 			} else if (request instanceof CategoricalCorrelationRequest) {
 			    processCategoricalCorrelationRequest((CategoricalCorrelationRequest) request, resultDestination);
-			} else if (request instanceof ClassComparisonLookupRequest) {
-				processClassComparisonLookupRequest((ClassComparisonLookupRequest) request, resultDestination);
-			}
+			} 
 
 			// sendResult(request);
 
