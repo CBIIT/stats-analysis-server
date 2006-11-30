@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisResult;
@@ -49,16 +50,20 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 
 	private void runRequest(AnalysisRequest request) {
 		
+	  //need to revisit the way we are mapping tasks to requests
+		
 	  AnalysisTaskR task = null;	
-	
-	  if (request instanceof ClassComparisonRequest) {
-	    task = new ClassComparisonTaskR((ClassComparisonRequest) request);
+	  if (request instanceof ClassComparisonLookupRequest) {
+		task = new ClassComparisonLookupTaskR((ClassComparisonLookupRequest) request, true);
+	  }
+	  else if (request instanceof ClassComparisonRequest) {
+	    task = new ClassComparisonTaskR((ClassComparisonRequest) request, true);
 	  }
 	  else if (request instanceof PrincipalComponentAnalysisRequest) {
-	    task = new PrincipalComponentAnalysisTaskR((PrincipalComponentAnalysisRequest)request);
+	    task = new PrincipalComponentAnalysisTaskR((PrincipalComponentAnalysisRequest)request, true);
 	  }
 	  else if (request instanceof HierarchicalClusteringRequest){
-		task = new HierarchicalClusteringTaskR((HierarchicalClusteringRequest) request);
+		task = new HierarchicalClusteringTaskR((HierarchicalClusteringRequest) request, true);
 	  }
 	
       try {

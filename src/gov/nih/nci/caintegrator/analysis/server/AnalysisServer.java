@@ -116,7 +116,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "10.5";
+	public static String version = "10.6";
 
 	private boolean debugRcommands = false;
 
@@ -437,24 +437,28 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	
 	
 	private void processClassComparisonLookupRequest(ClassComparisonLookupRequest request, Destination resultDestination) {
+	  logger.debug("processClassComparisonLookupRequest request=" + request);
 	  ClassComparisonLookupTaskR ccLookupTaskR = new ClassComparisonLookupTaskR(request, true);
 	  ccLookupTaskR.setJMSDestination(resultDestination);
 	  executor.execute(ccLookupTaskR);
 	}
 
 	private void processCategoricalCorrelationRequest(CategoricalCorrelationRequest request, Destination resultDestination) {
+	  logger.debug("processCategoricalCorrelationRequest request=" + request);
 	  CategoricalCorrelationTaskR catCorrTaskR = new CategoricalCorrelationTaskR(request, true);
 	  catCorrTaskR.setJMSDestination(resultDestination);
 	  executor.execute(catCorrTaskR);
 	}
 
 	private void processFTest(FTestRequest request, Destination resultDestination) {
+		logger.debug("processFTest=" + request);
 		FTestTaskR ftTaskR = new FTestTaskR(request, true);
 		ftTaskR.setJMSDestination(resultDestination);
 		executor.execute(ftTaskR);
 	}
 
 	private void processCompoundAnalysisReqeust(CompoundAnalysisRequest request, Destination resultDestination) {
+	  logger.debug("processCompoundAnalysisRequest request=" + request);
 	  CompoundRequestTaskR compoundTaskR = new CompoundRequestTaskR(request, true);
 	  compoundTaskR.setJMSDestination(resultDestination);
 	  executor.execute(compoundTaskR);
@@ -467,6 +471,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	 * @param resultQueue2 
 	 */
 	public void processClassComparisonRequest(ClassComparisonRequest ccRequest, Destination resultDestination) {
+		logger.debug("processClassComparisionRequest request=" + ccRequest);
 		ClassComparisonTaskR ccTaskR = new ClassComparisonTaskR(ccRequest, true);
 		ccTaskR.setJMSDestination(resultDestination);
 		executor.execute(ccTaskR);
@@ -479,6 +484,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	 * @param resultQueue2 
 	 */
 	public void processHierarchicalClusteringRequest(HierarchicalClusteringRequest hcRequest, Destination resultDestination) {
+		logger.debug("processHierarchicalClusteringRequest request=" + hcRequest);
 		HierarchicalClusteringTaskR hcTaskR = new HierarchicalClusteringTaskR(hcRequest, true);
 		hcTaskR.setJMSDestination(resultDestination);
 		executor.execute(hcTaskR);
@@ -491,12 +497,14 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	 * @param resultQueue2 
 	 */
 	public void processPrincipalComponentAnalysisRequest(PrincipalComponentAnalysisRequest pcaRequest, Destination resultDestination) {
+		logger.debug("processPrincipalComponentAnalysisRequest request=" + pcaRequest);
 		PrincipalComponentAnalysisTaskR pcaTaskR = new PrincipalComponentAnalysisTaskR(pcaRequest, true);
 		pcaTaskR.setJMSDestination(resultDestination);
 		executor.execute(pcaTaskR);
 	}
 	
 	private void processCorrelationRequest(CorrelationRequest corrRequest, Destination resultDestination) {
+	  logger.debug("processCorrelationRequest request=" + corrRequest);
 	  CorrelationTaskR corrTaskR = new CorrelationTaskR(corrRequest, true);
 	  corrTaskR.setJMSDestination(resultDestination);
 	  executor.execute(corrTaskR);
