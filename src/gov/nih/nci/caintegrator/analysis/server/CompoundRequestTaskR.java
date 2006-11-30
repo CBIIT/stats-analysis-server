@@ -74,7 +74,11 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 		}
 		result.addResult(task.getResult());
 	  } catch (AnalysisServerException e) {
-		this.setException(e);
+		
+		  AnalysisServerException ex2 = new AnalysisServerException(e.getMessage());
+		  ex2.setFailedRequest(getRequest());
+		  this.setException(ex2);
+		  
 	  } finally {
 		task.cleanUp();
 	  }
