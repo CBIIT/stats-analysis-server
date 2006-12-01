@@ -1,6 +1,8 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
@@ -203,7 +205,20 @@ public class ClassComparisonLookupTaskR extends AnalysisTaskR {
 		try {
 	
 			//get the submatirx based on the reporter group
-			rCmd = getRgroupCmd("reporterIds", reporterGroup);
+			
+			//hack because R has a lot of problems dealing with a matrix that 
+			//has only one row.
+			
+			if (reporterGroup.size() == 1) {
+			  List<String> reporterList = new ArrayList<String>(reporterGroup);
+			  String rep = reporterList.get(0);
+			  reporterList.add(rep);
+			  rCmd = getRgroupCmd("reporterIds", reporterList);
+			}
+			else {
+			  rCmd = getRgroupCmd("reporterIds", reporterGroup);
+			}
+			
 			doRvoidEval(rCmd);
 			rCmd = "ccInputMatrix <- getSubmatrix.rep(dataMatrix, reporterIds)";
 			doRvoidEval(rCmd);
@@ -338,10 +353,10 @@ public class ClassComparisonLookupTaskR extends AnalysisTaskR {
 			// load the result object
 			// need to see if this works for single group comparison
 			List<ClassComparisonResultEntry> resultEntries = new ArrayList<ClassComparisonResultEntry>(
-					meanGrp1.length);
+					reporterGroup.size());
 			ClassComparisonResultEntry resultEntry;
 	
-			for (int i = 0; i < meanGrp1.length; i++) {
+			for (int i = 0; i < reporterGroup.size(); i++) {
 				resultEntry = new ClassComparisonResultEntry();
 				resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
 				resultEntry.setMeanGrp1(meanGrp1[i]);
@@ -377,7 +392,10 @@ public class ClassComparisonLookupTaskR extends AnalysisTaskR {
 			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + ex.getMessage());
 	        asex.setFailedRequest(ccLookupRequest);
 	        setException(asex);
-	        logger.error(ex);
+	        StringWriter sw = new StringWriter();
+	        PrintWriter pw  = new PrintWriter(sw);
+	        ex.printStackTrace(pw);
+	        logger.error(sw.toString());
 	        return;  
 		}
 	}
