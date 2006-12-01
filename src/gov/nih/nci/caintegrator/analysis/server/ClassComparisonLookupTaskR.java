@@ -206,19 +206,8 @@ public class ClassComparisonLookupTaskR extends AnalysisTaskR {
 	
 			//get the submatirx based on the reporter group
 			
-			//hack because R has a lot of problems dealing with a matrix that 
-			//has only one row.
-			
-			if (reporterGroup.size() == 1) {
-			  List<String> reporterList = new ArrayList<String>(reporterGroup);
-			  String rep = reporterList.get(0);
-			  reporterList.add(rep);
-			  rCmd = getRgroupCmd("reporterIds", reporterList);
-			}
-			else {
-			  rCmd = getRgroupCmd("reporterIds", reporterGroup);
-			}
-			
+			rCmd = getRgroupCmd("reporterIds", reporterGroup);
+						
 			doRvoidEval(rCmd);
 			rCmd = "ccInputMatrix <- getSubmatrix.rep(dataMatrix, reporterIds)";
 			doRvoidEval(rCmd);
@@ -355,10 +344,24 @@ public class ClassComparisonLookupTaskR extends AnalysisTaskR {
 			List<ClassComparisonResultEntry> resultEntries = new ArrayList<ClassComparisonResultEntry>(
 					reporterGroup.size());
 			ClassComparisonResultEntry resultEntry;
+			
+			//logger.debug("reporterGroup.size=" + reporterGroup.size());
+			//logger.debug("reporterIds.size=" + reporterIds.size());
+			//logger.debug("meanBaselineGrp.size=" + meanBaselineGrp.length);
+			//logger.debug("meanDiff.size=" + meanDif.length);
 	
-			for (int i = 0; i < reporterGroup.size(); i++) {
+			int numReporters = reporterGroup.size();
+			
+			for (int i = 0; i < numReporters; i++) {
 				resultEntry = new ClassComparisonResultEntry();
-				resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
+				
+				if (numReporters == 1) {
+				  resultEntry.setReporterId(reporterGroup.getIdsAsCommaDelimitedString());
+				}
+				else {
+				  resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());					
+				}
+				
 				resultEntry.setMeanGrp1(meanGrp1[i]);
 				resultEntry.setMeanBaselineGrp(meanBaselineGrp[i]);
 				resultEntry.setMeanDiff(meanDif[i]);
