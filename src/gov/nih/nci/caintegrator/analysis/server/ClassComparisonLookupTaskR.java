@@ -209,7 +209,7 @@ public class ClassComparisonLookupTaskR extends AnalysisTaskR {
 			rCmd = getRgroupCmd("reporterIds", reporterGroup);
 						
 			doRvoidEval(rCmd);
-			rCmd = "ccInputMatrix <- getSubmatrix.rep(dataMatrix, reporterIds)";
+			rCmd = "ccInputMatrix <- getSubmatrix.repNew(dataMatrix, reporterIds)";
 			doRvoidEval(rCmd);
 			
 			
