@@ -8,6 +8,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -53,26 +54,32 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 	  //need to revisit the way we are mapping tasks to requests
 		
 	  AnalysisTaskR task = null;	
-	  if (request instanceof ClassComparisonLookupRequest) {
-		task = new ClassComparisonLookupTaskR((ClassComparisonLookupRequest) request, true);
-	  }
-	  else if (request instanceof ClassComparisonRequest) {
-	    task = new ClassComparisonTaskR((ClassComparisonRequest) request, true);
-	  }
-	  else if (request instanceof PrincipalComponentAnalysisRequest) {
-	    task = new PrincipalComponentAnalysisTaskR((PrincipalComponentAnalysisRequest)request, true);
-	  }
-	  else if (request instanceof HierarchicalClusteringRequest){
-		task = new HierarchicalClusteringTaskR((HierarchicalClusteringRequest) request, true);
-	  }
-	
-      try {
-		task.setRComputeConnection(this.getRComputeConnection());
-		task.run();
-		if (task.getException() != null) {
-		  throw task.getException();
-		}
-		result.addResult(task.getResult());
+	  try {
+		  if (request instanceof ClassComparisonLookupRequest) {
+			task = new ClassComparisonLookupTaskR((ClassComparisonLookupRequest) request, getDebugRcommands());
+		  }
+		  else if (request instanceof ClassComparisonRequest) {
+		    task = new ClassComparisonTaskR((ClassComparisonRequest) request, getDebugRcommands());
+		  }
+		  else if (request instanceof PrincipalComponentAnalysisRequest) {
+		    task = new PrincipalComponentAnalysisTaskR((PrincipalComponentAnalysisRequest)request, getDebugRcommands());
+		  }
+		  else if (request instanceof HierarchicalClusteringRequest){
+			task = new HierarchicalClusteringTaskR((HierarchicalClusteringRequest) request, getDebugRcommands());
+		  }
+		  else if (request instanceof FTestRequest){
+			task = new FTestTaskR((FTestRequest)request, getDebugRcommands());
+		  }
+		  else {
+			logger.error("Unrecognized request type :" + request.getClass());
+		    throw new AnalysisServerException("Unrecognized request type");
+		  }
+		  task.setRComputeConnection(this.getRComputeConnection());
+		  task.run();
+		  if (task.getException() != null) {
+		    throw task.getException();
+		  }
+		  result.addResult(task.getResult());
 	  } catch (AnalysisServerException e) {
 		
 		  AnalysisServerException ex2 = new AnalysisServerException(e.getMessage());
