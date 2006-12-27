@@ -116,7 +116,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "10.10";
+	public static String version = "10.11";
 
 	private boolean debugRcommands = false;
 
@@ -239,7 +239,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		   "org.jnp.interfaces.NamingContextFactory");
 		contextProperties.put(Context.PROVIDER_URL, JBossMQ_locationIp);
 		contextProperties.put("java.naming.rmi.security.manager", "yes");
-		contextProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
+		contextProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces:org.jboss.naming.client");
 		
 		establishQueueConnection();
 		
