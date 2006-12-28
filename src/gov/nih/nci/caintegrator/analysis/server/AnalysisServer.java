@@ -116,7 +116,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "10.11";
+	public static String version = "10.12";
 
 	private boolean debugRcommands = false;
 
@@ -351,6 +351,15 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			  
 			  if (numConnectAttempts <= 10) {
 			    logger.warn("  could not establish connection with provider=" + contextProperties.get(Context.PROVIDER_URL) + " after numAttempts=" + numConnectAttempts + "  Will try again in  " + Long.toString(reconnectWaitTimeMS/1000L) + " seconds...");
+			    
+			    logger.error(">> ERROR trying to establish connection <<");
+			    logger.error(ex);
+			    logger.error(">> Stack trace of connection error <<");
+			    StringWriter sw = new StringWriter();
+			    PrintWriter pw  = new PrintWriter(sw);
+			    ex.printStackTrace(pw);
+			    logger.error(sw.toString());
+			    
 			    if (numConnectAttempts == 10) {
 			      logger.warn("  Will only print connection attempts every 600 atttempts to reduce log size.");
 			    }
