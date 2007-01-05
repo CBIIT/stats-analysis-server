@@ -21,7 +21,7 @@ analysis_request_queue=@ANALYSIS_REQUEST_QUEUE@
 # Number of Compute Threads - Each compute thread will 
 # have an initialized Rconnection
 ###########################################################################
-num_compute_threads=2
+num_compute_threads=1
 
 ###########################################################################
 #	set to TRUE to turn R to echo R statement execution
