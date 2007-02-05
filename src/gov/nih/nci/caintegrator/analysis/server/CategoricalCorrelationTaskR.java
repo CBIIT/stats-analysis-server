@@ -11,9 +11,6 @@ import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
 import gov.nih.nci.caintegrator.enumeration.AxisType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -179,31 +176,31 @@ public class CategoricalCorrelationTaskR extends AnalysisTaskR {
 	 * @param useY
 	 * @return Quoted string for use in R command
 	 */
-	private String getDataString(List<DataPoint> points, boolean useX, boolean useY) {
-	  StringBuffer sb = new StringBuffer();
-	  DataPoint point;
-	  boolean pointAppended = false;
-	  for (Iterator i=points.iterator(); i.hasNext(); ) {
-		 point = (DataPoint) i.next();
-		 
-		 if ((point.getX()!=null)&&(point.getY()!=null)) {
-			 if (pointAppended) {
-		       sb.append(",");
-			 }
-			 if (useX) {
-			   sb.append("\"").append(point.getX()).append("\"");
-			 } 
-			 
-			 
-			 if (useY) {
-			   sb.append("\"").append(point.getY()).append("\"");
-			 }
-			 pointAppended = true;
-		 }
-	  }
-	  sb.append(")");
-	  return sb.toString();
-      
-	}
+//	private String getDataString(List<DataPoint> points, boolean useX, boolean useY) {
+//	  StringBuffer sb = new StringBuffer();
+//	  DataPoint point;
+//	  boolean pointAppended = false;
+//	  for (Iterator i=points.iterator(); i.hasNext(); ) {
+//		 point = (DataPoint) i.next();
+//		 
+//		 if ((point.getX()!=null)&&(point.getY()!=null)) {
+//			 if (pointAppended) {
+//		       sb.append(",");
+//			 }
+//			 if (useX) {
+//			   sb.append("\"").append(point.getX()).append("\"");
+//			 } 
+//			 
+//			 
+//			 if (useY) {
+//			   sb.append("\"").append(point.getY()).append("\"");
+//			 }
+//			 pointAppended = true;
+//		 }
+//	  }
+//	  sb.append(")");
+//	  return sb.toString();
+//      
+//	}
 	  
 }

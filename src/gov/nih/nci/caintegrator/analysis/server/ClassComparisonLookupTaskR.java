@@ -1,21 +1,27 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.*;
-
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonResult;
-import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonResultEntry;
 import gov.nih.nci.caintegrator.analysis.messaging.ReporterGroup;
 import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
-import gov.nih.nci.caintegrator.enumeration.*;
+import gov.nih.nci.caintegrator.enumeration.MultiGroupComparisonAdjustmentType;
+import gov.nih.nci.caintegrator.enumeration.StatisticalMethodType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
-import org.rosuda.JRclient.*;
+import org.rosuda.JRclient.REXP;
 
 /**
  * Performs the class comparison computation using R.

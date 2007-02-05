@@ -1,9 +1,9 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
-import java.util.Comparator;
-import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonResultEntry;
 import gov.nih.nci.caintegrator.analysis.messaging.FTestResultEntry;
+
+import java.util.Comparator;
 
 /**
  * This comparator will sort a list of ClassComparisonResultEntries 
