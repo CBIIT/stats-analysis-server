@@ -210,7 +210,6 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		
 		try {
 			
-			List<DataPoint> retList = new ArrayList<DataPoint>();
 			setDataFile(reporter.getDataFileName());
 		    String cmd;
 			
