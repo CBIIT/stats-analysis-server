@@ -1,5 +1,8 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import org.apache.log4j.Logger;
@@ -24,6 +27,16 @@ public class RComputeConnection extends Rconnection {
 //		this.rDataFileName = rDataFileName;	
 //	}
 	
+	/**
+	 * This method will log an error and will print the stack trace to the log file
+	 * @param ex
+	 */
+	private static void logStackTrace(Exception ex) {	 
+	  StringWriter sw = new StringWriter();
+	  PrintWriter pw = new PrintWriter(sw);
+	  ex.printStackTrace(pw);
+	  logger.error(sw.toString());
+	}
 	
 	public RComputeConnection(String host, String rDataFileDirectory) throws RSrvException {
 	  super(host);
@@ -52,7 +65,7 @@ public class RComputeConnection extends Rconnection {
 			voidEval(rCmd);
 		} catch (RSrvException e) {
 			logger.error("Error (setRDataFile rDataFileName=" + rDataFileName);
-			logger.error(e);
+			logStackTrace(e);			
 			throw new AnalysisServerException("Error setting the RDataFile to rDataFileName=" + rDataFileName);
 		}
 		long elapsedTime = System.currentTimeMillis() - start;

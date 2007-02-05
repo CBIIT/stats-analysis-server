@@ -3,6 +3,8 @@ package gov.nih.nci.caintegrator.analysis.server;
 
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -115,7 +117,7 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 		} catch (AnalysisServerException e) {
 			rTask.setException(e);
 			logger.error("Caught AnalysisServerException when trying to set the RComputeConnection");
-			logger.error(e);
+			logStackTrace(e);
 		}
 		rTask.setDebugRcommands(debugRcommands);
 		rTask.setStartTime(System.currentTimeMillis());
@@ -159,9 +161,21 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 				hostName = addr.getHostName();
 			} 
 			catch (UnknownHostException e) {
+			  logStackTrace(e);
 			}
 		}
 		return hostName;
+	}
+	
+	/**
+	 * This method will log an error and will print the stack trace to the log file
+	 * @param ex
+	 */
+	private static void logStackTrace(Throwable ex) {	 
+	  StringWriter sw = new StringWriter();
+	  PrintWriter pw = new PrintWriter(sw);
+	  ex.printStackTrace(pw);
+	  logger.error(sw.toString());
 	}
 
 }

@@ -121,6 +121,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 		} catch (AnalysisServerException e) {
 			e.setFailedRequest(ccRequest);
 			logger.error("Internal Error. Error setting data file to fileName=" + ccRequest.getDataFileName());
+			logStackTrace(logger, e);
 			setException(e);
 			return;
 		}
@@ -353,15 +354,15 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + asex.getMessage());
 	        aex.setFailedRequest(ccRequest);
 	        setException(aex);
-	        logger.error(asex);
+	        logStackTrace(logger, asex);
 	        return;  
 		}
 		catch (Exception ex) {
 			AnalysisServerException asex = new AnalysisServerException(
 			"Internal Error. Caught AnalysisServerException in ClassComparisonTaskR." + ex.getMessage());
 	        asex.setFailedRequest(ccRequest);
-	        setException(asex);
-	        logger.error(ex);
+	        setException(asex);	        
+	        logStackTrace(logger, ex);
 	        return;  
 		}
 	}
@@ -384,7 +385,7 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			setRComputeConnection(null);
 		} catch (AnalysisServerException e) {
 			logger.error("Error in cleanUp method.");
-			logger.error(e);
+			logStackTrace(logger, e);
 			setException(e);
 		}
 	}

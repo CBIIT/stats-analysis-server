@@ -1,7 +1,14 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.FTestResult;
+import gov.nih.nci.caintegrator.analysis.messaging.FTestResultEntry;
+import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
+import gov.nih.nci.caintegrator.enumeration.MultiGroupComparisonAdjustmentType;
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,19 +17,6 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
-
-import gov.nih.nci.caintegrator.analysis.messaging.AnalysisRequest;
-import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
-import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonResultEntry;
-import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
-import gov.nih.nci.caintegrator.analysis.messaging.CorrelationResult;
-import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
-import gov.nih.nci.caintegrator.analysis.messaging.FTestResult;
-import gov.nih.nci.caintegrator.analysis.messaging.FTestResultEntry;
-import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
-import gov.nih.nci.caintegrator.enumeration.CorrelationType;
-import gov.nih.nci.caintegrator.enumeration.MultiGroupComparisonAdjustmentType;
-import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 public class FTestTaskR extends AnalysisTaskR {
 
@@ -92,6 +86,7 @@ public class FTestTaskR extends AnalysisTaskR {
 		} catch (AnalysisServerException e) {
 			e.setFailedRequest(ftRequest);
 			logger.error("Internal Error. " + e.getMessage());
+			logStackTrace(logger, e);
 			setException(e);
 			return;
 		}
@@ -102,7 +97,6 @@ public class FTestTaskR extends AnalysisTaskR {
 			List<SampleGroup> sampleGroups = ftRequest.getSampleGroups();
 			SampleGroup grp = null;
 			String cmd;
-			String cmd2;
 			String grpName = null;
 			String bindCmd = "compMat <- cbind(";
 		    String matName = null;
@@ -261,7 +255,7 @@ public class FTestTaskR extends AnalysisTaskR {
 	        aex.setFailedRequest(ftRequest);
 	        setException(aex);
 	        logger.error("Caught AnalysisServerException in FTestTaskR");
-	        logger.error(asex);
+	        logStackTrace(logger, asex);
 	        return;  
 		}
 		catch (Exception ex) {
@@ -270,10 +264,7 @@ public class FTestTaskR extends AnalysisTaskR {
 	        asex.setFailedRequest(ftRequest);
 	        setException(asex);
 	        logger.error("Caught Exception in FTestTaskR");
-	        StringWriter sw = new StringWriter();
-	        PrintWriter pw  = new PrintWriter(sw);
-	        ex.printStackTrace(pw);
-	        logger.error(sw.toString());
+	        logStackTrace(logger, ex);
 	        return;  
 		}
 
@@ -285,7 +276,7 @@ public class FTestTaskR extends AnalysisTaskR {
 			setRComputeConnection(null);
 		} catch (AnalysisServerException e) {
 			logger.error("Error in cleanUp method.");
-			logger.error(e);
+			logStackTrace(logger, e);
 			setException(e);
 		}
 	}

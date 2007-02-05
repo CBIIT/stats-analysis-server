@@ -1,6 +1,9 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.*;
 
@@ -127,10 +130,11 @@ public class RThread extends Thread {
 
 		} catch (RSrvException rse) {
 			logger.error("Rserve exception: " + rse.getMessage());
+			logStackTrace(rse);
 		} catch (Exception e) {
 			logger.error("Something went wrong, but it's not the Rserve: "
 							+ e.getMessage());
-			logger.error(e);
+		    logStackTrace(e);
 		}
 	}
 
@@ -156,8 +160,19 @@ public class RThread extends Thread {
 		try {
 			super.finalize();
 		} catch (Throwable e) {
-			logger.error(e);
+			logStackTrace(e);
 		}
+	}
+	
+	/**
+	 * This method will log an error and will print the stack trace to the log file
+	 * @param ex
+	 */
+	private static void logStackTrace(Throwable ex) {	 
+	  StringWriter sw = new StringWriter();
+	  PrintWriter pw = new PrintWriter(sw);
+	  ex.printStackTrace(pw);
+	  logger.error(sw.toString());
 	}
 
 }

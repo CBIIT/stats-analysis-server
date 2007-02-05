@@ -161,7 +161,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			computeConnection.voidEval(command);
 		} catch (RSrvException e) {
 			logger.error("doRvoidEval threw RSrvException when executing command=" + command);
-			logger.error(e);
+			logStackTrace(logger, e);
 			throw new AnalysisServerException("Internal Error. command=" + command);
 		}
 	}
@@ -183,7 +183,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			returnVal = computeConnection.eval(command);
 		} catch (RSrvException e) {
 		  logger.error("doREval threw RSrvException when executing command=" + command);
-		  logger.error(e);
+		  logStackTrace(logger, e);
 		  throw new AnalysisServerException("Internal Error. command=" + command);
 		}
 		return returnVal;
@@ -288,15 +288,15 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 			computeConnection.removeFile(fileName);
 		} catch (IOException ex) {
 			logger.error("Caught IOException in getImageCode. FileName=" + fileName);
-			logger.error(ex);
+			logStackTrace(logger, ex);
 			throw new AnalysisServerException("Internal Error. Caught IOException in getImageCode plotCmd=" + plotCmd);
 		} catch (RSrvException e) {
 			logger.error("Caught RSrvException in getImageCode. FileName=" + fileName);
-			logger.error(e);
+			logStackTrace(logger, e);
 			throw new AnalysisServerException("Internal Error. Caught IOException in getImageCode plotCmd=" + plotCmd);
 		} catch (Exception exg) {
 			logger.error("Caught exception in getImageCode. ex=" + exg.getMessage());
-			logger.error(exg);
+			logStackTrace(logger, exg);
 			throw new AnalysisServerException("Internal Error. Caught Exception in getImageCode plotCmd=" + plotCmd);
 		}
 
@@ -323,7 +323,7 @@ public abstract class AnalysisTaskR extends AnalysisTask {
 	  }
 	  catch (IOException ex) {
 		logger.error("Caught IOException in getBytes method.");
-	    logger.error(ex);
+	    logStackTrace(logger, ex);
 	  }
 	  byte[] returnArray = byteStream.toByteArray();
 	  logger.debug("getBytes returning numbytes=" + returnArray.length);

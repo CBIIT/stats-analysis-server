@@ -108,6 +108,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 		} catch (AnalysisServerException e) {
 			e.setFailedRequest(pcaRequest);
 			logger.error("Internal Error. Error setting data file to fileName=" + pcaRequest.getDataFileName());
+			logStackTrace(logger, e);
 			setException(e);
 			return;
 		}
@@ -210,6 +211,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 			"Problem with PCA computation (Possibly too few samples or reporters specified). Caught AnalysisServerException in PrincipalComponentAnalysisTaskR." + asex.getMessage());
 	        aex.setFailedRequest(pcaRequest);
 	        setException(aex);
+	        logStackTrace(logger, asex);
 	        return;  
 		}
 		catch (Exception ex) {
@@ -217,6 +219,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 			"Internal Error. Caught AnalysisServerException in PrincipalComponentAnalysisTaskR." + ex.getMessage());
 	        asex.setFailedRequest(pcaRequest);
 	        setException(asex);
+	        logStackTrace(logger, ex);
 	        return;  
 		}
 
@@ -262,7 +265,7 @@ public class PrincipalComponentAnalysisTaskR extends AnalysisTaskR {
 			setRComputeConnection(null);
 		} catch (AnalysisServerException e) {
 		   logger.error("Error in cleanUp method");
-		   logger.error(e);
+		   logStackTrace(logger, e);
 		   setException(e);
 		}
 	}

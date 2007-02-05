@@ -145,6 +145,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 		} catch (AnalysisServerException e) {
 			e.setFailedRequest(hcRequest);
 			logger.error("Internal Error. Error setting data file to fileName=" + hcRequest.getDataFileName());
+			logStackTrace(logger, e);
 			setException(e);
 			return;
 		}
@@ -261,6 +262,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			"Problem with clustering computation (Try using a less stringent variance filter). Caught AnalysisServerException in HierarchicalClusteringTaskR." + asex.getMessage());
 	        aex.setFailedRequest(hcRequest);
 	        setException(aex);
+	        logStackTrace(logger, asex);
 	        return;  
 		}
 		catch (Exception ex) {
@@ -268,6 +270,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			"Internal Error. Caught AnalysisServerException in HierarchicalClusteringTaskR." + ex.getMessage());
 	        asex.setFailedRequest(hcRequest);
 	        setException(asex);
+	        logStackTrace(logger, ex);
 	        return;  
 		}
 		
@@ -288,7 +291,7 @@ public class HierarchicalClusteringTaskR extends AnalysisTaskR {
 			setRComputeConnection(null);
 		} catch (AnalysisServerException e) {
 			logger.error("Error in cleanUp method");
-			logger.error(e);
+			logStackTrace(logger, e);
 		    setException(e);
 		}
 	}

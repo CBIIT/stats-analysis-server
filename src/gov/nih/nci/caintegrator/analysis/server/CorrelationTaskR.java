@@ -107,7 +107,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		    asex.setFailedRequest(corrRequest);
 	        setException(asex);
 	        logger.error("Caught AnalysisServerException");
-	        logger.error(asex);
+	        logStackTrace(logger, asex);
 	        return;  
 		}
 		catch (Exception ex) {
@@ -115,11 +115,8 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			"Internal Error. Caught Exception in CorrelationTaskR exClass=" + ex.getClass() + " msg=" + ex.getMessage());
 	        asex.setFailedRequest(corrRequest);
 	        setException(asex);
-	        logger.error("Caught Exception in CorrelationTaskR");
-	        StringWriter sw = new StringWriter();
-	        PrintWriter pw  = new PrintWriter(sw);
-	        ex.printStackTrace(pw);
-	        logger.error(sw.toString());
+	        logger.error("Caught Exception in CorrelationTaskR");	       
+	        logStackTrace(logger, ex);
 	        return;  
 		}
 	}
@@ -279,7 +276,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 		} 
 		catch (Exception ex2) {
 			logger.error("Caught exception in setDataPoints method for reporter=" + reporter);
-			logger.error(ex2);
+			logStackTrace(logger, ex2);
 		}
 	}
 	
@@ -289,7 +286,7 @@ public class CorrelationTaskR extends AnalysisTaskR {
 			setRComputeConnection(null);
 		} catch (AnalysisServerException e) {
 			logger.error("Error in cleanUp method.");
-			logger.error(e);
+			logStackTrace(logger, e);
 			setException(e);
 		}
 	}

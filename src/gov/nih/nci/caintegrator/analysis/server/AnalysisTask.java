@@ -1,7 +1,12 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.jms.Destination;
+
+import org.apache.log4j.Logger;
 
 import gov.nih.nci.caintegrator.analysis.messaging.*;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -152,4 +157,16 @@ public abstract class AnalysisTask implements Runnable {
 	public void setJMSDestination(Destination jmsDestination) {
 		this.jmsDestination = jmsDestination;
 	}
+	
+	/**
+	 * This method will log an error and will print the stack trace to the log file
+	 * @param ex
+	 */
+	public static void logStackTrace(Logger logger, Throwable ex) {	 
+	  StringWriter sw = new StringWriter();
+	  PrintWriter pw = new PrintWriter(sw);
+	  ex.printStackTrace(pw);
+	  logger.error(sw.toString());
+	}
+	
 }

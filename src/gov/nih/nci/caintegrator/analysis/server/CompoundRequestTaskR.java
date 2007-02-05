@@ -86,6 +86,7 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 		  ex2.setFailedRequest(getRequest());
 		  this.setException(ex2);
 		  
+		  
 	  } finally {
 		task.cleanUp();
 	  }
@@ -97,7 +98,7 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 			setRComputeConnection(null);
 		} catch (AnalysisServerException e) {
 			logger.error("Error in cleanUp method.");
-			logger.error(e);
+			logStackTrace(logger, e);
 			setException(e);
 		}
 	}
