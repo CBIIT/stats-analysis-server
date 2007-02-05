@@ -405,29 +405,6 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 			Destination resultDestination =  m.getJMSReplyTo();
 			
 			processRequest(request, resultDestination);
-			
-			/*
-			if (request instanceof ClassComparisonLookupRequest) {
-				processClassComparisonLookupRequest((ClassComparisonLookupRequest) request, resultDestination);
-			} else if (request instanceof ClassComparisonRequest) {
-				processClassComparisonRequest((ClassComparisonRequest) request, resultDestination);
-			} else if (request instanceof HierarchicalClusteringRequest) {
-				processHierarchicalClusteringRequest((HierarchicalClusteringRequest) request, resultDestination);
-			} else if (request instanceof PrincipalComponentAnalysisRequest) {
-				processPrincipalComponentAnalysisRequest((PrincipalComponentAnalysisRequest) request, resultDestination);
-			} else if (request instanceof CompoundAnalysisRequest) {
-				processCompoundAnalysisReqeust((CompoundAnalysisRequest) request, resultDestination);
-			} else if (request instanceof CorrelationRequest) {
-			    processCorrelationRequest((CorrelationRequest) request, resultDestination);
-			} else if (request instanceof FTestRequest) {
-				processFTest((FTestRequest) request, resultDestination);				
-			} else if (request instanceof CategoricalCorrelationRequest) {
-			    processCategoricalCorrelationRequest((CategoricalCorrelationRequest) request, resultDestination);
-			} 
-			*/
-
-			// sendResult(request);
-
 		} catch (JMSException ex) {
             logger.error("AnalysisProcessor exception: " + ex);
             logStackTrace(ex);
@@ -473,11 +450,7 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 			logger.error("Caught IllegalAccessException in processRequest sessionId=" + request.getSessionId() + " taskId=" + request.getTaskId());
 		    logStackTrace(ex3);
 		}
-		
-		
-		
 	}
-	
 	
 	/**
 	 * This method will log an error and will print the stack trace to the log file
@@ -489,80 +462,6 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 	  ex.printStackTrace(pw);
 	  logger.error(sw.toString());
 	}
-
-//	private void processClassComparisonLookupRequest(ClassComparisonLookupRequest request, Destination resultDestination) {
-//	  logger.debug("processClassComparisonLookupRequest request=" + request);
-//	  ClassComparisonLookupTaskR ccLookupTaskR = new ClassComparisonLookupTaskR(request, debugRcommands);
-//	  ccLookupTaskR.setJMSDestination(resultDestination);
-//	  executor.execute(ccLookupTaskR);
-//	}
-//
-//	private void processCategoricalCorrelationRequest(CategoricalCorrelationRequest request, Destination resultDestination) {
-//	  logger.debug("processCategoricalCorrelationRequest request=" + request);
-//	  CategoricalCorrelationTaskR catCorrTaskR = new CategoricalCorrelationTaskR(request, debugRcommands);
-//	  catCorrTaskR.setJMSDestination(resultDestination);
-//	  executor.execute(catCorrTaskR);
-//	}
-//
-//	private void processFTest(FTestRequest request, Destination resultDestination) {
-//		logger.debug("processFTest=" + request);
-//		FTestTaskR ftTaskR = new FTestTaskR(request, debugRcommands);
-//		ftTaskR.setJMSDestination(resultDestination);
-//		executor.execute(ftTaskR);
-//	}
-//
-//	private void processCompoundAnalysisReqeust(CompoundAnalysisRequest request, Destination resultDestination) {
-//	  logger.debug("processCompoundAnalysisRequest request=" + request);
-//	  CompoundRequestTaskR compoundTaskR = new CompoundRequestTaskR(request, debugRcommands);
-//	  compoundTaskR.setJMSDestination(resultDestination);
-//	  executor.execute(compoundTaskR);
-//	}
-
-	/**
-	 * Process a class comparison analysis request.
-	 * 
-	 * @param ccRequest object containing the request parameters for the class comparison request.
-	 * @param resultQueue2 
-	 */
-//	public void processClassComparisonRequest(ClassComparisonRequest ccRequest, Destination resultDestination) {
-//		logger.debug("processClassComparisionRequest request=" + ccRequest);
-//		ClassComparisonTaskR ccTaskR = new ClassComparisonTaskR(ccRequest, debugRcommands);
-//		ccTaskR.setJMSDestination(resultDestination);
-//		executor.execute(ccTaskR);
-//	}
-
-	/**
-	 * Process a hierarchicalClusteringAnalysisRequest.
-	 * 
-	 * @param hcRequest object containing the request parameters for the hierarchical clustering request.
-	 * @param resultQueue2 
-	 */
-//	public void processHierarchicalClusteringRequest(HierarchicalClusteringRequest hcRequest, Destination resultDestination) {
-//		logger.debug("processHierarchicalClusteringRequest request=" + hcRequest);
-//		HierarchicalClusteringTaskR hcTaskR = new HierarchicalClusteringTaskR(hcRequest, debugRcommands);
-//		hcTaskR.setJMSDestination(resultDestination);
-//		executor.execute(hcTaskR);
-//	}
-
-	/**
-	 * Process a PrincipalComponentAnalysisRequest.
-	 * 
-	 * @param pcaRequest object containing the request parameters for the PCA analysis
-	 * @param resultQueue2 
-	 */
-//	public void processPrincipalComponentAnalysisRequest(PrincipalComponentAnalysisRequest pcaRequest, Destination resultDestination) {
-//		logger.debug("processPrincipalComponentAnalysisRequest request=" + pcaRequest);
-//		PrincipalComponentAnalysisTaskR pcaTaskR = new PrincipalComponentAnalysisTaskR(pcaRequest, debugRcommands);
-//		pcaTaskR.setJMSDestination(resultDestination);
-//		executor.execute(pcaTaskR);
-//	}
-	
-//	private void processCorrelationRequest(CorrelationRequest corrRequest, Destination resultDestination) {
-//	  logger.debug("processCorrelationRequest request=" + corrRequest);
-//	  CorrelationTaskR corrTaskR = new CorrelationTaskR(corrRequest, debugRcommands);
-//	  corrTaskR.setJMSDestination(resultDestination);
-//	  executor.execute(corrTaskR);
-//	}
 
 	/**
 	 * Sends an exception object to the response queue indicating that the request was not processes. 
@@ -599,7 +498,6 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 		   logStackTrace(ex);
 		}
 	}
-
 	
     /**
      * Sends an analysis result to the response queue.
@@ -634,7 +532,6 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 		   logStackTrace(ex);
 		}
 	}
-
 	
 	/**
 	 * Instantiates the server which runs continuously listening for requests.
@@ -654,14 +551,9 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 		} 
 		catch (Exception ex) {
 
-			logger.error("An exception occurred while testing AnalysisProcessor: "
+			logger.error("An exception occurred running the main method of testing AnalysisServer: "
 					+ ex);
 			logStackTrace(ex);
-//			System.err
-//					.println("An exception occurred while testing AnalysisProcessor: "
-//							+ ex);
-//			ex.printStackTrace();
-
 		}
 
 	}
@@ -684,8 +576,6 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
       catch (JMSException c)
       {
     	logger.info("Ignoring exception thrown when closing broken connection msg=" + c.getMessage());
-        //System.out.println("Ignoring exception thrown when closing broken connection msg=" + c.getMessage());
-        //c.printStackTrace(System.out);
       }
 	  
 	  //attempt to re-establish the queue connection
