@@ -1,0 +1,8 @@
+gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest	gov.nih.nci.caintegrator.analysis.server.ClassComparisonTaskR
+gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest	gov.nih.nci.caintegrator.analysis.server.ClassComparisonLookupTaskR
+gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest	gov.nih.nci.caintegrator.analysis.server.CorrelationTaskR
+gov.nih.nci.caintegrator.analysis.messaging.CategoricalCorrelationRequest	gov.nih.nci.caintegrator.analysis.server.CategoricalCorrelationTaskR
+gov.nih.nci.caintegrator.analysis.messaging.FTestRequest	gov.nih.nci.caintegrator.analysis.server.FTestTaskR
+gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest	gov.nih.nci.caintegrator.analysis.server.HierarchicalClusteringTaskR
+gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisReqeust	gov.nih.nci.caintegrator.analysis.server.PrincipalComponentAnalysisTaskR
+gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest	gov.nih.nci.caintegrator.analysis.server.CompoundRequestTaskR
