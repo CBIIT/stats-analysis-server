@@ -25,13 +25,16 @@
   median1 <- apply(datmat[,1:m1],1, median,na.rm=TRUE)
   median2 <- apply(datmat[,(m1+1):m],1, median,na.rm=TRUE)
 
+  std1 <- apply(datmat[,1:m1],1, sd,na.rm=TRUE)    
+  std2 <- apply(datmat[,(m1+1):m],1, sd,na.rm=TRUE)
+
   f <- function(i) {
       return(wilcox.test(datafilter(datmat[i,1:m1]),
       datafilter(datmat[i,(m1+1):m]))$p.value)
       }
   pval <- sapply(1:length(datmat[,1]),f)
   
-  result<-return(data.frame(median1, median2, median.dif=median1-median2,fc=2^(abs(median1-median2)),pval))
+  result<-return(data.frame(median1, median2, median.dif=median1-median2,fc=2^(abs(median1-median2)),pval,std1=std1,std2=std2))
    }
   
 # Call function 
