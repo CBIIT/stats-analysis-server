@@ -307,14 +307,22 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 //			double[] absoluteFoldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
 //			double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
 	
-			double[] meanGrp1 = doREval("mean1 <- ccResult$mean1").asDoubleArray();
-			double[] meanBaselineGrp = doREval("meanBaseline <- ccResult$mean2").asDoubleArray();
-			double[] meanDif = doREval("meanDif <- ccResult$mean.dif").asDoubleArray();
-			double[] absoluteFoldChange = doREval("fc <- ccResult$fc").asDoubleArray();
-			//double[] pva = doREval("pva <- ccResult$pval").asDoubleArray();
+//			double[] meanGrp1 = doREval("mean1 <- ccResult$mean1").asDoubleArray();
+//			double[] meanBaselineGrp = doREval("meanBaseline <- ccResult$mean2").asDoubleArray();
+//			double[] meanDif = doREval("meanDif <- ccResult$mean.dif").asDoubleArray();
+			
+			double[] meanGrp1 = doREval("mean1 <- ccResult[,1]").asDoubleArray();
+			double[] meanBaselineGrp = doREval("meanBaseline <- ccResult[,2]").asDoubleArray();
+			double[] meanDif = doREval("meanDif <- ccResult[,3]").asDoubleArray();
+			double[] absoluteFoldChange = doREval("fc <- ccResult[,4]").asDoubleArray();
 			double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
 			double[] stdG1 = doREval("stdG1 <- ccResult$std1").asDoubleArray();
 			double[] stdBaseline = doREval("stdBL <- ccResult$std2").asDoubleArray();
+			
+			//double[] absoluteFoldChange = doREval("fc <- ccResult$fc").asDoubleArray();
+			//double[] pva = doREval("pva <- ccResult$pval").asDoubleArray();
+			//double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
+			
 			
 			
 			// get the labels
