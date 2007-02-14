@@ -13,7 +13,7 @@
 adjustP.Bonferroni <- function(raw.result) {
 woNAinPvalue.result <- raw.result[!is.na(raw.result$pval),]
 adjustP <- p.adjust(woNAinPvalue.result$pval, "bonferroni", length(woNAinPvalue.result$pval))
-adjust.result <- cbind(woNAinPvalue.result[,1:4],adjustP)
+adjust.result <- cbind(woNAinPvalue.result[,1:4],adjustP,woNAinPvalue.result[,6:7])
 return(adjust.result)
 }
 
