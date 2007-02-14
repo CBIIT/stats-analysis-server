@@ -311,7 +311,8 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 			double[] meanBaselineGrp = doREval("meanBaseline <- ccResult$mean2").asDoubleArray();
 			double[] meanDif = doREval("meanDif <- ccResult$mean.dif").asDoubleArray();
 			double[] absoluteFoldChange = doREval("fc <- ccResult$fc").asDoubleArray();
-			double[] pva = doREval("pva <- ccResult$pval").asDoubleArray();
+			//double[] pva = doREval("pva <- ccResult$pval").asDoubleArray();
+			double[] pva = doREval("pva <- ccResult[,5]").asDoubleArray();
 			double[] stdG1 = doREval("stdG1 <- ccResult$std1").asDoubleArray();
 			double[] stdBaseline = doREval("stdBL <- ccResult$std2").asDoubleArray();
 			
