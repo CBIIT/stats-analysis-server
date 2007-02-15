@@ -335,9 +335,30 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 					meanGrp1.length);
 			ClassComparisonResultEntry resultEntry;
 	
+			logger.info("meanGrp1.length=" + meanGrp1.length);
+			
+			if (reporterIds==null) {
+			  logger.error(">> reporterIds vector is null <<");	
+			  String reporterId = doREval("rId <- dimnames(ccResult)[[1]]").asString();
+			  logger.error(">> Work around method reporter id=" + reporterId);
+			}
+			else {
+			  logger.info("reporterIds vector.length=" + reporterIds.size());
+			}
+			
 			for (int i = 0; i < meanGrp1.length; i++) {
 				resultEntry = new ClassComparisonResultEntry();
-				resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
+				
+				if (meanGrp1.length == 1) {
+				   //had to do this work around because rServce doesn't seem to handle
+				   //vectors of size one correctly
+				   String reporterId = doREval("rId <- dimnames(ccResult)[[1]]").asString();
+				   resultEntry.setReporterId(reporterId);
+				}
+				else {
+				   resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
+				}
+				
 				resultEntry.setMeanGrp1(meanGrp1[i]);
 				resultEntry.setMeanBaselineGrp(meanBaselineGrp[i]);
 				resultEntry.setMeanDiff(meanDif[i]);
@@ -347,6 +368,8 @@ public class ClassComparisonTaskR extends AnalysisTaskR {
 				resultEntry.setStdBaselineGrp(stdBaseline[i]);
 				resultEntries.add(resultEntry);
 			}
+				
+				
 			
 			
 			Collections.sort(resultEntries, classComparisonComparator);
