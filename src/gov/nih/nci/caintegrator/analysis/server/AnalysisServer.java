@@ -116,7 +116,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "10.14";
+	public static String version = "10.15";
 
 	private boolean debugRcommands = false;
 
