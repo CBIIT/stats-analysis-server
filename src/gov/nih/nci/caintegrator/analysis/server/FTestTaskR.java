@@ -156,7 +156,7 @@ public class FTestTaskR extends AnalysisTaskR {
 				result.setArePvaluesAdjusted(false);
 			} else if (adjMethod == MultiGroupComparisonAdjustmentType.FDR) {
 				// do adjustment
-				rCmd = "adjust.result <- adjustP.Benjamini.Hochberg(ftResult)";
+				rCmd = "adjust.result <- adjustP.Benjamini.Hochberg.Ftest(ftResult)";
 				doRvoidEval(rCmd);
 				// get differentially expressed reporters using adjusted Pvalue
 				rCmd = "ftResult  <- filterDiffExpressedGenes.FTest.adjustP(adjust.result,"
@@ -165,7 +165,7 @@ public class FTestTaskR extends AnalysisTaskR {
 				result.setArePvaluesAdjusted(true);
 			} else if (adjMethod == MultiGroupComparisonAdjustmentType.FWER) {
 				// do adjustment
-				rCmd = "adjust.result <- adjustP.Bonferroni(ftResult)";
+				rCmd = "adjust.result <- adjustP.Bonferroni.Ftest(ftResult)";
 				doRvoidEval(rCmd);
 				// get differentially expresseed reporters using adjusted Pvalue
 				rCmd = "ftResult  <- filterDiffExpressedGenes.FTest.adjustP(adjust.result,"
@@ -194,8 +194,16 @@ public class FTestTaskR extends AnalysisTaskR {
 			
 			double[] maxFoldChange = doREval("maxFC <- ftResult$mfc").asDoubleArray();
 			
+			double[] pval;
 			
-			double[] pval = doREval("pval <- ftResult$pval").asDoubleArray();
+			if (adjMethod==MultiGroupComparisonAdjustmentType.NONE) {
+			  pval = doREval("pval <- ftResult$pval").asDoubleArray();
+			}
+			else {
+			  pval = doREval("pval <- ftResult$adjustP").asDoubleArray();
+			}
+			
+			//double[] pval = doREval("pval <- ftResult$pval").asDoubleArray();
 		
 			logger.info("FTest: maxFoldChange.length=" + maxFoldChange.length);
 			logger.info("FTest: pval.length=" + pval.length);
@@ -218,7 +226,17 @@ public class FTestTaskR extends AnalysisTaskR {
 	       
 			for (int i = 0; i < numEntries; i++) {
 				resultEntry = new FTestResultEntry();
-				resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
+				
+				if (numEntries == 1) {
+				   //had to do this work around because rServe doesn't seem to handle
+				   //vectors of size one correctly
+				   String reporterId = doREval("rId <- dimnames(ftResult)[[1]]").asString();
+				   resultEntry.setReporterId(reporterId);
+				}
+				else {
+				   resultEntry.setReporterId(((REXP) reporterIds.get(i)).asString());
+				}
+				
 				grpm = new double[sampleGroups.size()];
 				for (int j=0; j <  sampleGroups.size(); j++) {
 				  grpm[j] = grpMean[j][i];
