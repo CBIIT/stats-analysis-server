@@ -90,8 +90,7 @@
 		<delete file="${build.bin.dir}/runAnalysisServer.sh"/>
 		<delete file="${build.bin.dir}/deploy.sh"/>
 		<copy file="${build.source.dir}/templates/runAnalysisServer.sh" tofile="${build.bin.dir}/runAnalysisServer.sh"/>
-		<copy file="${build.source.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>
-		<copy file="${build.source.dir}/templates/deploy.sh" tofile="${build.bin.dir}/deploy.sh"/>
+		<copy file="${build.source.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>		
 		<replaceregexp file = "${build.bin.dir}/startRserve.sh" match="@R_SERV_TEMP_DIR@" replace="${analysis-server.install.dir}/tempFiles" flags="g"/>
 	</target>
 		
