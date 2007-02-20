@@ -58,6 +58,8 @@
 			<include name="*.jar"/>
 		  </tarfileset>
 		</tar>
+		<copy file="${basedir}/caintegrator-analysis-server.tar" tofile="${anthill.dependency.artifacts.dir}/caintegrator-analysis-server.tar"/>
+		<copy file="${build.conf.dir}/deploy.sh" tofile="${anthill.dependency.artifacts.dir}/deploy.sh"/>
 	</target>
 	<!--
 		TARGET: config-analysis-server-properties
@@ -86,8 +88,10 @@
 	<target name="config-rserv-script-file">
 		<delete file="${build.bin.dir}/startRserve.sh"/>
 		<delete file="${build.bin.dir}/runAnalysisServer.sh"/>
+		<delete file="${build.bin.dir}/deploy.sh"/>
 		<copy file="${build.source.dir}/templates/runAnalysisServer.sh" tofile="${build.bin.dir}/runAnalysisServer.sh"/>
 		<copy file="${build.source.dir}/templates/startRserve.sh.template" tofile="${build.bin.dir}/startRserve.sh"/>
+		<copy file="${build.source.dir}/templates/deploy.sh" tofile="${build.bin.dir}/deploy.sh"/>
 		<replaceregexp file = "${build.bin.dir}/startRserve.sh" match="@R_SERV_TEMP_DIR@" replace="${analysis-server.install.dir}/tempFiles" flags="g"/>
 	</target>
 		
