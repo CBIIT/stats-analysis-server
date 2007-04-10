@@ -57,7 +57,9 @@ myttest <- function(datmat, m1=length(grp1ids), m2=length(grp21ids), var.equal=T
       }
        tpt <- (mean1-mean2)/tmp.sd
        ind <- which(n>2)
-       pval[ind] <- ifelse(tpt[ind]<=0, 2*pt(tpt[ind],tmp.df[ind]), 2*(1-pt(tpt[ind],tmp.df[ind])))
+	   # the following way may result in different answer.
+       # pval[ind] <- ifelse(tpt[ind]<=0, 2*pt(tpt[ind],tmp.df[ind]), 2*(1-pt(tpt[ind],tmp.df[ind])))
+       pval[ind] <- 2 * (1 - pt(abs(tpt[ind]), tmp.df[ind]))
        result <- data.frame(mean1, mean2, mean.dif=mean1-mean2,fc=2^(abs(mean1-mean2)),pval=pval,std1=std1,std2=std2)
       }
   else {
