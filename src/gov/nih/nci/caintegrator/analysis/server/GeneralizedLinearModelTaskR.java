@@ -107,9 +107,13 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
        int baselineGrpLength = 0;
 		
        grp1Length = group1.size();
+       
+       /*
+        * below are made-up names, but need to be unique
+        */
 		
-	   String grp1RName = "GRP1IDS";
-	   String baselineGrpRName = "BLGRPIDS";
+	   String grp1RName = "GLMGRP1IDS";
+	   String baselineGrpRName = "GLMBLGRPIDS";
 		
 		
 	   String rCmd = null;
@@ -146,6 +150,7 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 				doRvoidEval(rCmd);
 	
 				// create the input data matrix using the sample groups
+				// the word "dataMatrix" is defined in "R", "glmInputMatrix" can be made-up.
 				rCmd = "glmInputMatrix <- getSubmatrix.twogrps(dataMatrix,"
 						+ grp1RName + "," + baselineGrpRName + ")";
 				doRvoidEval(rCmd);
@@ -189,8 +194,9 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 			 * make sure it is GLM type gets seleted as the statistical method in the first place
 			 */
 			if (glmRequest.getStatisticalMethod() == StatisticalMethodType.GLM) {
-				// do the GLM computation
-				rCmd = "glmResult <- myglm(glmInputMatrix, " + grp1Length + ","
+				// do the GLM computation, the name "eagle.glm.array" is the function from the R 
+				// the name "glmResult" can be made up
+				rCmd = "glmResult <- eagle.glm.array(glmInputMatrix, " + grp1Length + ","
 						+ baselineGrpLength + ")";
 				doRvoidEval(rCmd);
 			} 
