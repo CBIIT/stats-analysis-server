@@ -1,6 +1,23 @@
 package gov.nih.nci.caintegrator.analysis.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
+import org.apache.log4j.Logger;
+import org.rosuda.JRclient.REXP;
+
+import gov.nih.nci.caintegrator.analysis.messaging.AnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelResult;
+import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelResultEntry;
+import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
+import gov.nih.nci.caintegrator.enumeration.StatisticalMethodType;
+import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 
 public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
@@ -241,7 +258,7 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 			
 			Collections.sort(resultEntries, glmComparator);
 	
-			glmResult.setResultEntries(resultEntries);
+			glmResult.setGlmResultEntries(resultEntries);
 	
 			glmResult.setGroup1(group1);
 			if (baselineGroup != null) {

@@ -34,8 +34,8 @@ public class GeneralizedLinearModelComparator implements Comparator {
 			}
 		
 		
-		double abFC = Math.abs(glmResultEntry.getFoldChange());
-		double abFC2 = Math.abs(glmResultEntry2.getFoldChange());
+		double abFC = Math.abs(glmResultEntry.getAbsoluteFoldChange());
+		double abFC2 = Math.abs(glmResultEntry2.getAbsoluteFoldChange());
 		
 		
 		
