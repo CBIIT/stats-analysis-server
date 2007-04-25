@@ -8,6 +8,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -116,7 +117,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "10.16";
+	public static String version = "11.0";
 
 	private boolean debugRcommands = false;
 
@@ -424,7 +425,9 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processFTest((FTestRequest) request, resultDestination);				
 			} else if (request instanceof CategoricalCorrelationRequest) {
 			    processCategoricalCorrelationRequest((CategoricalCorrelationRequest) request, resultDestination);
-			} 
+			} else if (request instanceof GeneralizedLinearModelRequest) {
+				processGeneralizedLinearModelRequest((GeneralizedLinearModelRequest) request, resultDestination);
+			}
 
 			// sendResult(request);
 
@@ -445,6 +448,14 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	}
 	
 	
+	private void processGeneralizedLinearModelRequest(GeneralizedLinearModelRequest request, Destination resultDestination) {
+	  logger.debug("processGeneralizedLinearModelRequest request=" + request);
+	  GeneralizedLinearModelTaskR glmTaskR = new GeneralizedLinearModelTaskR(request, debugRcommands);
+	  glmTaskR.setJMSDestination(resultDestination);
+	  executor.execute(glmTaskR);
+		
+	}
+
 	private void processClassComparisonLookupRequest(ClassComparisonLookupRequest request, Destination resultDestination) {
 	  logger.debug("processClassComparisonLookupRequest request=" + request);
 	  ClassComparisonLookupTaskR ccLookupTaskR = new ClassComparisonLookupTaskR(request, debugRcommands);

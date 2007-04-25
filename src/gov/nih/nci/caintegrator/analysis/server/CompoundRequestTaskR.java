@@ -9,6 +9,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisResult;
 import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.PrincipalComponentAnalysisRequest;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
@@ -69,6 +70,9 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 		  }
 		  else if (request instanceof FTestRequest){
 			task = new FTestTaskR((FTestRequest)request, getDebugRcommands());
+		  }
+		  else if (request instanceof GeneralizedLinearModelRequest){
+			task = new GeneralizedLinearModelTaskR((GeneralizedLinearModelRequest)request, getDebugRcommands());
 		  }
 		  else {
 			logger.error("Unrecognized request type :" + request.getClass());
