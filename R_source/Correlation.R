@@ -3,7 +3,7 @@
 # File: Correlation.R
 # Description: Write R fuction to calculate correlation coefficient
 # Author: Huaitian Liu
-# Date: July 2006
+# Date: July 2006 
 #################################################################################################
 
 # Pearson Correlation is parametric test for correlation.
