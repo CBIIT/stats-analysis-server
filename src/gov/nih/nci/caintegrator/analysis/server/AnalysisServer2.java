@@ -123,9 +123,13 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 	
 	private static int defaultNumComputeThreads = 1;
 
-	private static String RserverIp = null;
+	private static String rServerIp = null;
+	
+	private static int rServerPort = -1;
 	
 	private static String defaultRserverIp = "localhost";
+	
+	private static int defaultRserverPort = 6311;
 
 	private static String RinitializationFileName = null;
 	
@@ -196,7 +200,9 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 			
 			JBossMQ_locationIp = getMandatoryStringProperty(analysisServerConfigProps, "jmsmq_location");
 
-			RserverIp = getStringProperty(analysisServerConfigProps,"rserve_location", defaultRserverIp);
+			rServerIp = getStringProperty(analysisServerConfigProps,"rserve_location", defaultRserverIp);
+			
+			rServerPort = getIntegerProperty(analysisServerConfigProps,"rserve_port", defaultRserverPort);
 			
 			numComputeThreads = getIntegerProperty(analysisServerConfigProps,"num_compute_threads", defaultNumComputeThreads);
 			
@@ -228,7 +234,7 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 		
 		// initialize the compute threads
 		
-		executor = new RThreadPoolExecutor(numComputeThreads, RserverIp,
+		executor = new RThreadPoolExecutor(numComputeThreads, rServerIp, rServerPort,
 				RinitializationFileName, RdataFileDirectory, this);
 		
 		executor.setDebugRcommmands(debugRcommands);
@@ -243,7 +249,7 @@ public class AnalysisServer2 implements MessageListener, ExceptionListener, Anal
 		establishQueueConnection();
 		
 		logger.info("AnalysisServer version=" + version
-				+ " successfully initialized. numComputeThreads=" + numComputeThreads + " RserverIp=" + RserverIp + " RinitializationFileName=" + RinitializationFileName);
+				+ " successfully initialized. numComputeThreads=" + numComputeThreads + " RserverIp=" + rServerIp + " RinitializationFileName=" + RinitializationFileName);
 		
 
 	}

@@ -81,6 +81,8 @@ import org.rosuda.JRclient.*;
 public class RThread extends Thread {
 
 	private String rServeIp;
+	
+	private int rServePort;
 
 	private String rInitializationFileName;
 	
@@ -91,9 +93,10 @@ public class RThread extends Thread {
 	private static Logger logger = Logger.getLogger(RThread.class);
 
 
-	public RThread(Runnable target, String rServeIp, String rInitializationFileName, String rDataFileDirectory) {
+	public RThread(Runnable target, String rServeIp, int rServePort, String rInitializationFileName, String rDataFileDirectory) {
 		super(target);
 		this.rServeIp = rServeIp;
+		this.rServePort = rServePort;
 		this.rInitializationFileName = rInitializationFileName;
 		this.rDataFileDirectory = rDataFileDirectory;
 		initializeRComputeConnection();
@@ -105,7 +108,7 @@ public class RThread extends Thread {
 		// load the test matrix and function definitions
 		try {
 			
-			computeConnection = new RComputeConnection(rServeIp, rDataFileDirectory);
+			computeConnection = new RComputeConnection(rServeIp, rServePort, rDataFileDirectory);
 			//rConnection = new Rconnection(rServeIp);
 
 			String rCmd;
@@ -173,6 +176,14 @@ public class RThread extends Thread {
 	  PrintWriter pw = new PrintWriter(sw);
 	  ex.printStackTrace(pw);
 	  logger.error(sw.toString());
+	}
+
+	public int getRServePort() {
+		return rServePort;
+	}
+
+	public void setRServePort(int servePort) {
+		rServePort = servePort;
 	}
 
 }

@@ -230,7 +230,7 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 		
 		// initialize the compute threads
 		
-		executor = new RThreadPoolExecutor(numComputeThreads, RserverIp,
+		executor = new RThreadPoolExecutor(numComputeThreads, RserverIp,6311,
 				RinitializationFileName, RdataFileDirectory, this);
 		
 		executor.setDebugRcommmands(debugRcommands);

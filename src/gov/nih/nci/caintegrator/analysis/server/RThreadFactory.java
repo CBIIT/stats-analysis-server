@@ -75,13 +75,15 @@ import java.util.concurrent.ThreadFactory;
 public class RThreadFactory implements ThreadFactory {
 
 	private String rServeIp;
+	private int rServePort;
 
 	private String rInitializationFileName;
 	private String rDataFileDirectory;
 
-	public RThreadFactory(String rServeIp, String rInitializationFileName, String rDataFileDirectory) {
+	public RThreadFactory(String rServeIp, int rServePort, String rInitializationFileName, String rDataFileDirectory) {
 		super();
 		this.rServeIp = rServeIp;
+		this.rServePort = rServePort;
 		this.rInitializationFileName = rInitializationFileName;
 		this.rDataFileDirectory = rDataFileDirectory;
 	}
@@ -91,7 +93,7 @@ public class RThreadFactory implements ThreadFactory {
 	 * Return a new RThread. 
 	 */
 	public Thread newThread(Runnable r) {
-		RThread thread = new RThread(r, rServeIp, rInitializationFileName, rDataFileDirectory);
+		RThread thread = new RThread(r, rServeIp, rServePort, rInitializationFileName, rDataFileDirectory);
 		return thread;
 	}
 
@@ -105,6 +107,10 @@ public class RThreadFactory implements ThreadFactory {
 
 	public String getRServeIp() {
 		return rServeIp;
+	}
+	
+	public int getRServePort() {
+	    return rServePort;
 	}
 
 }

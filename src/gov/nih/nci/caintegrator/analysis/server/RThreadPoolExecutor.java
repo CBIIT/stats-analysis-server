@@ -93,13 +93,13 @@ public class RThreadPoolExecutor extends ThreadPoolExecutor {
 	
 	private static Logger logger = Logger.getLogger(RThreadPoolExecutor.class);
 
-	public RThreadPoolExecutor(int nThreads, String RserveIp, String RinitializationFile, String RdataFileDirectory,
+	public RThreadPoolExecutor(int nThreads, String RserveIp, int RservePort, String RinitializationFile, String RdataFileDirectory,
 			AnalysisResultSender sender) {
 
 		// create a new fixed thread pool
 		super(nThreads, nThreads, Long.MAX_VALUE, TimeUnit.NANOSECONDS,
 				new LinkedBlockingQueue<Runnable>(), new RThreadFactory(
-						RserveIp, RinitializationFile, RdataFileDirectory));
+						RserveIp, RservePort, RinitializationFile, RdataFileDirectory));
 
 		this.sender = sender;
 		this.hostName = getHostName();
