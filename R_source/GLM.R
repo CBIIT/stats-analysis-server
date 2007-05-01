@@ -5,8 +5,8 @@
 # Date: April 2007
 ###############################################################################################################
 #
-#  Note: Arguments include the data matrix of expression, subject id,
-#         group id and vector/matrix of the covariate values. 
+#  Note: Input includes the data frame with subject id, selected reporter id 
+#         group id and selected covariance. 
 #
 #############################################################################################################
 
