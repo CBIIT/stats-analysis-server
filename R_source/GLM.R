@@ -98,11 +98,11 @@ eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 		pv_cov<-apply(datamat, 1, eagle.glm.single, subids, group.ids, is.covar=TRUE, covar)
 		
 		pb_grps<-rownames(pv_glm)
-		pb_grps<-paste(pb_grps, "_before_adjustment", sep="")
+		pb_grps<-paste(pb_grps, "_beforeAdjustment", sep="")
 		rownames(pv_glm)<-pb_grps
 		
 		pa_grps<-rownames(pv_cov)
-		pa_grps<-paste(pa_grps, "_after_adjustment", sep="")
+		pa_grps<-paste(pa_grps, "_afterAdjustment", sep="")
 		rownames(pv_cov)<-pa_grps
 	
 		Pv_Pairs<-rbind(pv_glm, pv_cov)
