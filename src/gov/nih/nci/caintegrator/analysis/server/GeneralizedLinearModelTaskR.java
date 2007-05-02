@@ -115,98 +115,16 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             String glmPatients = "GLMPATIENTS";
             String glmGroups = "GLMGROUPS";
             logger.debug("building");
+            List<String> allPatients = null;
+            allPatients = createPatientList(baselineGroup, sampleGroups);
             String groupPatientCmd = getGlmPatientGroupCommand(glmPatients,
-                    baselineGroup, sampleGroups);
+                    allPatients);
             String groupNameCommand = getGlmGroupNameCommand(glmGroups,
-                    baselineGroup, sampleGroups);
+                    allPatients, baselineGroup, sampleGroups);
             logger.debug("about to invoke r");
             doRvoidEval(groupPatientCmd);
             doRvoidEval(groupNameCommand);
             logger.debug("invoking r");
-            // Construct the data matrix for the confounding factors
-            logger.debug("about to construct data matrix");
-            int count = 0;
-            HashMap<String, HashMap> patientMap = ((GLMSampleGroup) baselineGroup)
-                    .getAnnotationMap();
-            List<String> patientIds = new ArrayList<String>();
-            Set<String> colNames = null;
-            List<String> rowVarNames = new ArrayList<String>();
-            String varName = "PATIENT";
-            String command = "<-c(";
-            String rowValues = null;
-
-            for (String patientId : patientMap.keySet()) {
-                Map<String, Map> values = patientMap.get(patientId);
-                if (colNames == null) {
-                    colNames = values.keySet();
-                }
-                List<String> stringValues = new ArrayList<String>();
-                for (String s : colNames) {
-                    Object o = values.get(s);
-                    stringValues.add(o.toString());
-
-                }
-                rowValues = "\""
-                        + StringUtils.join(stringValues.toArray(), "\",\"")
-                        + "\"";
-                patientIds.add(patientId);
-                rowVarNames.add(varName + count);
-                String rCommand = varName + count + command + rowValues + ")";
-                doRvoidEval(rCommand);
-                count++;
-            }
-            for (SampleGroup group : sampleGroups) {
-                patientMap = ((GLMSampleGroup) group).getAnnotationMap();
-                for (String patientId : patientMap.keySet()) {
-                    Map<String, List<String>> values = patientMap
-                            .get(patientId);
-                    if (colNames == null) {
-                        colNames = values.keySet();
-                    }
-                    List<String> stringValues = new ArrayList<String>();
-                    for (String s : colNames) {
-                        Object o = values.get(s);
-                        stringValues.add(o.toString());
-
-                    }
-
-                    rowValues = "\""
-                            + StringUtils.join(stringValues.toArray(), "\",\"")
-                            + "\"";
-                    patientIds.add(patientId);
-                    rowVarNames.add(varName + count);
-                    String rCommand = varName + count + command + rowValues
-                            + ")";
-                    doRvoidEval(rCommand);
-                    count++;
-                }
-            }
-
-            logger.debug("about to bind data matrix");
-            String bindCmd = "boundCol <- rbind(";
-            String matrixName = "GLMMATRIX";
-            String matrixCommand = matrixName + "<-as.matrix(boundCol)";
-            String dimColumns = "dimnames(" + matrixName + ")[[2]]<-";
-            String dimRows = "dimnames(" + matrixName + ")[[1]]<-";
-
-            String columnNames = StringUtils.join(rowVarNames.toArray(), ",");
-            String cbindCommand = bindCmd + columnNames + ")";
-            String columnDimNames = "\""
-                    + StringUtils.join(colNames.toArray(), "\",\"") + "\"";
-            String rowDimNames = "\""
-                    + StringUtils.join(patientIds.toArray(), "\",\"") + "\"";
-
-            String columns = "DIMCOLUMNS";
-            String rows = "DIMROWS";
-
-            doRvoidEval(columns + command + columnDimNames + ")");
-            doRvoidEval(rows + command + rowDimNames + ")");
-
-            doRvoidEval(cbindCommand);
-            doRvoidEval(matrixCommand);
-
-            doRvoidEval(dimColumns + columns);
-            doRvoidEval(dimRows + rows);
 
             String glmCommand = null;
             List<CoVariateType> coVariateTypes = glmRequest.getCoVariateTypes();
@@ -215,6 +133,8 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
                         + glmPatients + ", " + glmGroups + ", FALSE, " + "null"
                         + ")";
             } else {
+                String matrixName = constructDataMatrix(allPatients,
+                        (GLMSampleGroup) baselineGroup, sampleGroups);
                 glmCommand = "glmResult<-eagle.glm.array(dataMatrix, "
                         + glmPatients + ", " + glmGroups + ", TRUE, "
                         + matrixName + ")";
@@ -225,8 +145,8 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             // get the labels
             Vector reporterIds = doREval(
                     "glmReporters <- dimnames(glmResult)[[1]]").asVector();
-            Vector groupIds = doREval(
-                    "glmReporters <- dimnames(glmResult)[[2]]").asVector();
+            Vector groupIds = doREval("glmGroups <- dimnames(glmResult)[[2]]")
+                    .asVector();
 
             List<SampleGroup> resultSampleGroups = new ArrayList<SampleGroup>();
             for (Object groupId : groupIds) {
@@ -236,12 +156,15 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             glmResult.setSampleGroups(resultSampleGroups);
 
             List<GeneralizedLinearModelResultEntry> entries = new ArrayList<GeneralizedLinearModelResultEntry>();
-            for (Object reporterId : reporterIds) {
+            for (int i = 0; i < reporterIds.size(); i++) {
+
                 GeneralizedLinearModelResultEntry entry = new GeneralizedLinearModelResultEntry();
-                String reporter = ((REXP) reporterId).asString();
+                String reporter = ((REXP) reporterIds.get(i)).asString();
                 entry.setReporterId(reporter);
-                double[] pvals = doREval("pvals <- glmResult$" + reporter)
+                logger.debug("reporter id: " + reporter);
+                double[] pvals = doREval("pval <- glmResult[" + (i+ 1) + ",]")
                         .asDoubleArray();
+                logger.debug("got values: " + pvals);
                 entry.setGroupPvalues(pvals);
                 entries.add(entry);
             }
@@ -256,86 +179,145 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 
         } catch (AnalysisServerException asex) {
             AnalysisServerException aex = new AnalysisServerException(
-                    "Problem computing FTest. Caught AnalysisServerException in FTestTaskR."
+                    "Problem computing GLM. Caught AnalysisServerException in FTestTaskR."
                             + asex.getMessage());
             aex.setFailedRequest(glmRequest);
             setException(aex);
-            logger.error("Caught AnalysisServerException in FTestTaskR");
+            logger.error("Caught AnalysisServerException in GLM");
             logStackTrace(logger, asex);
             return;
         } catch (Exception ex) {
             AnalysisServerException asex = new AnalysisServerException(
-                    "Internal Error. Caught Exception in FTestTaskR exClass="
+                    "Internal Error. Caught Exception in GLM exClass="
                             + ex.getClass() + " msg=" + ex.getMessage());
             asex.setFailedRequest(glmRequest);
             setException(asex);
-            logger.error("Caught Exception in FTestTaskR");
+            logger.error("Caught Exception in GLM");
             logStackTrace(logger, ex);
             return;
         }
 
     }
 
-    public String getGlmPatientGroupCommand(String groupName,
-            SampleGroup baseline, List<GLMSampleGroup> comparisons) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(groupName);
-        sb.append(" <- c(");
+    private String constructDataMatrix(List<String> allPatients,
+            GLMSampleGroup baselineGroup, List<GLMSampleGroup> sampleGroups)
+            throws AnalysisServerException {
+
+        // Construct the data matrix for the confounding factors
+        logger.debug("about to construct data matrix");
+        int count = 0;
+        Set<String> colNames = null;
+        List<String> rowVarNames = new ArrayList<String>();
+        String varName = "PATIENT";
+        String command = "<-c(";
+        String rowValues = null;
+
+        for (String currPatient : allPatients) {
+            HashMap valueMap = null;
+            if (baselineGroup.contains(currPatient)) {
+                valueMap = baselineGroup.getAnnotationMap().get(currPatient);
+            } else {
+                for (GLMSampleGroup sg : sampleGroups) {
+                    if (sg.contains(currPatient)) {
+                        valueMap = sg.getAnnotationMap().get(currPatient);
+                        break;
+                    }
+                }
+            }
+            if (colNames == null) {
+                colNames = valueMap.keySet();
+            }
+            List<String> stringValues = new ArrayList<String>();
+            for (String s : colNames) {
+                Object o = valueMap.get(s);
+                stringValues.add(o.toString());
+
+            }
+            rowValues = "\""
+                    + StringUtils.join(stringValues.toArray(), "\",\"") + "\"";
+            rowVarNames.add(varName + count);
+            String rCommand = varName + count + command + rowValues + ")";
+            doRvoidEval(rCommand);
+            count++;
+
+        }
+
+
+        logger.debug("about to bind data matrix");
+        String bindCmd = "boundCol <- rbind(";
+        String matrixName = "GLMMATRIX";
+        String matrixCommand = matrixName + "<-as.matrix(boundCol)";
+        String dimColumns = "dimnames(" + matrixName + ")[[2]]<-";
+        String dimRows = "dimnames(" + matrixName + ")[[1]]<-";
+
+        String columnNames = StringUtils.join(rowVarNames.toArray(), ",");
+        String cbindCommand = bindCmd + columnNames + ")";
+        String columnDimNames = "\""
+                + StringUtils.join(colNames.toArray(), "\",\"") + "\"";
+        String rowDimNames = "\""
+                + StringUtils.join(allPatients.toArray(), "\",\"") + "\"";
+
+        String columns = "DIMCOLUMNS";
+        String rows = "DIMROWS";
+
+        doRvoidEval(columns + command + columnDimNames + ")");
+        doRvoidEval(rows + command + rowDimNames + ")");
+
+        doRvoidEval(cbindCommand);
+        doRvoidEval(matrixCommand);
+
+        doRvoidEval(dimColumns + columns);
+        doRvoidEval(dimRows + rows);
+
+        return matrixName;
+    }
+
+    private List<String> createPatientList(SampleGroup baseline,
+            List<GLMSampleGroup> comparisons) {
         String id;
-        logger.debug("in glm patientGroupCommand");
+        List<String> patients = new ArrayList<String>();
         if (baseline != null) {
-            logger.debug("baseline not null");
             for (Iterator i = baseline.iterator(); i.hasNext();) {
                 id = (String) i.next();
-                sb.append("\"").append(id).append("\"");
-                if (i.hasNext()) {
-                    sb.append(",");
-                }
+                patients.add(id);
             }
         }
         for (SampleGroup group : comparisons) {
-            logger.debug("got sample group " + group);
             for (Iterator i = group.iterator(); i.hasNext();) {
-                sb.append(",");
                 id = (String) i.next();
-                sb.append("\"").append(id).append("\"");
+                patients.add(id);
             }
         }
-        sb.append(")");
-        logger.debug("returning from patientGroupCommand");
-        return sb.toString();
+        return patients;
+    }
+
+    public String getGlmPatientGroupCommand(String groupName,
+            List<String> patients) {
+        String command = groupName + " <- c(" + "\""
+                + StringUtils.join(patients.toArray(), "\",\"") + "\")";
+        return command;
     }
 
     public String getGlmGroupNameCommand(String groupName,
-            SampleGroup baseline, List<GLMSampleGroup> comparisons) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(groupName);
-        sb.append(" <- c(");
-        String id;
-        logger.debug("in glmGroupNameCommand");
-        if (baseline != null) {
-            logger.debug("baseline is not null");
-            for (Iterator i = baseline.iterator(); i.hasNext();) {
-                i.next();
-                id = (String) "0" + baseline.getGroupName();
-                sb.append("\"").append(id).append("\"");
-                if (i.hasNext()) {
-                    sb.append(",");
+            List<String> patients, SampleGroup baseline,
+            List<GLMSampleGroup> comparisons) {
+        List<String> groupNames = new ArrayList<String>();
+        for (String patientId : patients) {
+            if (baseline.contains(patientId)) {
+                groupNames.add("0" + baseline.getGroupName());
+            } else {
+                for (SampleGroup g : comparisons) {
+                    if (g.contains(patientId)) {
+                        groupNames.add(g.getGroupName());
+                        break;
+                    }
                 }
             }
+
         }
-        for (SampleGroup group : comparisons) {
-            logger.debug("groupname got " + group);
-            for (Iterator i = group.iterator(); i.hasNext();) {
-                i.next();
-                sb.append(",");
-                id = (String) group.getGroupName();
-                sb.append("\"").append(id).append("\"");
-            }
-        }
-        logger.debug("returning glmGroupNameCommand");
-        sb.append(")");
-        return sb.toString();
+        String command = groupName + " <- c(" + "\""
+                + StringUtils.join(groupNames.toArray(), "\",\"") + "\")";
+        return command;
     }
 
     public AnalysisResult getResult() {
