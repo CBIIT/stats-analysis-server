@@ -57,27 +57,28 @@ eagle.glm.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar) #
 				summary.glm<-summary(glm)
 				glm.coefs<-summary.glm$coef
 			}
-			if (dim(covar)[2]==4){
-				adjustment1<-covar[,1]
-				adjustment2<-covar[,2]
-				adjustment3<-covar[,3]
-				adjustment4<-covar[,4]
-				if (mode(as.vector(covar[,1]))== "character"){
-					adjustment1<-as.factor(covar[,1])
-				}
-				if (mode(as.vector(covar[,2]))== "character"){
-					adjustment2<-as.factor(covar[,2])
-				}
-				if (mode(as.vector(covar[,3]))== "character"){
-					adjustment3<-as.factor(covar[,3])
-				}
-				if (mode(as.vector(covar[,4]))== "character"){
-					adjustment4<-as.factor(covar[,4])
-				}
-				glm<-glm(rptrSubExp~grps+adjustment1+adjustment2+adjustment3+adjustment4)
-				summary.glm<-summary(glm)
-				glm.coefs<-summary.glm$coef
-			}
+			#if there are more than 3 covariates, we need the following code
+			#if (dim(covar)[2]==4){
+			#	adjustment1<-covar[,1]
+			#	adjustment2<-covar[,2]
+			#	adjustment3<-covar[,3]
+			#	adjustment4<-covar[,4]
+			#	if (mode(as.vector(covar[,1]))== "character"){
+			#		adjustment1<-as.factor(covar[,1])
+			#	}
+			#	if (mode(as.vector(covar[,2]))== "character"){
+			#		adjustment2<-as.factor(covar[,2])
+			#	}
+			#	if (mode(as.vector(covar[,3]))== "character"){
+			#		adjustment3<-as.factor(covar[,3])
+			#	}
+			#	if (mode(as.vector(covar[,4]))== "character"){
+			#		adjustment4<-as.factor(covar[,4])
+			#	}
+			#	glm<-glm(rptrSubExp~grps+adjustment1+adjustment2+adjustment3+adjustment4)
+			#	summary.glm<-summary(glm)
+			#	glm.coefs<-summary.glm$coef
+			#}
 		}
 	}
 	else { 
