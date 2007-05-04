@@ -10,10 +10,10 @@ import gov.nih.nci.caintegrator.enumeration.CoVariateType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -25,7 +25,6 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 
     private GeneralizedLinearModelResult glmResult = null;
 
-    GeneralizedLinearModelComparator glmComparator = new GeneralizedLinearModelComparator();
 
     public static final int MIN_GROUP_SIZE = 3;
 
@@ -57,7 +56,7 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
         // Validate that all the groups are correct and not overlapping
 
         List<GLMSampleGroup> groups = glmRequest.getComparisonGroups();
-        groups.add((GLMSampleGroup) glmRequest.getBaselineGroup());
+        //groups.add((GLMSampleGroup) glmRequest.getBaselineGroup());
 
         boolean errorCondition = false;
         SampleGroup idsSeen = new SampleGroup();
@@ -125,17 +124,21 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             doRvoidEval(groupPatientCmd);
             doRvoidEval(groupNameCommand);
             logger.debug("invoking r");
-
+            
+            // Filter by gene variance to invrease performance
+            Double geneVariance = glmRequest.getGeneVariance();
+            String varianceCommand = "subMatrix<-GeneFilterVariance(dataMatrix," + geneVariance.toString() + ")";
+            doRvoidEval(varianceCommand);
             String glmCommand = null;
             List<CoVariateType> coVariateTypes = glmRequest.getCoVariateTypes();
             if (coVariateTypes == null || coVariateTypes.size() == 0) {
-                glmCommand = "glmResult<-eagle.glm.array(dataMatrix, "
+                glmCommand = "glmResult<-eagle.glm.array(subMatrix, "
                         + glmPatients + ", " + glmGroups + ", FALSE, " + "null"
                         + ")";
             } else {
                 String matrixName = constructDataMatrix(allPatients,
                         (GLMSampleGroup) baselineGroup, sampleGroups);
-                glmCommand = "glmResult<-eagle.glm.array(dataMatrix, "
+                glmCommand = "glmResult<-eagle.glm.array(subMatrix, "
                         + glmPatients + ", " + glmGroups + ", TRUE, "
                         + matrixName + ")";
             }
@@ -161,20 +164,15 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
                 GeneralizedLinearModelResultEntry entry = new GeneralizedLinearModelResultEntry();
                 String reporter = ((REXP) reporterIds.get(i)).asString();
                 entry.setReporterId(reporter);
-                logger.debug("reporter id: " + reporter);
                 double[] pvals = doREval("pval <- glmResult[" + (i+ 1) + ",]")
                         .asDoubleArray();
-                logger.debug("got values: " + pvals);
                 entry.setGroupPvalues(pvals);
                 entries.add(entry);
             }
             glmResult.setGlmResultEntries(entries);
-            logger.debug(reporterIds);
             logger.debug("reporterIds.size=" + reporterIds.size());
-            logger.debug(groupIds);
             logger.debug("groupIds.size=" + groupIds.size());
 
-            logger.debug(entries);
             // glmResult.setSampleGroups(sampleGroups);
 
         } catch (AnalysisServerException asex) {
