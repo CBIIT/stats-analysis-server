@@ -27,6 +27,15 @@ eagle.glm.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar) #
 			glm.coefs<-summary.glm$coef
 		}
 		else {
+			if (dim(covar)[2]==1){
+				adjustment1<-covar[,1]
+				if (mode(as.vector(covar[,1]))== "character"){
+					adjustment1<-as.factor(covar[,1])
+				}
+				glm<-glm(rptrSubExp~grps+adjustment1)
+				summary.glm<-summary(glm)
+				glm.coefs<-summary.glm$coef
+			}
 			if (dim(covar)[2]==2){
 				adjustment1<-covar[,1]
 				adjustment2<-covar[,2]
