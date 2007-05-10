@@ -95,11 +95,8 @@ eagle.glm.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar) #
 		summary.glm<-summary(glm);
 		glm.coefs<-summary.glm$coef;
 	}
-	pValues<-glm.coefs[2:(uniqGrpCount), 4]
-	pValNames<-names(pValues)
-	pValNewNames<-substr(pValNames, 5, 10000)
-	pValNewNames->names(pValues)
-	return(pValues)
+pValues<-glm.coefs[2:(uniqGrpCount), 4]
+return(pValues)
 }
 
 eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
@@ -119,14 +116,16 @@ eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 	}
 	else {
 		pv_glm<-apply(datamat, 1, eagle.glm.single, subids, group.ids, is.covar=FALSE)
-		
-		pb_grps<-rownames(pv_glm)
+		if(is.null(dim(pv_glm))){
+			pv_glm<-t(as.matrix(pv_glm))
+		}
+		ngrp<-length(unique(group.ids))
+		pb_grps<-sort(unique(group.ids))[2:ngrp]
 		pb_grps<-paste(pb_grps, "_beforeAdjustment", sep="")
 		rownames(pv_glm)<-pb_grps
-		
 		Pv_Pairs<-pv_glm
+		Pv_Pairs<-t(Pv_Pairs)
 	}
-	Pv_Pairs<-t(Pv_Pairs)
 	return(Pv_Pairs)
 }
 
