@@ -140,7 +140,8 @@ eagle.fold.array<- function(datamat, subids, group.ids){
 	means<-t(apply(datamat,1, eagle.grpmean.single, subids, group.ids))
 	dim.means<-dim(means)
 	fold<-means/means[,1]
-	return(fold)
+	ret<-list(FOLD=fold, AVEAGE=means)
+	return(ret)
 }
 
 #ealge.boxplot<- function(rptr_exps, sub_id=subject.ids, grpids=group.ids, reporter=rptr){
