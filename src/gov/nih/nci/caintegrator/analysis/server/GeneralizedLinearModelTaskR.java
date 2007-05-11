@@ -148,14 +148,22 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             // get the labels
             Vector reporterIds = doREval(
                     "glmReporters <- dimnames(glmResult)[[1]]").asVector();
-            Vector groupIds = doREval("glmGroups <- dimnames(glmResult)[[2]]")
-                    .asVector();
-
             List<SampleGroup> resultSampleGroups = new ArrayList<SampleGroup>();
-            for (Object groupId : groupIds) {
-                resultSampleGroups.add(new SampleGroup(((REXP) groupId)
-                        .asString()));
+            
+            if(glmRequest.getComparisonGroups().size() < 2 && (glmRequest.getCoVariateTypes() == null || glmRequest.getCoVariateTypes().size() < 1)) {
+                String groupId = doREval("glmGroups <- dimnames(glmResult)[[2]]").asString();
+                resultSampleGroups.add(new SampleGroup(groupId));
+            } else {
+                Vector groupIds = new Vector();
+                groupIds = doREval("glmGroups <- dimnames(glmResult)[[2]]")
+                    .asVector();
+                for (Object groupId : groupIds) {
+                    resultSampleGroups.add(new SampleGroup(((REXP) groupId)
+                            .asString()));
+                }
             }
+
+
             glmResult.setSampleGroups(resultSampleGroups);
 
             List<GeneralizedLinearModelResultEntry> entries = new ArrayList<GeneralizedLinearModelResultEntry>();
@@ -171,7 +179,7 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             }
             glmResult.setGlmResultEntries(entries);
             logger.debug("reporterIds.size=" + reporterIds.size());
-            logger.debug("groupIds.size=" + groupIds.size());
+            logger.debug("groupIds.size=" + resultSampleGroups.size());
 
             // glmResult.setSampleGroups(sampleGroups);
 
@@ -225,14 +233,19 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             if (colNames == null) {
                 colNames = valueMap.keySet();
             }
-            List<String> stringValues = new ArrayList<String>();
+            List values = new ArrayList();
             for (String s : colNames) {
                 Object o = valueMap.get(s);
-                stringValues.add(o.toString());
+                Double num = null;
+                try {
+                    num = Double.parseDouble(o.toString());
+                    values.add(num);
+                } catch(NumberFormatException e) {
+                    values.add("\"" + o.toString() + "\"");
+                }
 
             }
-            rowValues = "\""
-                    + StringUtils.join(stringValues.toArray(), "\",\"") + "\"";
+            rowValues = StringUtils.join(values.toArray(), ",") ;
             rowVarNames.add(varName + count);
             String rCommand = varName + count + command + rowValues + ")";
             doRvoidEval(rCommand);
