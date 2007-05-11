@@ -103,12 +103,19 @@ eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 	if (is.covar){
 		pv_glm<-apply(datamat, 1, eagle.glm.single, subids, group.ids, is.covar=FALSE)
 		pv_cov<-apply(datamat, 1, eagle.glm.single, subids, group.ids, is.covar=TRUE, covar)
-		
-		pb_grps<-rownames(pv_glm)
+		ngrp<-length(unique(group.ids))
+		pb_grps<-sort(unique(group.ids))[2:ngrp]
+		pa_grps<-sort(unique(group.ids))[2:ngrp]
+		if(is.null(dim(pv_glm))){
+			pv_glm<-t(as.matrix(pv_glm))
+		}
+		if(is.null(dim(pv_cov))){
+			pv_cov<-t(as.matrix(pv_cov))
+		}
+
 		pb_grps<-paste(pb_grps, "_beforeAdjustment", sep="")
 		rownames(pv_glm)<-pb_grps
 		
-		pa_grps<-rownames(pv_cov)
 		pa_grps<-paste(pa_grps, "_afterAdjustment", sep="")
 		rownames(pv_cov)<-pa_grps
 	
