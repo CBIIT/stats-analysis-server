@@ -129,9 +129,31 @@ eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 	return(Pv_Pairs)
 }
 
+eagle.fold.array<- function(datamat, subids, group.ids){
+	means<-t(apply(datamat,1, eagle.grpmean.single, subids, group.ids))
+	dim.means<-dim(means)
+	fold<-means/means[,1]
+	return(fold)
+}
+
 #ealge.boxplot<- function(rptr_exps, sub_id=subject.ids, grpids=group.ids, reporter=rptr){
 #	rptr_exp<-rptr_exps[rptr, subject.ids]
 #	mainstr<-paste("Boxplot of ", rptr, "Expression Across Groups")
 #	boxplot_rptr<-boxplot(rptr_exp~group.ids, main=mainstr, ylab="Expressions", xlab="Groups")
 #	return(boxplot)
 #}
+
+eagle.grpmean.single<-function(rptr_exps, subids, grpids){
+	unigrps<-sort(unique(grpids))
+	ngrp<-length(unique(grpids))
+	base.subids<-subids[grpids==unigrps[1]]
+	base.mean<-mean(rptr_exps[base.subids])
+	mean<-c(base.mean)
+	for (grp in unigrps[2:ngrp]){
+		grp.subids<-subids[grpids==grp]
+		grp.mean<-mean(rptr_exps[grp.subids])
+		mean<-c(mean, grp.mean)
+	}
+	names(mean)<-unigrps
+	return(mean)
+}
