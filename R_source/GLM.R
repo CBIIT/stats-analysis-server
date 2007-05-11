@@ -131,8 +131,8 @@ eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 		pb_grps<-paste(pb_grps, "_beforeAdjustment", sep="")
 		rownames(pv_glm)<-pb_grps
 		Pv_Pairs<-pv_glm
-		Pv_Pairs<-t(Pv_Pairs)
 	}
+	Pv_Pairs<-t(Pv_Pairs)
 	return(Pv_Pairs)
 }
 
