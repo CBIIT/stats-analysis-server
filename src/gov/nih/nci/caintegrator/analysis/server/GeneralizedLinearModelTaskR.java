@@ -21,6 +21,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.rosuda.JRclient.REXP;
 
+/**
+ * This is the GLM task that interfaces with the RServe application.
+ * 
+ *
+ * @author caIntegrator Team
+ */
 public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 
     private GeneralizedLinearModelResult glmResult = null;
@@ -106,6 +112,7 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             return;
         }
 
+        // Execute the tasks to perform the GLM analysis
         try {
             SampleGroup baselineGroup = glmRequest.getBaselineGroup();
             List<GLMSampleGroup> sampleGroups = glmRequest
@@ -205,6 +212,16 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
 
     }
 
+    /**
+     * This method constructs a datamatrix for the confounding
+     * factors in the GLM analysis.
+     * 
+     * @param allPatients
+     * @param baselineGroup
+     * @param sampleGroups
+     * @return
+     * @throws AnalysisServerException
+     */
     private String constructDataMatrix(List<String> allPatients,
             GLMSampleGroup baselineGroup, List<GLMSampleGroup> sampleGroups)
             throws AnalysisServerException {
@@ -283,6 +300,14 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
         return matrixName;
     }
 
+    /**
+     * This method creates a list of all the patients in order
+     * to create a vector in R.
+     * 
+     * @param baseline
+     * @param comparisons
+     * @return
+     */
     private List<String> createPatientList(SampleGroup baseline,
             List<GLMSampleGroup> comparisons) {
         String id;
@@ -302,6 +327,13 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
         return patients;
     }
 
+    /**
+     * This creates the R command to create a vactor of paitents.
+     * 
+     * @param groupName
+     * @param patients
+     * @return
+     */
     public String getGlmPatientGroupCommand(String groupName,
             List<String> patients) {
         String command = groupName + " <- c(" + "\""
@@ -309,6 +341,17 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
         return command;
     }
 
+    /**
+     * This creates the R command to create the vector of
+     * group names, prepending a 0 to the baseline group, 
+     * which the R task requires.
+     * 
+     * @param groupName
+     * @param patients
+     * @param baseline
+     * @param comparisons
+     * @return
+     */
     public String getGlmGroupNameCommand(String groupName,
             List<String> patients, SampleGroup baseline,
             List<GLMSampleGroup> comparisons) {
