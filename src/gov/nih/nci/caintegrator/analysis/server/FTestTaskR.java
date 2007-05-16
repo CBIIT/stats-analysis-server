@@ -208,14 +208,7 @@ public class FTestTaskR extends AnalysisTaskR {
 			logger.info("FTest: maxFoldChange.length=" + maxFoldChange.length);
 			logger.info("FTest: pval.length=" + pval.length);
 			
-//			 get the labels
-			Vector reporterIds = doREval("ftLabels <- dimnames(ftResult)[[1]]")
-					.asVector();
-			
-			logger.info("reporterIds.size=" + reporterIds.size());
-			
-			
-			
+
 			// load the result object
 			// need to see if this works for single group comparison
 			List<FTestResultEntry> resultEntries = new ArrayList<FTestResultEntry>(
@@ -223,6 +216,17 @@ public class FTestTaskR extends AnalysisTaskR {
 			FTestResultEntry resultEntry;
 	        int numEntries = maxFoldChange.length;
 	        double[] grpm;
+	        
+	        Vector reporterIds = null;
+	        if (numEntries > 1) {
+	           //R does not handle vectors of size 1 well so we need to handle the 
+	           //case where only one reporter is returned as a special case.
+	        	
+			   reporterIds = doREval("ftLabels <- dimnames(ftResult)[[1]]")
+					.asVector();
+			   logger.info("reporterIds.size=" + reporterIds.size());
+	        }
+	        
 	       
 			for (int i = 0; i < numEntries; i++) {
 				resultEntry = new FTestResultEntry();
