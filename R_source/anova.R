@@ -89,7 +89,7 @@ eagle.anova.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 	else {
 		pv_anova<-apply(datamat, 1, eagle.anova.single, subids, group.ids, is.covar=FALSE)	
 		Pv_Pairs<-pv_anova
-		dim(Pv_Pairs)<-c(10, 1)
+		dim(Pv_Pairs)<-c(dim(datamat)[1], 1)
 		colnames(Pv_Pairs)="noAdjustmentPvalue"
 		rownames(Pv_Pairs)=names(pv_anova)
 	}
