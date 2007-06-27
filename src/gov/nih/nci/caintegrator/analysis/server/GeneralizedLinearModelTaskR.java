@@ -7,10 +7,10 @@ import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelResult;
 import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelResultEntry;
 import gov.nih.nci.caintegrator.analysis.messaging.SampleGroup;
 import gov.nih.nci.caintegrator.enumeration.CoVariateType;
+import gov.nih.nci.caintegrator.enumeration.StatisticalMethodType;
 import gov.nih.nci.caintegrator.exceptions.AnalysisServerException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -137,15 +137,26 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             String varianceCommand = "subMatrix<-GeneFilterVariance(dataMatrix," + geneVariance.toString() + ")";
             doRvoidEval(varianceCommand);
             String glmCommand = null;
+            String commandName = null;
+            
+            StatisticalMethodType method = glmRequest.getStatisticalMethod();
+            if(StatisticalMethodType.ANOVA.equals(method)) {
+                commandName = "eagle.anova.array";
+            } else if(StatisticalMethodType.GLM.equals(method)) {
+                commandName = "eagle.glm.array";
+            } else {
+                throw new AnalysisServerException("Invalid Statistical Method");
+            }
+            
             List<CoVariateType> coVariateTypes = glmRequest.getCoVariateTypes();
             if (coVariateTypes == null || coVariateTypes.size() == 0) {
-                glmCommand = "glmResult<-eagle.glm.array(subMatrix, "
+                glmCommand = "glmResult<-" + commandName + "eagle.glm.array(subMatrix, "
                         + glmPatients + ", " + glmGroups + ", FALSE, " + "null"
                         + ")";
             } else {
                 String matrixName = constructDataMatrix(allPatients,
                         (GLMSampleGroup) baselineGroup, sampleGroups);
-                glmCommand = "glmResult<-eagle.glm.array(subMatrix, "
+                glmCommand = "glmResult<-" + commandName + "(subMatrix, "
                         + glmPatients + ", " + glmGroups + ", TRUE, "
                         + matrixName + ")";
             }
