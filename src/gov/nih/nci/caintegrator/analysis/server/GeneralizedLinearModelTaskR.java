@@ -150,7 +150,7 @@ public class GeneralizedLinearModelTaskR extends AnalysisTaskR {
             
             List<CoVariateType> coVariateTypes = glmRequest.getCoVariateTypes();
             if (coVariateTypes == null || coVariateTypes.size() == 0) {
-                glmCommand = "glmResult<-" + commandName + "eagle.glm.array(subMatrix, "
+                glmCommand = "glmResult<-" + commandName + "(subMatrix, "
                         + glmPatients + ", " + glmGroups + ", FALSE, " + "null"
                         + ")";
             } else {
