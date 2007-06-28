@@ -17,19 +17,24 @@ eagle.glm.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar) #
 	uniqGrp<-unique(grpids)
 	uniqGrpCount<-length(uniqGrp)
 	if(is.covar){
-		if(is.null(dim(covar)) & length(covar)==length(grpids)){
-			adjustment<-covar
-			if (mode(as.vector(covar))== "character"){
-				adjustment<-as.factor(covar)
-			}
-			glm<-glm(rptrSubExp~grps+adjustment)
-			summary.glm<-summary(glm)
-			glm.coefs<-summary.glm$coef
-		}
-		else {
+		#if(is.null(dim(covar)) & length(covar)==length(grpids)){
+		#	adjustment<-covar
+		#	if (mode(as.vector(covar))== "character"){
+		#		adjustment<-as.factor(covar)
+		#	}
+		#	glm<-glm(rptrSubExp~grps+adjustment)
+		#	summary.glm<-summary(glm)
+		#	glm.coefs<-summary.glm$coef
+		#}
+		#else {
 			if (dim(covar)[2]==1){
 				adjustment1<-covar[,1]
-				if (mode(as.vector(covar[,1]))== "character"){
+
+				if(sum(is.na(as.numeric(adjustment1)))==0){
+#				if (colnames(covar)[1]=="age"){
+					adjustment1<-as.numeric(covar[,1])
+				}
+				else {
 					adjustment1<-as.factor(covar[,1])
 				}
 				glm<-glm(rptrSubExp~grps+adjustment1)
@@ -39,10 +44,18 @@ eagle.glm.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar) #
 			if (dim(covar)[2]==2){
 				adjustment1<-covar[,1]
 				adjustment2<-covar[,2]
-				if (mode(as.vector(covar[,1]))== "character"){
+				if(sum(is.na(as.numeric(adjustment1)))==0){
+#				if (colnames(covar)[1]=="age"){
+					adjustment1<-as.numeric(covar[,1])
+				}
+				else {
 					adjustment1<-as.factor(covar[,1])
 				}
-				if (mode(as.vector(covar[,2]))== "character"){
+				if(sum(is.na(as.numeric(adjustment2)))==0){
+#				if (colnames(covar)[2]=="age"){
+					adjustment2<-as.numeric(covar[,2])
+				}
+				else {
 					adjustment2<-as.factor(covar[,2])
 				}
 				glm<-glm(rptrSubExp~grps+adjustment1+adjustment2)
@@ -53,42 +66,32 @@ eagle.glm.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar) #
 				adjustment1<-covar[,1]
 				adjustment2<-covar[,2]
 				adjustment3<-covar[,3]
-				if (mode(as.vector(covar[,1]))== "character"){
+				if(sum(is.na(as.numeric(adjustment1)))==0){
+#				if (colnames(covar)[1]=="age"){
+					adjustment1<-as.numeric(covar[,1])
+				}
+				else {
 					adjustment1<-as.factor(covar[,1])
 				}
-				if (mode(as.vector(covar[,2]))== "character"){
+				if(sum(is.na(as.numeric(adjustment2)))==0){
+#				if (colnames(covar)[2]=="age"){
+					adjustment2<-as.numeric(covar[,2])
+				}
+				else {
 					adjustment2<-as.factor(covar[,2])
 				}
-				if (mode(as.vector(covar[,3]))== "character"){
+				if(sum(is.na(as.numeric(adjustment3)))==0){
+#				if (colnames(covar)[3]=="age"){
+					adjustment3<-as.numeric(covar[,3])
+				}
+				else {
 					adjustment3<-as.factor(covar[,3])
 				}
 				glm<-glm(rptrSubExp~grps+adjustment1+adjustment2+adjustment3)
 				summary.glm<-summary(glm)
 				glm.coefs<-summary.glm$coef
 			}
-			#if there are more than 3 covariates, we need the following code
-			#if (dim(covar)[2]==4){
-			#	adjustment1<-covar[,1]
-			#	adjustment2<-covar[,2]
-			#	adjustment3<-covar[,3]
-			#	adjustment4<-covar[,4]
-			#	if (mode(as.vector(covar[,1]))== "character"){
-			#		adjustment1<-as.factor(covar[,1])
-			#	}
-			#	if (mode(as.vector(covar[,2]))== "character"){
-			#		adjustment2<-as.factor(covar[,2])
-			#	}
-			#	if (mode(as.vector(covar[,3]))== "character"){
-			#		adjustment3<-as.factor(covar[,3])
-			#	}
-			#	if (mode(as.vector(covar[,4]))== "character"){
-			#		adjustment4<-as.factor(covar[,4])
-			#	}
-			#	glm<-glm(rptrSubExp~grps+adjustment1+adjustment2+adjustment3+adjustment4)
-			#	summary.glm<-summary(glm)
-			#	glm.coefs<-summary.glm$coef
-			#}
-		}
+		#}
 	}
 	else { 
 		glm<-glm(rptrSubExp~grps);

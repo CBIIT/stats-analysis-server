@@ -17,63 +17,87 @@ eagle.anova.single <- function(rptr_exps, subids, grpids, is.covar=FALSE, covar)
 	uniqGrp<-unique(grpids)
 	uniqGrpCount<-length(uniqGrp)
 	if(is.covar){
-		if(is.null(dim(covar)) & length(covar)==length(grpids)){
-			adjustment<-covar
-			if (mode(as.vector(covar))== "character"){
-				adjustment<-as.factor(covar)
-			}
-			lm<-lm(rptrSubExp~grps+adjustment)
-			anovalm<-anova(lm)
-			anovaglm.pr<-anovalm$Pr
-		}
-		else {
+		#if(is.null(dim(covar)) & length(covar)==length(grpids)){
+		#	adjustment<-covar
+		#	if (mode(as.vector(covar))== "character"){
+		#		adjustment<-as.factor(covar)
+		#	}
+		#	lm<-lm(rptrSubExp~grps+adjustment)
+		#	anovalm<-anova(lm)
+		#	anovalm.pr<-anovalm$Pr
+		#}
+		#else {
 			if (dim(covar)[2]==1){
 				adjustment1<-covar[,1]
-				if (mode(as.vector(covar[,1]))== "character"){
+				if(sum(is.na(as.numeric(adjustment1)))==0){
+#				if (colnames(covar)[1]=="age"){
+					adjustment1<-as.numeric(covar[,1])
+				}
+				else {
 					adjustment1<-as.factor(covar[,1])
 				}
 				lm<-lm(rptrSubExp~grps+adjustment1)
 				anovalm<-anova(lm)
-				anovaglm.pr<-anovalm$Pr
+				anovalm.pr<-anovalm$Pr
 			}
 			if (dim(covar)[2]==2){
 				adjustment1<-covar[,1]
 				adjustment2<-covar[,2]
-				if (mode(as.vector(covar[,1]))== "character"){
+				if(sum(is.na(as.numeric(adjustment1)))==0){
+#				if (colnames(covar)[1]=="age"){
+					adjustment1<-as.numeric(covar[,1])
+				}
+				else {
 					adjustment1<-as.factor(covar[,1])
 				}
-				if (mode(as.vector(covar[,2]))== "character"){
+				if(sum(is.na(as.numeric(adjustment2)))==0){
+#				if (colnames(covar)[2]=="age"){
+					adjustment2<-as.numeric(covar[,2])
+				}
+				else {
 					adjustment2<-as.factor(covar[,2])
 				}
 				lm<-lm(rptrSubExp~grps+adjustment1+adjustment2)
 				anovalm<-anova(lm)
-				anovaglm.pr<-anovalm$Pr
+				anovalm.pr<-anovalm$Pr
 			}
 			if (dim(covar)[2]==3){
 				adjustment1<-covar[,1]
 				adjustment2<-covar[,2]
 				adjustment3<-covar[,3]
-				if (mode(as.vector(covar[,1]))== "character"){
+				if(sum(is.na(as.numeric(adjustment1)))==0){
+#				if (colnames(covar)[1]=="age"){
+					adjustment1<-as.numeric(covar[,1])
+				}
+				else {
 					adjustment1<-as.factor(covar[,1])
 				}
-				if (mode(as.vector(covar[,2]))== "character"){
+				if(sum(is.na(as.numeric(adjustment2)))==0){
+#				if (colnames(covar)[2]=="age"){
+					adjustment2<-as.numeric(covar[,2])
+				}
+				else {
 					adjustment2<-as.factor(covar[,2])
 				}
-				if (mode(as.vector(covar[,3]))== "character"){
+				if(sum(is.na(as.numeric(adjustment3)))==0){
+#				if (colnames(covar)[3]=="age"){
+					adjustment3<-as.numeric(covar[,3])
+				}
+				else {
 					adjustment3<-as.factor(covar[,3])
 				}
 				lm<-lm(rptrSubExp~grps+adjustment1+adjustment2+adjustment3)
 				anovalm<-anova(lm)
-				anovaglm.pr<-anovalm$Pr
+				anovalm.pr<-anovalm$Pr
 			}
-		}
+		#}
 	}
 	else { 
 		lm<-lm(rptrSubExp~grps)
 		anovalm<-anova(lm)
-		anovaglm.pr<-anovalm$Pr
+		anovalm.pr<-anovalm$Pr
 	}
-pValues<-anovaglm.pr[1]
+pValues<-anovalm.pr[1]
 return(pValues)
 }
 
