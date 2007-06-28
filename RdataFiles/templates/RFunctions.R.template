@@ -13,3 +13,4 @@ source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/FWER.ComparisonAdjustment.Ftest.R
 source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/FDR.ComparisonAdjustment.Ftest.R")
 source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/GLM.R")
 source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/GeneFilterVariance.R")
+source("@ANALYSIS_SERVER_INSTALL_DIR@/R_source/anova.R")
