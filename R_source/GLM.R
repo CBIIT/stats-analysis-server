@@ -121,8 +121,14 @@ eagle.glm.array<- function(datamat, subids, group.ids, is.covar=FALSE, covar){
 		
 		pa_grps<-paste(pa_grps, "_afterAdjustment", sep="")
 		rownames(pv_cov)<-pa_grps
-	
+		
 		Pv_Pairs<-rbind(pv_glm, pv_cov)
+		
+		tmp<-1:(ngrp-1)
+		tmp1<-2*tmp-1
+		tmp2<-2*tmp
+		pvorder<-c(tmp1, tmp2)
+		Pv_Pairs<-Pv_Pairs[pvorder,]
 	}
 	else {
 		pv_glm<-apply(datamat, 1, eagle.glm.single, subids, group.ids, is.covar=FALSE)
