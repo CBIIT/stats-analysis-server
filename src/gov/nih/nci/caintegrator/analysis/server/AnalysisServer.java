@@ -7,6 +7,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.ExpressionLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
@@ -427,6 +428,8 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 			    processCategoricalCorrelationRequest((CategoricalCorrelationRequest) request, resultDestination);
 			} else if (request instanceof GeneralizedLinearModelRequest) {
 				processGeneralizedLinearModelRequest((GeneralizedLinearModelRequest) request, resultDestination);
+			} else if (request instanceof ExpressionLookupRequest) {
+				processExpressionLookupRequest((ExpressionLookupRequest) request, resultDestination);
 			}
 
 			// sendResult(request);
@@ -468,6 +471,13 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	  CategoricalCorrelationTaskR catCorrTaskR = new CategoricalCorrelationTaskR(request, debugRcommands);
 	  catCorrTaskR.setJMSDestination(resultDestination);
 	  executor.execute(catCorrTaskR);
+	}
+	
+	private void processExpressionLookupRequest(ExpressionLookupRequest request, Destination resultDestination) {
+	  logger.debug("processExpressionLookupRequest request=" + request);
+	  ExpressionLookupTaskR lookupTaskR = new ExpressionLookupTaskR(request, debugRcommands);
+	  lookupTaskR.setJMSDestination(resultDestination);
+	  executor.execute(lookupTaskR);
 	}
 
 	private void processFTest(FTestRequest request, Destination resultDestination) {
