@@ -8,6 +8,8 @@ import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisResult;
+import gov.nih.nci.caintegrator.analysis.messaging.CopyNumberLookupRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.ExpressionLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.GeneralizedLinearModelRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.HierarchicalClusteringRequest;
@@ -73,6 +75,12 @@ public class CompoundRequestTaskR extends AnalysisTaskR {
 		  }
 		  else if (request instanceof GeneralizedLinearModelRequest){
 			task = new GeneralizedLinearModelTaskR((GeneralizedLinearModelRequest)request, getDebugRcommands());
+		  }
+		  else if (request instanceof ExpressionLookupRequest) {
+			task = new ExpressionLookupTaskR((ExpressionLookupRequest) request, getDebugRcommands());
+		  }
+		  else if (request instanceof CopyNumberLookupRequest) {
+			task = new CopyNumberLookupTaskR((CopyNumberLookupRequest) request, getDebugRcommands()); 
 		  }
 		  else {
 			logger.error("Unrecognized request type :" + request.getClass());
