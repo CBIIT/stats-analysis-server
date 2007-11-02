@@ -6,6 +6,7 @@ import gov.nih.nci.caintegrator.analysis.messaging.CategoricalCorrelationRequest
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ClassComparisonRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CompoundAnalysisRequest;
+import gov.nih.nci.caintegrator.analysis.messaging.CopyNumberLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.CorrelationRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.ExpressionLookupRequest;
 import gov.nih.nci.caintegrator.analysis.messaging.FTestRequest;
@@ -118,7 +119,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "12.8";
+	public static String version = "12.9";
+	
+	//12.9 adding copy number lookup capability
+	//12.8 added expression lookup capability
 
 	private boolean debugRcommands = false;
 
@@ -430,7 +434,10 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 				processGeneralizedLinearModelRequest((GeneralizedLinearModelRequest) request, resultDestination);
 			} else if (request instanceof ExpressionLookupRequest) {
 				processExpressionLookupRequest((ExpressionLookupRequest) request, resultDestination);
+			} else if (request instanceof CopyNumberLookupRequest) {
+				processCopyNumberLookupRequest((CopyNumberLookupRequest) request, resultDestination);
 			}
+			
 
 			// sendResult(request);
 
@@ -478,6 +485,13 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	  ExpressionLookupTaskR lookupTaskR = new ExpressionLookupTaskR(request, debugRcommands);
 	  lookupTaskR.setJMSDestination(resultDestination);
 	  executor.execute(lookupTaskR);
+	}
+	
+	private void processCopyNumberLookupRequest(CopyNumberLookupRequest request, Destination resultDestination) {
+		  logger.debug("processCopyNumberLookupRequest request=" + request);
+		  CopyNumberLookupTaskR lookupTaskR = new CopyNumberLookupTaskR(request, debugRcommands);
+		  lookupTaskR.setJMSDestination(resultDestination);
+		  executor.execute(lookupTaskR);
 	}
 
 	private void processFTest(FTestRequest request, Destination resultDestination) {
