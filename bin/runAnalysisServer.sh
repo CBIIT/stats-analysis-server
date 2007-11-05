@@ -1,2 +1,0 @@
-#!/bin/bash
-nohup $JAVA_HOME/bin/java -Xmx512m -Xms128m -classpath ./:../lib/concurrent.jar:../lib/jboss-common.jar:../lib/jbossmq-client.jar:../lib/jnp-client.jar:../lib/jboss-common-client.jar:../lib/jboss-system-client.jar:../lib/jms.jar:../lib/log4j.jar:../lib/Rserve.jar:../lib/caintegrator-analysis-commons.jar:../lib/caintegrator-analysis-server.jar gov.nih.nci.caintegrator.analysis.server.AnalysisServer  analysisServer.properties &
