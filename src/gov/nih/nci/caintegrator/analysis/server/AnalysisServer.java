@@ -119,8 +119,8 @@ public class AnalysisServer implements MessageListener, ExceptionListener, Analy
 	/**
 	 * The server version number.
 	 */
-	public static String version = "12.9";
-	
+	public static String version = "12.9.1";
+	//12.9.1 fixed a problem with Expresion 
 	//12.9 adding copy number lookup capability
 	//12.8 added expression lookup capability
 
