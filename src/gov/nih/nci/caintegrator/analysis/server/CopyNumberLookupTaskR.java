@@ -86,7 +86,7 @@ public class CopyNumberLookupTaskR extends AnalysisTaskR {
 	private DataPointVector getDataPointVector(String rBinaryFileName, String reporterName, SampleGroup samples, AxisType axis) {
 		
 		try {
-			DataPointVector dpVector = new DataPointVector(samples.getGroupName());
+			DataPointVector dpVector = new DataPointVector(reporterName);
 			setDataFile(rBinaryFileName);
 		    String cmd;
 		   
