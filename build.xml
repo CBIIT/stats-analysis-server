@@ -59,7 +59,8 @@
 		  </tarfileset>
 		</tar>
 		<copy file="${basedir}/caintegrator-analysis-server.tar" tofile="${anthill.dependency.artifacts.dir}/caintegrator-analysis-server.tar"/>
-		<copy file="${build.conf.dir}/deploy.sh" tofile="${anthill.dependency.artifacts.dir}/deploy.sh"/>
+		<!-- copy file="${build.conf.dir}/deploy.sh" tofile="${anthill.dependency.artifacts.dir}/deploy.sh"/> -->
+		<copy file="${build.conf.dir}/tcga-jbossmq-destinations-service.xml" tofile="${anthill.dependency.artifacts.dir}/tcga-jbossmq-destinations-service.xml"/>
 	</target>
 	<!--
 		TARGET: config-analysis-server-properties
