@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--L
+   Copyright SAIC
+
+   Distributed under the OSI-approved BSD 3-Clause License.
+   See http://ncip.github.com/stats-analysis-server/LICENSE.txt for details.
+L-->
+
 <server>
   <!-- Destination without a configured SecurityManager or without a 
        a SecurityConf will default to role guest with read=true, write=true,
