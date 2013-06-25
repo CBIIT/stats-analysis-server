@@ -1,0 +1,12 @@
+Stats Analysis Server
+Copyright (c) 2007, SAIC
+
+This project is distributed under the BSD 3-Clause License.
+Please see LICENSE file for details.
+
+This project was developed as part of the NCI caBIG initiative.
+
+The project was initially developed by SAIC under funding from the CBIIT office of the National Cancer Institute.
+
+In 2013, as part of the National Cancer Informatics Program (NCIP) Open Development Initiative, 
+the Stats Analysis Server source code was migrated to GitHub to allow further development by the broader community.
