@@ -12,6 +12,6 @@ Please see the NOTICE and LICENSE files for details.
 
 You will find more details about the Stats Analysis Server in the following links:
  * [Code Repository] (https://github.com/NCIP/stats-analysis-server)
- * [Installation Guide] (https://wiki.nci.nih.gov/display/icrportals/caIntegrator+Analysis+Server+Guide)
+ * [Installation Guide] (https://wiki.nci.nih.gov/x/VZh8)
  
 Please join us in further developing and improving Stats Analysis Server.
