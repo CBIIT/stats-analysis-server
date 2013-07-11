@@ -17,6 +17,15 @@ Getting Started
 
 * Fork the repository on GitHub to publish any proposed changes
 
+.. If a project uses a tracker, then:
+
+* Submit a ticket for your issue at https://tracker.nci.nih.gov/browse/REMBRANDT,
+  assuming one does not already exist.
+
+  - Click on https://tracker.nci.nih.gov/secure/CreateIssue.jspa?pid=10002&issuetype=8 to get a jira account.
+  - Clearly describe the issue including steps to reproduce when it is a bug.
+  - Make sure you fill in the earliest version that you know has the issue.
+
 .. _`GitHub Account`: https://github.com/signup/free
 
 --------------
@@ -58,6 +67,13 @@ Submitting Changes
 * Push your changes to a topic branch in your fork of the repository.
 
 * Submit a pull request to the repository in the NCIP organization.
+
+.. If a project uses a tracker, then:
+
+* Update your https://tracker.nci.nih.gov/browse/REMBRANDT ticket to mark that you have submitted
+  code and are ready for it to be reviewed.
+
+  - Include a link to the pull request in the ticket
 
 .. _`BSD 3-Clause License`: http://opensource.org/licenses/BSD-3-Clause
 
